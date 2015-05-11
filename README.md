@@ -2,6 +2,8 @@
 
 A Windows package deployment script with an emphasis on simplicity and standardization.
 
+### I promise you, more concise documentation will be available, soon!
+
 ## Debugging:
 
 ### Exit Codes:
