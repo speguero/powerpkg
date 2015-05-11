@@ -64,7 +64,7 @@ $Package               = @{
 		"Unsuccessful"   = 0
 		"TotalProcessed" = 0
 	}
-	"TaskEntries"             = $Script.CurrentDirectory + "package.csv"
+	"TaskEntries"             = $Script.CurrentDirectory + "package.json"
 }
 
 $TaskConfig            = @{
@@ -205,7 +205,7 @@ catch [Exception] {
 # ---- IMPORTATION OF PACKAGE FILE ----
 
 try {
-	$Package.TaskEntries = (Import-CSV $Package.TaskEntries)
+	$Package.TaskEntries = (Get-Content $Package.TaskEntries | Out-String | ConvertFrom-Json)
 }
 
 catch [Exception] {
