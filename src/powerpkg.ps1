@@ -335,7 +335,7 @@ foreach ($Row in $Package.TaskEntries) {
 	# ---- PROCESS TERMINATION COLUMNS ----
 	
 	if ($TaskEntry.TerminateProcess -notmatch "^$") {
-		$TaskEntry.TerminateProcess = $TaskEntry.TerminateProcess.Split(":")
+		$TaskEntry.TerminateProcess = $TaskEntry.TerminateProcess.Split(",")
 		
 		if ($TaskEntry.TerminateMessage -notmatch "^$") {
 			Show-DialogBox -Title $Package.Name -Message $TaskEntry.TerminateMessage | Out-Null
@@ -461,7 +461,7 @@ foreach ($Row in $Package.TaskEntries) {
 	}
 	
 	else {
-		$TaskEntry.SuccessExitCode  = $TaskEntry.SuccessExitCode.Split(":")
+		$TaskEntry.SuccessExitCode  = $TaskEntry.SuccessExitCode.Split(",")
 		$TaskEntry.SuccessExitCode += 0
 	}
 	
