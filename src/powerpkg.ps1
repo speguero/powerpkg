@@ -78,6 +78,7 @@ $TaskConfig            = @{
 		}
 		"VerifyInstall" = @{                                     # SYNTAX:
 			"Arg_Build"                = "\[Build:(.*)\]$"       # [Build:<Version Build>] (Used in conjunction with "Type_Version_FileInfo" and "Type_Version_ProductInfo". See below.)
+			"Type_Hotfix"              = "^(\[)Hotfix(\])"       # [Hotfix]<Hotfix ID>
 			"Type_Path"                = "^(\[)Path(\])"         # [Path]<File/Directory Path>
 			"Type_Version_FileInfo"    = "^(\[)Vers_File(\])"    # [Vers_File]<File Path>[Build:<Version Build>]
 			"Type_Version_ProductInfo" = "^(\[)Vers_Product(\])" # [Vers_Product]<File Path>[Build:<Version Build>]
@@ -366,7 +367,21 @@ foreach ($Row in $Package.TaskEntries) {
 
 	# ---- INSTALL VERIFICATION COLUMN ----
 	
-	if ($TaskEntry.VerifyInstall.Path -match $TaskConfig.Syntax.VerifyInstall.Type_Path) {
+	if ($TaskEntry.VerifyInstall.Path -match $TaskConfig.Syntax.VerifyInstall.Type_Hotfix) {
+		$TaskEntry.VerifyInstall.Path      = $TaskEntry.VerifyInstall.Path -replace ($TaskConfig.Syntax.VerifyInstall.Type_Hotfix, "")
+		$TaskEntry.VerifyInstall.Existence = Get-Hotfix | ? {$_.HotfixID -eq $TaskEntry.VerifyInstall.Path}
+
+		if ($TaskEntry.VerifyInstall.Existence -ne $Null) {
+			Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output ("Installation Verification: Hotfix """ + $TaskEntry.VerifyInstall.Path + """ exists."))
+			continue
+		}
+
+		else {
+			pass
+		}
+	}
+	
+	elseif ($TaskEntry.VerifyInstall.Path -match $TaskConfig.Syntax.VerifyInstall.Type_Path) {
 		$TaskEntry.VerifyInstall.Path      = $TaskEntry.VerifyInstall.Path -replace ($TaskConfig.Syntax.VerifyInstall.Type_Path, "")
 		$TaskEntry.VerifyInstall.Existence = Test-Path $TaskEntry.VerifyInstall.Path
 
