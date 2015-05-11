@@ -74,10 +74,10 @@ $TaskConfig            = @{
 			"LocalFile" = "^(\[)LocalFile(\])"
 		}
 		"VerifyInstall" = @{                                         # SYNTAX:
-			"Arg_Build"                = "\[Build:(.*)\]$"       # [Build: <Version Build>] (Used in conjunction with "Type_Version_FileInfo" and "Type_Version_ProductInfo". See below.)
+			"Arg_Build"                = "\[Build:(.*)\]$"       # [Build:<Version Build>] (Used in conjunction with "Type_Version_FileInfo" and "Type_Version_ProductInfo". See below.)
 			"Type_Path"                = "^(\[)Path(\])"         # [Path]<File/Directory Path>
-			"Type_Version_FileInfo"    = "^(\[)Vers_File(\])"    # [Vers_File]<File Path>[Build: <Version Build>]
-			"Type_Version_ProductInfo" = "^(\[)Vers_Product(\])" # [Vers_Product]<File Path>[Build: <Version Build>]
+			"Type_Version_FileInfo"    = "^(\[)Vers_File(\])"    # [Vers_File]<File Path>[Build:<Version Build>]
+			"Type_Version_ProductInfo" = "^(\[)Vers_Product(\])" # [Vers_Product]<File Path>[Build:<Version Build>]
 		}
 	}
 }
