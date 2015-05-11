@@ -87,7 +87,10 @@ $TaskConfig            = @{
 
 function pass {
 
-	# A simple placeholder, borrowed from Python, used for improving readability and doing away with "{}" when using conditionals.
+	<#
+		A simple placeholder, borrowed from Python, whose sole purpose is to do away with "{}" and
+		improve readability when reviewing conditionals.
+	#>
 }
 
 function Show-BalloonTip {
@@ -227,9 +230,6 @@ Write-Host -ForegroundColor Cyan (
 foreach ($Row in $Package.TaskEntries) {
 	try {
 		$TaskEntry = @{
-
-			# Data from the package file:
-
 			"TaskName"         = $Row.TaskName
 			"Executable"       = @{
 				"ExitCode" = 0
