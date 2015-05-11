@@ -74,9 +74,9 @@ $TaskConfig            = @{
 	"EntryIndex" = 0
 	"Syntax"     = @{
 		"Executable"    = @{
-			"LocalFile" = "^(\[)LocalFile(\])"
+			"LocalFile" = "(\[)LocalFile(\])"
 		}
-		"VerifyInstall" = @{                                         # SYNTAX:
+		"VerifyInstall" = @{                                     # SYNTAX:
 			"Arg_Build"                = "\[Build:(.*)\]$"       # [Build:<Version Build>] (Used in conjunction with "Type_Version_FileInfo" and "Type_Version_ProductInfo". See below.)
 			"Type_Path"                = "^(\[)Path(\])"         # [Path]<File/Directory Path>
 			"Type_Version_FileInfo"    = "^(\[)Vers_File(\])"    # [Vers_File]<File Path>[Build:<Version Build>]
