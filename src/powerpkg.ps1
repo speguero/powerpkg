@@ -55,16 +55,19 @@ $Package               = @{
 		"FilePath" = $Script.CurrentDirectory + "blacklist.conf"
 	}
 	"Result"                  = @()
-	"SuccessfulInstallPrompt" = @{
-		"Header" = "Installed '" + $Package.Name + "' package!"
-		"Footer" = "Questions or concerns? Contact your system administrator for more information."
-	}
 	"Task"                    = @{
 		"Successful"     = 0
 		"Unsuccessful"   = 0
 		"TotalProcessed" = 0
 	}
 	"TaskEntries"             = $Script.CurrentDirectory + "package.json"
+}
+
+$Package              += @{
+	"InstallNotification" = @{ # Because you cannot call a variable without declaring it first, hence this additional hash table.
+		"Header" = "Installed '" + $Package.Name + "' package!"
+		"Footer" = "Questions or concerns? Contact your system administrator for more information."
+	}
 }
 
 $TaskConfig            = @{
@@ -536,7 +539,7 @@ else {
 		$Package.Result += ("`nOK: (" + $Script.ExitCode + ")`n")
 
 		Write-Host -ForegroundColor Green $Package.Result
-		Show-BalloonTip -Title $Package.SuccessfulInstallPrompt.Header -Text $Package.SuccessfulInstallPrompt.Footer | Out-Null
+		Show-BalloonTip -Title $Package.InstallNotification.Header -Text $Package.InstallNotification.Footer | Out-Null
 	}
 
 	else {
