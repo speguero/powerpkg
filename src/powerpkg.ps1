@@ -49,18 +49,18 @@ $Machine               = @{
 }
 
 $Package               = @{
-	"Name"                    = $MyInvocation.MyCommand.Definition.Split("\")[-2]
-	"Blacklist"               = @{
+	"Name"        = $MyInvocation.MyCommand.Definition.Split("\")[-2]
+	"Blacklist"   = @{
 		"Content"  = @{}
 		"FilePath" = $Script.CurrentDirectory + "blacklist.conf"
 	}
-	"Result"                  = @()
-	"Task"                    = @{
+	"Result"      = @()
+	"Task"        = @{
 		"Successful"     = 0
 		"Unsuccessful"   = 0
 		"TotalProcessed" = 0
 	}
-	"TaskEntries"             = $Script.CurrentDirectory + "package.json"
+	"TaskEntries" = $Script.CurrentDirectory + "package.json"
 }
 
 $Package              += @{
