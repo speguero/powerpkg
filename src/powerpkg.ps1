@@ -36,6 +36,7 @@ $ErrorActionPreference = "Stop"
 
 $Script                = @{
 	"CurrentDirectory" = (Split-Path -Parent -Path $MyInvocation.MyCommand.Definition) + "\"
+	"CurrentPSVersion" = $Host.Version.Major
 	"ExitCode"         = 0
 	"Output"           = ""
 }
@@ -60,7 +61,11 @@ $Package               = @{
 		"Unsuccessful"   = 0
 		"TotalProcessed" = 0
 	}
-	"TaskEntries" = $Script.CurrentDirectory + "package.json"
+	"TaskEntries" = @{
+		"File" = ""
+		"CSV"  = $Script.CurrentDirectory + "package.csv"
+		"JSON" = $Script.CurrentDirectory + "package.json"
+	}
 }
 
 $Package              += @{
@@ -99,7 +104,7 @@ function pass {
 
 function Show-BalloonTip {
 
-	[CmdletBinding(SupportsShouldProcess = $true)]
+	[CmdletBinding(SupportsShouldProcess = $True)]
 	Param (
 		[Parameter(Mandatory = $True)]
 		$Title,
@@ -178,8 +183,14 @@ function Write-Result {
 # ---- IMPORTATION OF BLACKLIST ----
 
 try {
-	$Package.Blacklist.Content = (Get-Content $Package.Blacklist.FilePath)
-
+	if (Test-Path $Package.Blacklist.FilePath) {
+		$Package.Blacklist.Content = (Get-Content $Package.Blacklist.FilePath)
+	}
+	
+	else {
+		pass
+	}
+	
 	foreach ($Hostname in $Package.Blacklist.Content) {
 		if ($Hostname -match "^#") {
 			continue
@@ -189,12 +200,9 @@ try {
 			continue
 		}
 
-		elseif ($Hostname -match "^(\s)") {
-			continue
-		}
-
 		elseif ($Hostname -match $Machine.Hostname) {
 			Write-Output ("`nERROR: Package '" + $Package.Name + "' will not be processed on this machine, as it is blacklisted.")
+			
 			exit(4)
 		}
 		
@@ -205,18 +213,28 @@ try {
 }
 
 catch [Exception] {
-	Write-Output ("`nERROR: Blacklist could not be imported. Details: " + $Error[0])
+	Write-Host -ForegroundColor Red ("`nERROR: Blacklist """ + $Package.Blacklist.FilePath + """ could not be imported. Details: " + $Error[0])
+	
 	exit(3)
 }
 
 # ---- IMPORTATION OF PACKAGE FILE ----
 
 try {
-	$Package.TaskEntries = (Get-Content $Package.TaskEntries | Out-String | ConvertFrom-Json)
+	if ($Script.CurrentPSVersion -ge 3) {
+		$Package.TaskEntries.FilePath = $Package.TaskEntries.JSON
+		$Package.TaskEntries.FilePath = (Get-Content $Package.TaskEntries.FilePath | Out-String | ConvertFrom-Json)
+	}
+	
+	else {
+		$Package.TaskEntries.FilePath = $Package.TaskEntries.CSV
+		$Package.TaskEntries.FilePath = (Import-CSV $Package.TaskEntries.FilePath)
+	}
 }
 
 catch [Exception] {
-	Write-Output ($Error[0])
+	Write-Host -ForegroundColor Red ("`nERROR: Package file """ + $Package.TaskEntries.FilePath + """ could not be imported. Details: " + $Error[0])
+	
 	exit(5)
 }
 
@@ -231,7 +249,7 @@ Write-Host -ForegroundColor Cyan (
 	"`n----"
 )
 
-foreach ($Row in $Package.TaskEntries) {
+foreach ($Row in $Package.TaskEntries.FilePath) {
 	try {
 		$TaskEntry = @{
 			"TaskName"         = $Row.TaskName
@@ -259,10 +277,6 @@ foreach ($Row in $Package.TaskEntries) {
 		}
 
 		elseif ($TaskEntry.TaskName -match "^$") {
-			continue
-		}
-
-		elseif ($TaskEntry.TaskName -match "^(\s)") {
 			continue
 		}
 
@@ -516,7 +530,8 @@ foreach ($Row in $Package.TaskEntries) {
 #>
 
 if ($Script.ExitCode -eq 0 -and $Package.Task.Successful -eq 0) {
-	Write-Output ("`nWARN: No task entries were processed.")
+	Write-Host -ForegroundColor Red "`nWARN: No task entries were processed."
+	
 	$Script.ExitCode = 6
 }
 
@@ -549,4 +564,3 @@ else {
 }
 
 exit($Script.ExitCode)
-
