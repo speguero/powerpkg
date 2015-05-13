@@ -34,15 +34,15 @@
 
 $ErrorActionPreference = "Stop"
 
-$Script                = @{
+$Script = @{
 	"CurrentDirectory" = (Split-Path -Parent -Path $MyInvocation.MyCommand.Definition) + "\"
 	"CurrentPSVersion" = $Host.Version.Major
 	"ExitCode"         = 0
 	"Output"           = ""
 }
 
-$Script               += @{
-	"Config"  = @{
+$Script += @{
+	"Config" = @{
 		"Content"              = $Null
 		"BlockHost"            = $Null
 		"FilePath"             = $Script.CurrentDirectory + "powerpkg.conf"
@@ -52,7 +52,7 @@ $Script               += @{
 	}
 }
 
-$Machine               = @{
+$Machine = @{
 	"InstructionSet" = [System.Environment]::GetEnvironmentVariable("Processor_Architecture")
 	"OSVersion"      = [System.Environment]::OSVersion.Version.ToString()
 	"Hostname"       = [System.Environment]::GetEnvironmentVariable("ComputerName")
@@ -60,7 +60,7 @@ $Machine               = @{
 	"SystemDrive"    = [System.Environment]::GetEnvironmentVariable("SystemDrive")
 }
 
-$Package               = @{
+$Package = @{
 	"Name"       = $MyInvocation.MyCommand.Definition.Split("\")[-2]
 	"Config"     = @{
 		"FilePath"      = ""
@@ -72,8 +72,10 @@ $Package               = @{
 		"Executable"    = @{
 			"LocalFile" = "(\[)LocalFile(\])"
 		}
-		"VerifyInstall" = @{                                     # SYNTAX:
-			"Arg_Build"                = "\[Build:(.*)\]$"       # [Build:<Version Build>] (Used in conjunction with "Type_Version_FileInfo" and "Type_Version_ProductInfo". See below.)
+		"VerifyInstall" = @{
+			# NOTE: Arg_Build cannot parse non-alphanumeric characters apart from periods, such as commas, on PowerShell 2.0. Update to 3.0+ to resolve this bug.
+
+			"Arg_Build"                = "\[Build:(.*)\]$"       # [Build:<Version Build>] (Used in conjunction with "Type_Version_FileInfo" and "Type_Version_ProductInfo".
 			"Type_Hotfix"              = "^(\[)Hotfix(\])"       # [Hotfix]<Hotfix ID>
 			"Type_Path"                = "^(\[)Path(\])"         # [Path]<File/Directory Path>
 			"Type_Version_FileInfo"    = "^(\[)Vers_File(\])"    # [Vers_File]<File Path>[Build:<Version Build>]
@@ -88,7 +90,7 @@ $Package               = @{
 	}
 }
 
-$Package              += @{
+$Package += @{
 	"Notification" = @{
 		"Header" = "Installed '" + $Package.Name + "' package!"
 		"Footer" = "Questions or concerns? Contact your system administrator for more information."
@@ -390,38 +392,6 @@ foreach ($Row in $Package.Config.FilePath) {
 		continue
 	}
 	
-	# ---- PROCESS TERMINATION COLUMNS ----
-	
-	if ($TaskEntry.TerminateProcess -notmatch "^$") {
-		$TaskEntry.TerminateProcess = $TaskEntry.TerminateProcess.Split(",")
-		
-		if ($TaskEntry.TerminateMessage -notmatch "^$") {
-			Show-DialogBox -Title $Package.Name -Message $TaskEntry.TerminateMessage | Out-Null
-		}
-
-		else {
-			pass
-		}
-	
-		foreach ($Process in $TaskEntry.TerminateProcess) {
-			try {
-				$RunningProcess = Get-Process $Process
-			
-				if ($RunningProcess) {
-					Get-Process $Process | Stop-Process -Force
-				}
-
-				else {
-					pass
-				}
-			}
-			
-			catch [Exception] {
-				pass	
-			}
-		}
-	}
-
 	# ---- INSTALL VERIFICATION COLUMN ----
 	
 	if ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Hotfix) {
@@ -508,6 +478,38 @@ foreach ($Row in $Package.Config.FilePath) {
 
 	else {
 		pass
+	}
+
+	# ---- PROCESS TERMINATION COLUMNS ----
+	
+	if ($TaskEntry.TerminateProcess -notmatch "^$") {
+		$TaskEntry.TerminateProcess = $TaskEntry.TerminateProcess.Split(",")
+		
+		if ($TaskEntry.TerminateMessage -notmatch "^$") {
+			Show-DialogBox -Title $Package.Name -Message $TaskEntry.TerminateMessage | Out-Null
+		}
+
+		else {
+			pass
+		}
+	
+		foreach ($Process in $TaskEntry.TerminateProcess) {
+			try {
+				$RunningProcess = Get-Process $Process
+			
+				if ($RunningProcess) {
+					Get-Process $Process | Stop-Process -Force
+				}
+
+				else {
+					pass
+				}
+			}
+			
+			catch [Exception] {
+				pass	
+			}
+		}
 	}
 
 	# ---- SUCCESS EXIT CODE COLUMN ----
