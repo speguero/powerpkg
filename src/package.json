@@ -31,7 +31,7 @@
 	{
 		"TaskName": "Verify Internet Explorer Installation",
 		"Executable": "powershell.exe Write-Output \"Internet Explorer does not exist.\"",
-		"VerifyInstall": "[path]C:\\Program Files\\Internet Explorer\\iexplore.exe"
+		"VerifyInstall": "[Path]C:\\Program Files\\Internet Explorer\\iexplore.exe"
 	},
 	{
 		"TaskName":  "",

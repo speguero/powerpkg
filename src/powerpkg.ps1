@@ -460,7 +460,7 @@ foreach ($Row in $Package.Config.FilePath) {
 
 			$TaskEntry.VerifyInstall.Path                    = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Arg_Build, "")
 			$TaskEntry.VerifyInstall.VersionBuild.Specified  = $Matches[1]
-			$TaskEntry.VerifyInstall.VersionBuild.Discovered = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Path).FileVersion
+			$TaskEntry.VerifyInstall.VersionBuild.Discovered = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Path) | % {$_.FileVersion}
 
 			if ($TaskEntry.VerifyInstall.VersionBuild.Specified -eq $TaskEntry.VerifyInstall.VersionBuild.Discovered) {
 				$Script.Output = ("Installation Verification: File Version Build """ + $TaskEntry.VerifyInstall.VersionBuild.Specified + """ exists.")
@@ -487,7 +487,7 @@ foreach ($Row in $Package.Config.FilePath) {
 
 			$TaskEntry.VerifyInstall.Path                    = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Arg_Build, "")
 			$TaskEntry.VerifyInstall.VersionBuild.Specified  = $Matches[1]
-			$TaskEntry.VerifyInstall.VersionBuild.Discovered = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Path).ProductVersion
+			$TaskEntry.VerifyInstall.VersionBuild.Discovered = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Path) | % {$_.ProductVersion}
 
 			if ($TaskEntry.VerifyInstall.VersionBuild.Specified -eq $TaskEntry.VerifyInstall.VersionBuild.Discovered) {
 				$Script.Output = ("Installation Verification: Product Version Build """ + $TaskEntry.VerifyInstall.VersionBuild.Specified + """ exists.")
@@ -528,7 +528,6 @@ foreach ($Row in $Package.Config.FilePath) {
 		Push-Location $Machine.SystemDrive
 		
 		$Script.Output = (& "cmd.exe" /c $TaskEntry.Executable.Path 2>&1)
-		
 		$TaskEntry.Executable.ExitCode = $LastExitCode
 		
 		if ($TaskEntry.SuccessExitCode -contains $TaskEntry.Executable.ExitCode) {
