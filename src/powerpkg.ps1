@@ -41,6 +41,17 @@ $Script                = @{
 	"Output"           = ""
 }
 
+$Script               += @{
+	"Config"  = @{
+		"Content"              = $Null
+		"BlockHost"            = $Null
+		"FilePath"             = $Script.CurrentDirectory + "powerpkg.conf"
+		"SuppressNotification" = $True
+		"TotalImported"        = 0
+		"ImportState"          = $Null # Reports as to whether or not the script configuration file was imported.
+	}
+}
+
 $Machine               = @{
 	"InstructionSet" = [System.Environment]::GetEnvironmentVariable("Processor_Architecture")
 	"OSVersion"      = [System.Environment]::OSVersion.Version.ToString()
@@ -50,33 +61,13 @@ $Machine               = @{
 }
 
 $Package               = @{
-	"Name"        = $MyInvocation.MyCommand.Definition.Split("\")[-2]
-	"Blacklist"   = @{
-		"Content"  = @{}
-		"FilePath" = $Script.CurrentDirectory + "blacklist.conf"
+	"Name"       = $MyInvocation.MyCommand.Definition.Split("\")[-2]
+	"Config"     = @{
+		"FilePath"      = ""
+		"FilePath_CSV"  = $Script.CurrentDirectory + "package.csv"
+		"FilePath_JSON" = $Script.CurrentDirectory + "package.json"
 	}
-	"Result"      = @()
-	"Task"        = @{
-		"Successful"     = 0
-		"Unsuccessful"   = 0
-		"TotalProcessed" = 0
-	}
-	"TaskEntries" = @{
-		"File" = ""
-		"CSV"  = $Script.CurrentDirectory + "package.csv"
-		"JSON" = $Script.CurrentDirectory + "package.json"
-	}
-}
-
-$Package              += @{
-	"InstallNotification" = @{ # Because you cannot call a variable without declaring it first, hence this additional hash table.
-		"Header" = "Installed '" + $Package.Name + "' package!"
-		"Footer" = "Questions or concerns? Contact your system administrator for more information."
-	}
-}
-
-$TaskConfig            = @{
-	"EntryIndex" = 0
+	"Result"     = @()
 	"Syntax"     = @{
 		"Executable"    = @{
 			"LocalFile" = "(\[)LocalFile(\])"
@@ -89,8 +80,20 @@ $TaskConfig            = @{
 			"Type_Version_ProductInfo" = "^(\[)Vers_Product(\])" # [Vers_Product]<File Path>[Build:<Version Build>]
 		}
 	}
+	"TaskStatus" = @{
+		"Index"          = 0
+		"Successful"     = 0
+		"Unsuccessful"   = 0
+		"TotalProcessed" = 0
+	}
 }
 
+$Package              += @{
+	"Notification" = @{
+		"Header" = "Installed '" + $Package.Name + "' package!"
+		"Footer" = "Questions or concerns? Contact your system administrator for more information."
+	}
+}
 
 # ---- FUNCTIONS ----
 
@@ -180,60 +183,97 @@ function Write-Result {
 	return $Result
 }
 
-# ---- IMPORTATION OF BLACKLIST ----
+# ---- IMPORTATION OF SCRIPT CONFIGURATION FILE ----
 
 try {
-	if (Test-Path $Package.Blacklist.FilePath) {
-		$Package.Blacklist.Content = (Get-Content $Package.Blacklist.FilePath)
+	if (Test-Path $Script.Config.FilePath) {
+		$Script.Config.Content = (Import-CSV $Script.Config.FilePath -Delimiter " " -Header "Type", "Value")
+		
+		foreach ($Type in $Script.Config.Content.Type) {
+			$Value = ($Script.Config.Content | ? {$_.Type -eq $Type} | % {$_.Value})
+			
+			if ($Type -eq "BlockHost") {
+				if ($Value -notmatch "^$") {
+					$Script.Config.BlockHost = $Value -split ","
+					$Script.Config.TotalImported++
+				}
+				
+				else {
+					$Script.Config.BlockHost = $Null
+				}
+			}
+			
+			elseif ($Type -eq "SuppressNotification") {
+				if ($Value -eq $True) {
+					$Script.Config.SuppressNotification = $True
+					$Script.Config.TotalImported++
+				}
+				
+				elseif ($Value -eq $False) {
+					$Script.Config.SuppressNotification = $False
+					$Script.Config.TotalImported++
+				}
+				
+				else {
+					pass
+				}
+			}
+			
+			else {
+				pass
+			}
+		}
+	}
+	
+	else {
+		throw
+	}
+}
+
+catch [Exception] {
+	pass
+}
+
+finally {
+	if ($Script.Config.TotalImported -gt 0) {
+		$Script.Config.ImportState = $True
+	}
+	
+	else {
+		$Script.Config.ImportState = $False
+	}
+}
+
+# ---- HOST BLOCK PROCESSING ----
+
+foreach ($Hostname in $Script.Config.BlockHost) {
+	if ($Hostname -match $Machine.Hostname) {
+		Write-Host -ForegroundColor Red ("`nERROR: Package '" + $Package.Name + "' will not be processed, as this host is blocked.`n")
+		
+		exit(4)
 	}
 	
 	else {
 		pass
 	}
-	
-	foreach ($Hostname in $Package.Blacklist.Content) {
-		if ($Hostname -match "^#") {
-			continue
-		}
-
-		elseif ($Hostname -match "^$") {
-			continue
-		}
-
-		elseif ($Hostname -match $Machine.Hostname) {
-			Write-Output ("`nERROR: Package '" + $Package.Name + "' will not be processed on this machine, as it is blacklisted.")
-			
-			exit(4)
-		}
-		
-		else {
-			pass
-		}
-	}
-}
-
-catch [Exception] {
-	Write-Host -ForegroundColor Red ("`nERROR: Blacklist """ + $Package.Blacklist.FilePath + """ could not be imported. Details: " + $Error[0])
-	
-	exit(3)
 }
 
 # ---- IMPORTATION OF PACKAGE FILE ----
 
 try {
 	if ($Script.CurrentPSVersion -ge 3) {
-		$Package.TaskEntries.FilePath = $Package.TaskEntries.JSON
-		$Package.TaskEntries.FilePath = (Get-Content $Package.TaskEntries.FilePath | Out-String | ConvertFrom-Json)
+		$Package.Config.FilePath = $Package.Config.FilePath_JSON
+		$Package.Config.FilePath = (Get-Content $Package.Config.FilePath | Out-String | ConvertFrom-Json)
 	}
 	
 	else {
-		$Package.TaskEntries.FilePath = $Package.TaskEntries.CSV
-		$Package.TaskEntries.FilePath = (Import-CSV $Package.TaskEntries.FilePath)
+		$Package.Config.FilePath = $Package.Config.FilePath_CSV
+		$Package.Config.FilePath = (Import-CSV $Package.Config.FilePath)
 	}
 }
 
 catch [Exception] {
-	Write-Host -ForegroundColor Red ("`nERROR: Package file """ + $Package.TaskEntries.FilePath + """ could not be imported. Details: " + $Error[0])
+	Write-Host -ForegroundColor Red ("`nERROR: Package file """ + $Package.Config.FilePath + """ could not be imported. Details: " + $Error[0])
 	
 	exit(5)
 }
@@ -241,15 +281,18 @@ catch [Exception] {
 # ---- PACKAGE FILE PROCESSING ----
 
 Write-Host -ForegroundColor Cyan (
-	"`nInitiating Package (" + $Package.Name + "):`n" + `
-	"`nHost                       : "   + $Machine.Hostname        + `
-	"`nOperating System (Windows) : "   + $Machine.OSVersion       + `
-	"`nInstruction Set            : "   + $Machine.InstructionSet  + `
-	"`nUser                       : "   + $Machine.Username + "`n" + `
+	"`nInitiating Package (" + $Package.Name + "):`n"                                            + `
+	"`nHost                                     : " + $Machine.Hostname                          + `
+	"`nOperating System (Windows)               : " + $Machine.OSVersion                         + `
+	"`nInstruction Set                          : " + $Machine.InstructionSet                    + `
+	"`nUser                                     : " + $Machine.Username + "`n"                   + `
+	"`n----`n"                                                                                   + `
+	"`nImportation of Script Configuration File : " + $Script.Config.ImportState                 + `
+	"`nNotification Suppression                 : " + $Script.Config.SuppressNotification + "`n" + `
 	"`n----"
 )
 
-foreach ($Row in $Package.TaskEntries.FilePath) {
+foreach ($Row in $Package.Config.FilePath) {
 	try {
 		$TaskEntry = @{
 			"TaskName"         = $Row.TaskName
@@ -286,7 +329,7 @@ foreach ($Row in $Package.TaskEntries.FilePath) {
 	}
 	
 	catch [Exception] {
-		$Script.Output = ("Initializaion of Task Entry (" + $TaskEntry.TaskName + "): " + $Error[0])
+		$Script.Output = ("Initialization of Task Entry (" + $TaskEntry.TaskName + "): " + $Error[0])
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 2 -Output $Script.Output)
 		
 		$Script.ExitCode = 2
@@ -296,7 +339,7 @@ foreach ($Row in $Package.TaskEntries.FilePath) {
 	# ---- TASK NAME COLUMN ----
 	
 	if ($TaskEntry.TaskName -match "^$") {
-		$Script.Output = ("'Name' is required for '" + $TaskEntry.Executable + "' at entry " + [String]$TaskConfig.EntryIndex + ".")
+		$Script.Output = ("'Name' is required for '" + $TaskEntry.Executable + "' at entry " + [String]$Package.TaskStatus.Index + ".")
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 7 -Output $Script.Output)
 		
 		$Script.ExitCode = 7
@@ -309,25 +352,25 @@ foreach ($Row in $Package.TaskEntries.FilePath) {
 	
 	# ---- EXECUTABLE COLUMN ----
 	
-	$TaskConfig.EntryIndex = $TaskConfig.EntryIndex + 1
+	$Package.TaskStatus.Index = $Package.TaskStatus.Index + 1
 	
 	if ($TaskEntry.Executable.Path -match "^$") {
-		$Script.Output = ("'Executable' is required for '" + $TaskEntry.TaskName + "' at entry " + [String]$TaskConfig.EntryIndex + ".")
+		$Script.Output = ("'Executable' is required for '" + $TaskEntry.TaskName + "' at entry " + [String]$Package.TaskStatus.Index + ".")
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 7 -Output $Script.Output)
 		
 		$Script.ExitCode = 7
 		break
 	}
 
-	elseif ($TaskEntry.Executable.Path -match $TaskConfig.Syntax.Executable.LocalFile) {
-		$TaskEntry.Executable.Path = $TaskEntry.Executable.Path -Replace ($TaskConfig.Syntax.Executable.LocalFile, $Script.CurrentDirectory)
+	elseif ($TaskEntry.Executable.Path -match $Package.Syntax.Executable.LocalFile) {
+		$TaskEntry.Executable.Path = $TaskEntry.Executable.Path -Replace ($Package.Syntax.Executable.LocalFile, $Script.CurrentDirectory)
 	}
 	
 	else {
 		pass
 	}
 
-	Write-Host -NoNewLine ("`n(" + $TaskConfig.EntryIndex + ") Invoking Command (" + $TaskEntry.TaskName + "): ")
+	Write-Host -NoNewLine ("`n(" + $Package.TaskStatus.Index + ") Invoking Command (" + $TaskEntry.TaskName + "): ")
 	Write-Host -ForegroundColor Cyan ("`n[" + $TaskEntry.Executable.Path + "]`n")
 	
 	# ---- INSTRUCTION SET COLUMN ----
@@ -381,8 +424,8 @@ foreach ($Row in $Package.TaskEntries.FilePath) {
 
 	# ---- INSTALL VERIFICATION COLUMN ----
 	
-	if ($TaskEntry.VerifyInstall.Path -match $TaskConfig.Syntax.VerifyInstall.Type_Hotfix) {
-		$TaskEntry.VerifyInstall.Path      = $TaskEntry.VerifyInstall.Path -replace ($TaskConfig.Syntax.VerifyInstall.Type_Hotfix, "")
+	if ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Hotfix) {
+		$TaskEntry.VerifyInstall.Path      = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Hotfix, "")
 		$TaskEntry.VerifyInstall.Existence = Get-Hotfix | ? {$_.HotfixID -eq $TaskEntry.VerifyInstall.Path}
 
 		if ($TaskEntry.VerifyInstall.Existence -ne $Null) {
@@ -395,8 +438,8 @@ foreach ($Row in $Package.TaskEntries.FilePath) {
 		}
 	}
 	
-	elseif ($TaskEntry.VerifyInstall.Path -match $TaskConfig.Syntax.VerifyInstall.Type_Path) {
-		$TaskEntry.VerifyInstall.Path      = $TaskEntry.VerifyInstall.Path -replace ($TaskConfig.Syntax.VerifyInstall.Type_Path, "")
+	elseif ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Path) {
+		$TaskEntry.VerifyInstall.Path      = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Path, "")
 		$TaskEntry.VerifyInstall.Existence = Test-Path $TaskEntry.VerifyInstall.Path
 
 		if ($TaskEntry.VerifyInstall.Existence -eq $True) {
@@ -409,13 +452,13 @@ foreach ($Row in $Package.TaskEntries.FilePath) {
 		}
 	}
 
-	elseif ($TaskEntry.VerifyInstall.Path -match $TaskConfig.Syntax.VerifyInstall.Type_Version_FileInfo) {
-		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($TaskConfig.Syntax.VerifyInstall.Type_Version_FileInfo, "")
+	elseif ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Version_FileInfo) {
+		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Version_FileInfo, "")
 
 		try {
-			$TaskEntry.VerifyInstall.Path -match $TaskConfig.Syntax.VerifyInstall.Arg_Build | Out-Null
+			$TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Arg_Build | Out-Null
 
-			$TaskEntry.VerifyInstall.Path                    = $TaskEntry.VerifyInstall.Path -replace ($TaskConfig.Syntax.VerifyInstall.Arg_Build, "")
+			$TaskEntry.VerifyInstall.Path                    = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Arg_Build, "")
 			$TaskEntry.VerifyInstall.VersionBuild.Specified  = $Matches[1]
 			$TaskEntry.VerifyInstall.VersionBuild.Discovered = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Path).FileVersion
 
@@ -436,13 +479,13 @@ foreach ($Row in $Package.TaskEntries.FilePath) {
 		}
 	}
 
-	elseif ($TaskEntry.VerifyInstall.Path -match $TaskConfig.Syntax.VerifyInstall.Type_Version_ProductInfo) {
-		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($TaskConfig.Syntax.VerifyInstall.Type_Version_ProductInfo, "")
+	elseif ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Version_ProductInfo) {
+		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Version_ProductInfo, "")
 
 		try {
-			$TaskEntry.VerifyInstall.Path -match $TaskConfig.Syntax.VerifyInstall.Arg_Build | Out-Null
+			$TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Arg_Build | Out-Null
 
-			$TaskEntry.VerifyInstall.Path                    = $TaskEntry.VerifyInstall.Path -replace ($TaskConfig.Syntax.VerifyInstall.Arg_Build, "")
+			$TaskEntry.VerifyInstall.Path                    = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Arg_Build, "")
 			$TaskEntry.VerifyInstall.VersionBuild.Specified  = $Matches[1]
 			$TaskEntry.VerifyInstall.VersionBuild.Discovered = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Path).ProductVersion
 
@@ -490,14 +533,14 @@ foreach ($Row in $Package.TaskEntries.FilePath) {
 		
 		if ($TaskEntry.SuccessExitCode -contains $TaskEntry.Executable.ExitCode) {
 			Write-Host -ForegroundColor Green (Write-Result -Status "OK" -Code $TaskEntry.Executable.ExitCode -Output $Script.Output)
-			$Package.Task.Successful++
+			$Package.TaskStatus.Successful++
 		}
 	
 		else {
 			Write-Host -ForegroundColor Red (Write-Result -Status "WARN" -Code $TaskEntry.Executable.ExitCode -Output $Script.Output)
 			
-			$Script.ExitCode            = 1
-			$Package.Task.Unsuccessful += 1
+			$Script.ExitCode                  = 1
+			$Package.TaskStatus.Unsuccessful += 1
 			
 			if ($TaskEntry.ContinueIfFail -ne "true") {
 				break
@@ -513,8 +556,8 @@ foreach ($Row in $Package.TaskEntries.FilePath) {
 		$Script.Output = ("Executable Invocation: " + $Error[0])
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 2 -Output $Script.Output)
 		
-		$Script.ExitCode            = 2
-		$Package.Task.Unsuccessful += 1
+		$Script.ExitCode                  = 2
+		$Package.TaskStatus.Unsuccessful += 1
 		continue
 	}
 	
@@ -529,31 +572,40 @@ foreach ($Row in $Package.TaskEntries.FilePath) {
 
 #>
 
-if ($Script.ExitCode -eq 0 -and $Package.Task.Successful -eq 0) {
-	Write-Host -ForegroundColor Red "`nWARN: No task entries were processed."
+# ---- TASK STATUS REPORTING ---
+
+if ($Script.ExitCode -eq 0 -and $Package.TaskStatus.Successful -eq 0) {
+	Write-Host -ForegroundColor Red "`nWARN: No task entries were processed.`n"
 	
 	$Script.ExitCode = 6
 }
 
 else {
-	$Package.Task.TotalProcessed = [Int32]$Package.Task.Successful + [Int32]$Package.Task.Unsuccessful
+	$Package.TaskStatus.TotalProcessed = [Int32]$Package.TaskStatus.Successful + [Int32]$Package.TaskStatus.Unsuccessful
 
 	$Package.Result = (
-		"`nTasks Processed : " + $Package.Task.TotalProcessed + `
-		"`n  ^"                                               + `
-		"`n  |"                                               + `
-		"`n  |---- Success : " + $Package.Task.Successful     + `
-		"`n  +---- Failure : " + $Package.Task.Unsuccessful   + `
+		"`nTasks Processed : " + $Package.TaskStatus.TotalProcessed + `
+		"`n  ^"                                                     + `
+		"`n  |"                                                     + `
+		"`n  |---- Success : " + $Package.TaskStatus.Successful     + `
+		"`n  +---- Failure : " + $Package.TaskStatus.Unsuccessful   + `
 		"`n"
 	)
 
 	Write-Host ("`nPackage Results (" + $Package.Name + "):")
 
-	if ($Script.ExitCode -eq 0 -and $Package.Task.Unsuccessful -eq 0) {
+	if ($Script.ExitCode -eq 0 -and $Package.TaskStatus.Unsuccessful -eq 0) {
 		$Package.Result += ("`nOK: (" + $Script.ExitCode + ")`n")
-
+		
 		Write-Host -ForegroundColor Green $Package.Result
-		Show-BalloonTip -Title $Package.InstallNotification.Header -Text $Package.InstallNotification.Footer | Out-Null
+		
+		if ($Script.Config.SuppressNotification -eq $False) {
+			Show-BalloonTip -Title $Package.Notification.Header -Text $Package.Notification.Footer | Out-Null
+		}
+
+		else {
+			pass
+		}
 	}
 
 	else {
