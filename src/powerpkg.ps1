@@ -118,7 +118,7 @@ function Show-BalloonTip {
 		$Text = " ",
 
 		[ValidateSet("None", "Info", "Warning", "Error")]
-		$Icon = 'Info',
+		$Icon = "Info",
 
 		$Timeout = 10000
 	)
@@ -196,7 +196,7 @@ if (Test-Path $Script.Config.FilePath) {
 		$Script.Config.Content = $Null
 	}
 	
-	foreach ($Type in $Script.Config.Content.Type) {
+	foreach ($Type in $Script.Config.Content | % {$_.Type}) {
 		$Value = ($Script.Config.Content | ? {$_.Type -eq $Type} | % {$_.Value})
 		
 		if ($Type -eq "BlockHost") {
