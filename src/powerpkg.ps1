@@ -48,7 +48,7 @@ $Script += @{
 		"FilePath"             = $Script.CurrentDirectory + "powerpkg.conf"
 		"SuppressNotification" = $True
 		"TotalImported"        = 0
-		"ImportState"          = $Null # Reports as to whether or not the script configuration file was imported.
+		"ImportState"          = $Null # Reports as to whether or not any script configuration file arguments were imported.
 	}
 }
 
@@ -75,7 +75,7 @@ $Package = @{
 		"VerifyInstall" = @{
 			# NOTE: Arg_Build cannot parse non-alphanumeric characters apart from periods, such as commas, on PowerShell 2.0. Update to 3.0+ to resolve this bug.
 
-			"Arg_Build"                = "\[Build:(.*)\]$"       # [Build:<Version Build>] (Used in conjunction with "Type_Version_FileInfo" and "Type_Version_ProductInfo".
+			"Arg_Build"                = "\[Build:(.*)\]$"       # [Build:<Version Build>] (Used in conjunction with "Type_Version_FileInfo" and "Type_Version_ProductInfo".)
 			"Type_Hotfix"              = "^(\[)Hotfix(\])"       # [Hotfix]<Hotfix ID>
 			"Type_Path"                = "^(\[)Path(\])"         # [Path]<File/Directory Path>
 			"Type_Version_FileInfo"    = "^(\[)Vers_File(\])"    # [Vers_File]<File Path>[Build:<Version Build>]
@@ -117,7 +117,7 @@ function Show-BalloonTip {
 		[Parameter(Mandatory = $False)]
 		$Text = " ",
 
-		[ValidateSet('None', 'Info', 'Warning', 'Error')]
+		[ValidateSet("None", "Info", "Warning", "Error")]
 		$Icon = 'Info',
 
 		$Timeout = 10000
@@ -131,7 +131,7 @@ function Show-BalloonTip {
 		$Script:Balloon = New-Object System.Windows.Forms.NotifyIcon
 	}
 
-	$Path                    = Get-Process -id $pid | Select-Object -ExpandProperty Path
+	$Path                    = Get-Process -id $PID | Select-Object -ExpandProperty Path
 	$Balloon.Icon            = [System.Drawing.Icon]::ExtractAssociatedIcon($Path)
 	$Balloon.BalloonTipIcon  = $Icon
 	$Balloon.BalloonTipText  = $Text
@@ -187,63 +187,61 @@ function Write-Result {
 
 # ---- IMPORTATION OF SCRIPT CONFIGURATION FILE ----
 
-try {
-	if (Test-Path $Script.Config.FilePath) {
+if (Test-Path $Script.Config.FilePath) {
+	try {
 		$Script.Config.Content = (Import-CSV $Script.Config.FilePath -Delimiter " " -Header "Type", "Value")
+	}
+
+	catch [Exception] {
+		$Script.Config.Content = $Null
+	}
+	
+	foreach ($Type in $Script.Config.Content.Type) {
+		$Value = ($Script.Config.Content | ? {$_.Type -eq $Type} | % {$_.Value})
 		
-		foreach ($Type in $Script.Config.Content.Type) {
-			$Value = ($Script.Config.Content | ? {$_.Type -eq $Type} | % {$_.Value})
-			
-			if ($Type -eq "BlockHost") {
-				if ($Value -notmatch "^$") {
-					$Script.Config.BlockHost = $Value -split ","
-					$Script.Config.TotalImported++
-				}
-				
-				else {
-					$Script.Config.BlockHost = $Null
-				}
-			}
-			
-			elseif ($Type -eq "SuppressNotification") {
-				if ($Value -eq $True) {
-					$Script.Config.SuppressNotification = $True
-					$Script.Config.TotalImported++
-				}
-				
-				elseif ($Value -eq $False) {
-					$Script.Config.SuppressNotification = $False
-					$Script.Config.TotalImported++
-				}
-				
-				else {
-					pass
-				}
+		if ($Type -eq "BlockHost") {
+			if ($Value -notmatch "^$") {
+				$Script.Config.BlockHost = $Value -split ","
+				$Script.Config.TotalImported++
 			}
 			
 			else {
 				pass
 			}
 		}
-	}
-	
-	else {
-		throw
+		
+		elseif ($Type -eq "SuppressNotification") {
+			if ($Value -eq $True) {
+				$Script.Config.SuppressNotification = $True
+				$Script.Config.TotalImported++
+			}
+			
+			elseif ($Value -eq $False) {
+				$Script.Config.SuppressNotification = $False
+				$Script.Config.TotalImported++
+			}
+			
+			else {
+				pass
+			}
+		}
+		
+		else {
+			pass
+		}
 	}
 }
 
-catch [Exception] {
+else {
 	pass
 }
 
-finally {
-	if ($Script.Config.TotalImported -gt 0) {
-		$Script.Config.ImportState = $True
-	}
-	
-	else {
-		$Script.Config.ImportState = $False
-	}
+if ($Script.Config.TotalImported -gt 0) {
+	$Script.Config.ImportState = $True
+}
+
+else {
+	$Script.Config.ImportState = $False
 }
 
 # ---- HOST BLOCK PROCESSING ----
@@ -283,14 +281,14 @@ catch [Exception] {
 # ---- PACKAGE FILE PROCESSING ----
 
 Write-Host -ForegroundColor Cyan (
-	"`nInitiating Package (" + $Package.Name + "):`n"                                            + `
-	"`nHost                                     : " + $Machine.Hostname                          + `
-	"`nOperating System (Windows)               : " + $Machine.OSVersion                         + `
-	"`nInstruction Set                          : " + $Machine.InstructionSet                    + `
-	"`nUser                                     : " + $Machine.Username + "`n"                   + `
-	"`n----`n"                                                                                   + `
-	"`nImportation of Script Configuration File : " + $Script.Config.ImportState                 + `
-	"`nNotification Suppression                 : " + $Script.Config.SuppressNotification + "`n" + `
+	"`nInitiating Package (" + $Package.Name + "):`n"                              + `
+	"`nHost                       : " + $Machine.Hostname                          + `
+	"`nOperating System (Windows) : " + $Machine.OSVersion                         + `
+	"`nInstruction Set            : " + $Machine.InstructionSet                    + `
+	"`nUser                       : " + $Machine.Username + "`n"                   + `
+	"`n----`n"                                                                     + `
+	"`nConfiguration Importation  : " + $Script.Config.ImportState                 + `
+	"`nSuppressNotification       : " + $Script.Config.SuppressNotification + "`n" + `
 	"`n----"
 )
 
@@ -331,7 +329,7 @@ foreach ($Row in $Package.Config.FilePath) {
 	}
 	
 	catch [Exception] {
-		$Script.Output = ("Initialization of Task Entry (" + $TaskEntry.TaskName + "): " + $Error[0])
+		$Script.Output = ("Task Entry (" + $TaskEntry.TaskName + "): " + $Error[0])
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 2 -Output $Script.Output)
 		
 		$Script.ExitCode = 2
@@ -341,7 +339,7 @@ foreach ($Row in $Package.Config.FilePath) {
 	# ---- TASK NAME COLUMN ----
 	
 	if ($TaskEntry.TaskName -match "^$") {
-		$Script.Output = ("'Name' is required for '" + $TaskEntry.Executable + "' at entry " + [String]$Package.TaskStatus.Index + ".")
+		$Script.Output = ("TaskName: Specification is required for """ + $TaskEntry.Executable + """ at entry " + [String]$Package.TaskStatus.Index + ".")
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 7 -Output $Script.Output)
 		
 		$Script.ExitCode = 7
@@ -357,7 +355,7 @@ foreach ($Row in $Package.Config.FilePath) {
 	$Package.TaskStatus.Index = $Package.TaskStatus.Index + 1
 	
 	if ($TaskEntry.Executable.Path -match "^$") {
-		$Script.Output = ("'Executable' is required for '" + $TaskEntry.TaskName + "' at entry " + [String]$Package.TaskStatus.Index + ".")
+		$Script.Output = ("Executable: Specification is required for """ + $TaskEntry.TaskName + """ at entry " + [String]$Package.TaskStatus.Index + ".")
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 7 -Output $Script.Output)
 		
 		$Script.ExitCode = 7
@@ -386,7 +384,7 @@ foreach ($Row in $Package.Config.FilePath) {
 	}
 	
 	else {
-		$Script.Output = ("Instruction Set Verification: This operating system is based on """ + $Machine.InstructionSet + """ and not """ + $TaskEntry.InstructionSet + """.")
+		$Script.Output = ("InstructionSet: This operating system is based on """ + $Machine.InstructionSet + """ and not """ + $TaskEntry.InstructionSet + """.")
 
 		Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
 		continue
@@ -399,7 +397,7 @@ foreach ($Row in $Package.Config.FilePath) {
 		$TaskEntry.VerifyInstall.Existence = Get-Hotfix | ? {$_.HotfixID -eq $TaskEntry.VerifyInstall.Path}
 
 		if ($TaskEntry.VerifyInstall.Existence -ne $Null) {
-			Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output ("Installation Verification: Hotfix """ + $TaskEntry.VerifyInstall.Path + """ exists."))
+			Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output ("VerifyInstall: [Hotfix] """ + $TaskEntry.VerifyInstall.Path + """ exists."))
 			continue
 		}
 
@@ -413,7 +411,7 @@ foreach ($Row in $Package.Config.FilePath) {
 		$TaskEntry.VerifyInstall.Existence = Test-Path $TaskEntry.VerifyInstall.Path
 
 		if ($TaskEntry.VerifyInstall.Existence -eq $True) {
-			Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output ("Installation Verification: Path """ + $TaskEntry.VerifyInstall.Path + """ exists."))
+			Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output ("VerifyInstall: [Path] """ + $TaskEntry.VerifyInstall.Path + """ exists."))
 			continue
 		}
 
@@ -433,7 +431,7 @@ foreach ($Row in $Package.Config.FilePath) {
 			$TaskEntry.VerifyInstall.VersionBuild.Discovered = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Path) | % {$_.FileVersion}
 
 			if ($TaskEntry.VerifyInstall.VersionBuild.Specified -eq $TaskEntry.VerifyInstall.VersionBuild.Discovered) {
-				$Script.Output = ("Installation Verification: File Version Build """ + $TaskEntry.VerifyInstall.VersionBuild.Specified + """ exists.")
+				$Script.Output = ("VerifyInstall: [Vers_File] """ + $TaskEntry.VerifyInstall.VersionBuild.Specified + """ exists.")
 
 				Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
 				continue
@@ -460,7 +458,7 @@ foreach ($Row in $Package.Config.FilePath) {
 			$TaskEntry.VerifyInstall.VersionBuild.Discovered = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Path) | % {$_.ProductVersion}
 
 			if ($TaskEntry.VerifyInstall.VersionBuild.Specified -eq $TaskEntry.VerifyInstall.VersionBuild.Discovered) {
-				$Script.Output = ("Installation Verification: Product Version Build """ + $TaskEntry.VerifyInstall.VersionBuild.Specified + """ exists.")
+				$Script.Output = ("VerifyInstall: [Vers_Product] """ + $TaskEntry.VerifyInstall.VersionBuild.Specified + """ exists.")
 
 				Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
 				continue
