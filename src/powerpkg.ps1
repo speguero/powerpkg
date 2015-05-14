@@ -247,7 +247,7 @@ else {
 # ---- HOST BLOCK PROCESSING ----
 
 foreach ($Hostname in $Script.Config.BlockHost) {
-	if ($Hostname -match $Machine.Hostname) {
+	if ($Machine.Hostname -match $Hostname) {
 		Write-Host -ForegroundColor Red ("`nERROR: Package '" + $Package.Name + "' will not be processed, as this host is blocked.`n")
 		
 		exit(4)
@@ -288,7 +288,7 @@ Write-Host -ForegroundColor Cyan (
 	"`nUser                       : " + $Machine.Username + "`n"                   + `
 	"`n----`n"                                                                     + `
 	"`nConfiguration Importation  : " + $Script.Config.ImportState                 + `
-	"`nSuppressNotification       : " + $Script.Config.SuppressNotification + "`n" + `
+	"`nSuppress Notification      : " + $Script.Config.SuppressNotification + "`n" + `
 	"`n----"
 )
 
