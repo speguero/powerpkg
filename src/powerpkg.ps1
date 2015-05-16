@@ -210,6 +210,17 @@ if (Test-Path $Script.Config.FilePath) {
 			}
 		}
 		
+		elseif ($Type -eq "PackageName") {
+			if ($Value -notmatch "^$") {
+				$Package.Name = $Value
+				$Script.Config.TotalImported++
+			}
+			
+			else {
+				pass
+			}
+		}
+		
 		elseif ($Type -eq "SuppressNotification") {
 			if ($Value -eq $True) {
 				$Script.Config.SuppressNotification = $True
