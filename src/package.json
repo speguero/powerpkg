@@ -1,46 +1,22 @@
 [
 	{
-		"TaskName": "Create Test File",
-		"Executable": "powershell.exe New-Item $env:UserProfile\\Desktop\\powerpkg_file.txt -ItemType File -Force"
-	},
-	{
-		"TaskName": "Use Whitespace in Argument",
-		"Executable": "ipconfig.exe > \"%USERPROFILE%\\Desktop\\powerpkg_file with spaces.txt\""
-	},
-	{
-		"TaskName": "Render Non-Zero Exit Code Okay",
-		"Executable": "powershell.exe exit(1234)",
-		"SuccessExitCode": "1234"
-	},
-	{
-		"TaskName": "Continue Processing Package Despite Error",
-		"Executable": "powershell.exe exit(1)",
-		"ContinueIfFail": "true"
-	},
-	{
-		"TaskName": "Ensure to Run on 64-bit Windows Only",
-		"Executable": "powershell.exe Write-Output \"You will receive this output if you are using a 64-bit OS.\"",
-		"InstructionSet": "amd64"
-	},
-	{
-		"TaskName": "Restart a Process With a Warning",
-		"Executable": "powershell.exe Write-Output \"Explorer restarted.\"",
-		"TerminateProcess": "explorer",
-		"TerminateMessage": "Explorer will terminate. When prepared, click on the OK button."
-	},
-	{
-		"TaskName": "Verify Internet Explorer Installation",
-		"Executable": "powershell.exe Write-Output \"Internet Explorer does not exist.\"",
-		"VerifyInstall": "[Path]C:\\Program Files\\Internet Explorer\\iexplore.exe"
-	},
-	{
-		"TaskName":         "",
-		"Executable":       "",
-		"InstructionSet":   "",
+		"TaskName": "",
+		"Executable": "",
+		"InstructionSet": "",
 		"TerminateProcess": "",
 		"TerminateMessage": "",
-		"SuccessExitCode":  "",
-		"ContinueIfFail":   "",
-		"VerifyInstall":    ""
+		"SuccessExitCode": "",
+		"ContinueIfFail": "",
+		"VerifyInstall": ""
+	},
+	{
+		"TaskName": "",
+		"Executable": "",
+		"InstructionSet": "",
+		"TerminateProcess": "",
+		"TerminateMessage": "",
+		"SuccessExitCode": "",
+		"ContinueIfFail": "",
+		"VerifyInstall": ""
 	}
 ]

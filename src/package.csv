@@ -1,0 +1,3 @@
+TaskName,Executable,InstructionSet,TerminateProcess,TerminateMessage,SuccessExitCode,ContinueIfFail,VerifyInstall
+,,,,,,,
+,,,,,,,
