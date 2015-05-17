@@ -34,13 +34,13 @@
 		"VerifyInstall": "[Path]C:\\Program Files\\Internet Explorer\\iexplore.exe"
 	},
 	{
-		"TaskName":  "",
-		"Executable":  "",
-		"InstructionSet":  "",
-		"TerminateProcess":  "",
-		"TerminateMessage":  "",
+		"TaskName":         "",
+		"Executable":       "",
+		"InstructionSet":   "",
+		"TerminateProcess": "",
+		"TerminateMessage": "",
 		"SuccessExitCode":  "",
-		"ContinueIfFail":  "",
-		"VerifyInstall":  ""
+		"ContinueIfFail":   "",
+		"VerifyInstall":    ""
 	}
 ]

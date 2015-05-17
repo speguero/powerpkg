@@ -38,7 +38,7 @@ $Script = @{
 	"CurrentDirectory" = (Split-Path -Parent -Path $MyInvocation.MyCommand.Definition) + "\"
 	"CurrentPSVersion" = $Host.Version.Major
 	"ExitCode"         = 0
-	"Output"           = ""
+	"Output"           = $Null
 }
 
 $Script += @{
@@ -63,17 +63,17 @@ $Machine = @{
 $Package = @{
 	"Name"       = $MyInvocation.MyCommand.Definition.Split("\")[-2]
 	"Config"     = @{
-		"FilePath"      = ""
+		"FilePath"      = $Null
 		"FilePath_CSV"  = $Script.CurrentDirectory + "package.csv"
 		"FilePath_JSON" = $Script.CurrentDirectory + "package.json"
 	}
-	"Result"     = @()
+	"Result"     = $Null
 	"Syntax"     = @{
 		"Executable"    = @{
 			"LocalFile" = "(\[)LocalFile(\])"
 		}
 		"VerifyInstall" = @{
-			# NOTE: Arg_Build cannot parse non-alphanumeric characters apart from periods, such as commas, on PowerShell 2.0. Update to 3.0+ to resolve this bug.
+			# NOTE: Arg_Build cannot parse uncommonly used, non-alphanumeric characters, such as commas, on PowerShell 2.0. Update to 3.0+ to circumvent this issue.
 
 			"Arg_Build"                = "\[Build:(.*)\]$"       # [Build:<Version Build>] (Used in conjunction with "Type_Version_FileInfo" and "Type_Version_ProductInfo".)
 			"Type_Hotfix"              = "^(\[)Hotfix(\])"       # [Hotfix]<Hotfix ID>
@@ -127,7 +127,7 @@ function Show-BalloonTip {
 
 	Add-Type -AssemblyName System.Windows.Forms
 
-	if ($Script:Balloon -eq $null) {
+	if ($Script:Balloon -eq $Null) {
 		$Script:Balloon = New-Object System.Windows.Forms.NotifyIcon
 	}
 
@@ -206,7 +206,7 @@ if (Test-Path $Script.Config.FilePath) {
 			}
 			
 			else {
-				pass
+				continue
 			}
 		}
 		
@@ -217,7 +217,7 @@ if (Test-Path $Script.Config.FilePath) {
 			}
 			
 			else {
-				pass
+				continue
 			}
 		}
 		
@@ -233,12 +233,12 @@ if (Test-Path $Script.Config.FilePath) {
 			}
 			
 			else {
-				pass
+				continue
 			}
 		}
 		
 		else {
-			pass
+			continue
 		}
 	}
 }
@@ -257,8 +257,8 @@ else {
 
 # ---- HOST BLOCK PROCESSING ----
 
-foreach ($Hostname in $Script.Config.BlockHost) {
-	if ($Machine.Hostname -match $Hostname) {
+foreach ($ImportedHostname in $Script.Config.BlockHost) {
+	if ($Machine.Hostname -match $ImportedHostname) {
 		Write-Host -ForegroundColor Red ("`nERROR: Package '" + $Package.Name + "' will not be processed, as this host is blocked.`n")
 		
 		exit(4)
@@ -274,7 +274,7 @@ foreach ($Hostname in $Script.Config.BlockHost) {
 try {
 	if ($Script.CurrentPSVersion -ge 3) {
 		$Package.Config.FilePath = $Package.Config.FilePath_JSON
-		$Package.Config.FilePath = (Get-Content $Package.Config.FilePath | Out-String | ConvertFrom-Json)
+		$Package.Config.FilePath = (Get-Content $Package.Config.FilePath | Out-String | ConvertFrom-JSON)
 	}
 	
 	else {
@@ -313,7 +313,10 @@ foreach ($Row in $Package.Config.FilePath) {
 			}
 			"InstructionSet"   = $Row.InstructionSet
 			"TerminateProcess" = $Row.TerminateProcess
-			"TerminateMessage" = $Row.TerminateMessage
+			"TerminateMessage" = @{
+				"Prompt"          = $Row.TerminateMessage
+				"AlreadyPrompted" = $False # Ensures to only display TerminateMessage prompt once, if terminating more than one process.
+			}
 			"VerifyInstall"    = @{
 				"Path"         = $Row.VerifyInstall
 				"VersionBuild" = @{
@@ -341,9 +344,9 @@ foreach ($Row in $Package.Config.FilePath) {
 	
 	catch [Exception] {
 		$Script.Output = ("Task Entry (" + $TaskEntry.TaskName + "): " + $Error[0])
-		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 2 -Output $Script.Output)
+		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 3 -Output $Script.Output)
 		
-		$Script.ExitCode = 2
+		$Script.ExitCode = 3
 		break
 	}
 	
@@ -395,7 +398,7 @@ foreach ($Row in $Package.Config.FilePath) {
 	}
 	
 	else {
-		$Script.Output = ("InstructionSet: This operating system is based on """ + $Machine.InstructionSet + """ and not """ + $TaskEntry.InstructionSet + """.")
+		$Script.Output = ("InstructionSet: Operating system based on """ + $Machine.InstructionSet + """ and not """ + $TaskEntry.InstructionSet + """.")
 
 		Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
 		continue
@@ -492,33 +495,38 @@ foreach ($Row in $Package.Config.FilePath) {
 	# ---- PROCESS TERMINATION COLUMNS ----
 	
 	if ($TaskEntry.TerminateProcess -notmatch "^$") {
-		$TaskEntry.TerminateProcess = $TaskEntry.TerminateProcess.Split(",")
+		$TaskEntry.TerminateProcess = $TaskEntry.TerminateProcess -split ","
 		
-		if ($TaskEntry.TerminateMessage -notmatch "^$") {
-			Show-DialogBox -Title $Package.Name -Message $TaskEntry.TerminateMessage | Out-Null
-		}
-
-		else {
-			pass
-		}
-	
 		foreach ($Process in $TaskEntry.TerminateProcess) {
 			try {
 				$RunningProcess = Get-Process $Process
 			
 				if ($RunningProcess) {
+					if ($TaskEntry.TerminateMessage.Prompt -notmatch "^$" -and $TaskEntry.TerminateMessage.AlreadyPrompted -eq $False) {
+						Show-DialogBox -Title $Package.Name -Message $TaskEntry.TerminateMessage.Prompt | Out-Null
+						$TaskEntry.TerminateMessage.AlreadyPrompted = $True
+					}
+
+					else {
+						pass
+					}
+
 					Get-Process $Process | Stop-Process -Force
 				}
 
 				else {
-					pass
+					continue
 				}
 			}
 			
 			catch [Exception] {
-				pass	
+				continue
 			}
 		}
+	}
+
+	else {
+		pass
 	}
 
 	# ---- SUCCESS EXIT CODE COLUMN ----
@@ -528,7 +536,7 @@ foreach ($Row in $Package.Config.FilePath) {
 	}
 	
 	else {
-		$TaskEntry.SuccessExitCode  = $TaskEntry.SuccessExitCode.Split(",")
+		$TaskEntry.SuccessExitCode  = $TaskEntry.SuccessExitCode -split ","
 		$TaskEntry.SuccessExitCode += 0
 	}
 	
@@ -626,3 +634,4 @@ else {
 }
 
 exit($Script.ExitCode)
+

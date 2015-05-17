@@ -12,8 +12,9 @@ The script configuration file (`powerpkg.conf`) is not required for the utilizat
 
 Type                 | Value  | Description
 ----                 | -----  | -----------
-SuppressNotification | `True` | Prevents a balloon notification from displaying upon a successful deployment. A value of `False` in `powerpkg.conf` changes this behavior.
 BlockHost            | `Null` | Prevents specified hosts from processing package files.
+PackageName          | `Null` | Allows specifying a different package name apart from the name of the directory a package resides in.
+SuppressNotification | `True` | Prevents a balloon notification from displaying upon a successful deployment. A value of `False` in `powerpkg.conf` changes this behavior.
 
 ## Debugging:
 
@@ -23,6 +24,7 @@ Code | Description
 ---- | -----------
 1    | A task entry terminated with a non-zero exit status.
 2    | An exception rose from a task entry.
+3    | Initial task entry processing failed.
 4    | A host has been blocked from processing package files.
 5    | A package file was not found.
 6    | No task entries were processed.
