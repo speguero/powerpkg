@@ -258,7 +258,13 @@ else {
 # ---- HOST BLOCK PROCESSING ----
 
 foreach ($ImportedHostname in $Script.Config.BlockHost) {
-	if ($Machine.Hostname -match $ImportedHostname) {
+
+	<#
+		The next condition right of the "-and" operator is required for PowerShell 2.0, as it will
+		otherwise find a match between a valid machine hostname and an empty imported hostname string.
+	#>
+
+	if ($Machine.Hostname -match $ImportedHostname -and $ImportedHostname -notmatch "^$") {
 		Write-Host -ForegroundColor Red ("`nERROR: Package '" + $Package.Name + "' will not be processed, as this host is blocked.`n")
 		
 		exit(4)
