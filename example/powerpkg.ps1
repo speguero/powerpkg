@@ -258,12 +258,6 @@ else {
 # ---- HOST BLOCK PROCESSING ----
 
 foreach ($ImportedHostname in $Script.Config.BlockHost) {
-
-	<#
-		The next condition right of the "-and" operator is required for PowerShell 2.0, as it will
-		otherwise find a match between a valid machine hostname and an empty imported hostname string.
-	#>
-
 	if ($Machine.Hostname -match $ImportedHostname -and $ImportedHostname -notmatch "^$") {
 		Write-Host -ForegroundColor Red ("`nERROR: Package '" + $Package.Name + "' will not be processed, as this host is blocked.`n")
 		
@@ -317,6 +311,7 @@ foreach ($Row in $Package.Config.FilePath) {
 				"ExitCode" = 0
 				"Path"     = $Row.Executable
 			}
+			"OperatingSystem"  = $Row.OperatingSystem
 			"InstructionSet"   = $Row.InstructionSet
 			"TerminateProcess" = $Row.TerminateProcess
 			"TerminateMessage" = @{
@@ -392,6 +387,23 @@ foreach ($Row in $Package.Config.FilePath) {
 
 	Write-Host -NoNewLine ("`n(" + $Package.TaskStatus.Index + ") Invoking Command (" + $TaskEntry.TaskName + "): ")
 	Write-Host -ForegroundColor Cyan ("`n[" + $TaskEntry.Executable.Path + "]`n")
+	
+	# ---- OPERATING SYSTEM COLUMN ----
+	
+	if ($TaskEntry.OperatingSystem -match "^$") {
+		pass
+	}
+	
+	if ($Machine.OSVersion -match $TaskEntry.OperatingSystem) {
+		pass
+	}
+	
+	else {
+		$Script.Output = ("OperatingSystem: It is """ + $Machine.OSVersion + """ and not """ + $TaskEntry.OperatingSystem + """.")
+
+		Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
+		continue
+	}
 	
 	# ---- INSTRUCTION SET COLUMN ----
 	

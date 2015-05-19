@@ -2,6 +2,7 @@
 	{
 		"TaskName": "",
 		"Executable": "",
+		"OperatingSystem": "",
 		"InstructionSet": "",
 		"TerminateProcess": "",
 		"TerminateMessage": "",
@@ -12,6 +13,7 @@
 	{
 		"TaskName": "",
 		"Executable": "",
+		"OperatingSystem": "",
 		"InstructionSet": "",
 		"TerminateProcess": "",
 		"TerminateMessage": "",
