@@ -394,7 +394,7 @@ foreach ($Row in $Package.Config.FilePath) {
 		pass
 	}
 	
-	if ($Machine.OSVersion -match $TaskEntry.OperatingSystem) {
+	elseif ($Machine.OSVersion -match $TaskEntry.OperatingSystem) {
 		pass
 	}
 	
