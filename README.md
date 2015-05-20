@@ -53,12 +53,12 @@ Consider the following recommended package structure:
 |   |   |-- powerpkg.conf
 |   |   +-- powerpkg.ps1
 |   |
-|   |-- uninstall
-|   |
-|   |-- package.json
-|   |-- package.csv
-|   |-- powerpkg.conf
-|   +-- powerpkg.ps1
+|   +-- uninstall
+|       |
+|       |-- package.json
+|       |-- package.csv
+|       |-- powerpkg.conf
+|       +-- powerpkg.ps1
 |
 +-- /example_package2
     |
