@@ -27,7 +27,7 @@ However, `powerpkg` was purposely designed to process one package file per direc
 
 ## Package File
 
-## Script Configuration File
+## Script Configuration
 
 The script configuration file (`powerpkg.conf`) is not required for the utilization of `powerpkg.ps1`.
 
