@@ -10,7 +10,17 @@ Before reading through this documentation, please note that a minimum of **Power
 
 **One** script to perform **all** functions.
 
-The sole purpose of `powerpkg` is to enable maintainability when managing application deployments on the Windows platform. This allows an administrator to consolidate an unsustainable collection of unique scripts into one PowerShell script that processes instructions, or `task entries`, stored in an accompanying JSON or CSV file, forming a `package` and leaving the original codebase of said script intact and in a standardized fashion.
+The sole purpose of `powerpkg` is to enable maintainability when managing application deployments on the Windows platform. This allows an administrator to consolidate an unsustainable collection of unique scripts into one PowerShell script.
+
+Modifying the script itself is not necessary, as it processes custom instructions, or `task entries`, in an accompanying JSON or CSV `package file`, leaving the original codebase of said script intact.
+
+However, `powerpkg` was purposely designed to process one package file per directory. For this reason, a package file should only fulfill one specific purpose, such as performing an installation, and remain accompanied by a replicated variant of the script inside a separate directory, forming a `package`.
+
+*Still not convinced?* Consider the following questions below:
+
+- Auditing application deployment procedures? Reviewing one script should alleviate stress.
+
+- Want to update the `powerpkg` script? Replicate it to all packages and voilà.
 
 ## How It Works
 
