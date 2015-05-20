@@ -7,7 +7,7 @@ A Windows application deployment script with an emphasis on simplicity and stand
 2. [Philosophy](#philosophy)
 3. [Package File](#package-file)
 4. [Script Configuration File](#script-configuration-file)
-5. [Package Structure](#package-structure)
+5. [Package Directory Structure](#package-directory-structure)
 6. [Result](#result)
 7. [Debugging](#debugging)
 
@@ -37,7 +37,7 @@ BlockHost            | `Null` | Prevents specified hosts from processing package
 PackageName          | `Null` | Allows specifying a different package name apart from the name of the directory a package resides in.
 SuppressNotification | `True` | Prevents a balloon notification from displaying upon a successful deployment. A value of `False` in `powerpkg.conf` changes this behavior.
 
-## Package Structure
+## Package Directory Structure
 
 Consider the following recommended package structure:
 
