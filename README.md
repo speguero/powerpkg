@@ -2,7 +2,7 @@
 
 A Windows application deployment script with an emphasis on simplicity and standardization.
 
-## Section:
+## Section
 1. [Requirement](#requirement)
 2. [Philosophy](#philosophy)
 3. [Package File](#package-file)
