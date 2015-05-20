@@ -16,15 +16,9 @@ Modifying the script itself is not necessary, as it processes custom instruction
 
 However, `powerpkg` was purposely designed to process one package file per directory. For this reason, a package file should only fulfill one specific purpose, such as performing the installation of an application, and remain accompanied by a replicated variant of the script inside a separate directory, forming a `package`.
 
-*Still not convinced?* Consider the following questions below:
-
-- Auditing application deployment procedures? Reviewing one script should alleviate stress.
-
-- Want to update the `powerpkg` script? Replicate it to all packages and voilà.
-
 ## How It Works
 
-Take the following package structure as an example:
+Consider the following package structure example:
 
 ```
 /collection
