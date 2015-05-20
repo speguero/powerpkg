@@ -1,14 +1,60 @@
 # powerpkg
 
-A Windows package deployment script with an emphasis on simplicity and standardization.
+A Windows application deployment script with an emphasis on simplicity and standardization.
 
-As you may notice, there isn't much documentation on this particular project, but please stick around, as there is more work to be done before documentation can come into play.
+## Requirement
 
-## Configuration:
+Before reading through this documentation, please note that a minimum of **PowerShell 2.0** is required to utilize this project. However, PowerShell 3.0+ is recommended.
+
+## Philosophy
+
+**One** script to perform **all** functions.
+
+The sole purpose of `powerpkg` is to enable maintainability when managing application deployments on the Windows platform. This allows an administrator to consolidate an unsustainable collection of unique scripts into one PowerShell script that processes instructions, or `task entries`, stored in an accompanying JSON or CSV file, forming a `package` and leaving the original codebase of said script intact and in a standardized fashion.
+
+## How It Works
+
+Take the following package structure as an example:
+
+```
+/collection
+|
+|-- /example_package1
+|   |
+|   |-- install
+|   |   |
+|   |   |-- package.json
+|   |   |-- package.csv
+|   |   |-- powerpkg.conf
+|   |   +-- powerpkg.ps1
+|   |
+|   |-- uninstall
+|   |
+|   |-- package.json
+|   |-- package.csv
+|   |-- powerpkg.conf
+|   +-- powerpkg.ps1
+|
++-- /example_package2
+    |
+    |-- install
+    |   |
+    |   |-- package.json
+    |   |-- package.csv
+    |   |-- powerpkg.conf
+    |   +-- powerpkg.ps1
+    |
+    +-- uninstall
+        |
+        |-- package.json
+        |-- package.csv
+        |-- powerpkg.conf
+        +-- powerpkg.ps1
+```
+
+## Default Script Configuration
 
 The script configuration file (`powerpkg.conf`) is not required for the utilization of `powerpkg.ps1`.
-
-### Default Settings:
 
 Type                 | Value  | Description
 ----                 | -----  | -----------
@@ -16,7 +62,11 @@ BlockHost            | `Null` | Prevents specified hosts from processing package
 PackageName          | `Null` | Allows specifying a different package name apart from the name of the directory a package resides in.
 SuppressNotification | `True` | Prevents a balloon notification from displaying upon a successful deployment. A value of `False` in `powerpkg.conf` changes this behavior.
 
-## Debugging:
+## Package File Creation
+
+## Results
+
+## Debugging
 
 ### Exit Codes:
 
