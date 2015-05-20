@@ -60,7 +60,9 @@ Within this collection, we have directory `example_package1`, which is associate
 
 The same is true for directory `example_package2`.
 
-## Default Script Configuration
+## Package File
+
+## Script Configuration File
 
 The script configuration file (`powerpkg.conf`) is not required for the utilization of `powerpkg.ps1`.
 
@@ -69,8 +71,6 @@ Type                 | Value  | Description
 BlockHost            | `Null` | Prevents specified hosts from processing package files.
 PackageName          | `Null` | Allows specifying a different package name apart from the name of the directory a package resides in.
 SuppressNotification | `True` | Prevents a balloon notification from displaying upon a successful deployment. A value of `False` in `powerpkg.conf` changes this behavior.
-
-## Package File Creation
 
 ## Results
 
