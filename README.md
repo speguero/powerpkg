@@ -16,9 +16,9 @@ Modifying the script itself is not necessary, as it processes custom instruction
 
 However, `powerpkg` was purposely designed to process one package file per directory. For this reason, a package file should only fulfill one specific purpose, such as performing the installation of an application, and remain accompanied by a replicated variant of the script inside a separate directory, forming a `package`.
 
-## How It Works
+## Package Structure
 
-Consider the following package structure example:
+Consider the following recommended package structure:
 
 ```
 /collection
@@ -55,6 +55,10 @@ Consider the following package structure example:
         |-- powerpkg.conf
         +-- powerpkg.ps1
 ```
+
+Within this collection, we have directory `example_package1`, which is associated with one particular application. However, within it lies two packages, `install` and `uninstall`. Both packages perform two different functions for `example_package1`. Within these packages are individual package files that hold specific instructions for their accompanying script, `powerpkg.ps1`, to process.
+
+The same is true for directory `example_package2`.
 
 ## Default Script Configuration
 
