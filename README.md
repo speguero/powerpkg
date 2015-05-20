@@ -2,11 +2,11 @@
 
 A Windows application deployment script with an emphasis on simplicity and standardization.
 
-## Sections:
+## Section:
 1. [Requirement](#requirement)
 2. [Philosophy](#philosophy)
 3. [Package File](#package-file)
-4. [Script Configuration File](#script-configuration-file)
+4. [Script Configuration](#script-configuration)
 5. [Package Directory Structure](#package-directory-structure)
 6. [Result](#result)
 7. [Debugging](#debugging)
