@@ -2,6 +2,15 @@
 
 A Windows application deployment script with an emphasis on simplicity and standardization.
 
+## Sections:
+1. [Requirement](#requirement)
+2. [Philosophy](#philosophy)
+3. [Package Structure](#package-structure)
+4. [Package File](#package-file)
+5. [Script Configuration File](#script-configuration-file)
+6. [Result](#result)
+7. [Debugging](#debugging)
+
 ## Requirement
 
 Before reading through this documentation, please note that a minimum of **PowerShell 2.0** is required to utilize this project. However, PowerShell 3.0+ is recommended.
@@ -72,7 +81,7 @@ BlockHost            | `Null` | Prevents specified hosts from processing package
 PackageName          | `Null` | Allows specifying a different package name apart from the name of the directory a package resides in.
 SuppressNotification | `True` | Prevents a balloon notification from displaying upon a successful deployment. A value of `False` in `powerpkg.conf` changes this behavior.
 
-## Results
+## Result
 
 ## Debugging
 
