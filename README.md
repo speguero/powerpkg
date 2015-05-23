@@ -32,7 +32,7 @@ However, `powerpkg` was purposely designed to process one package file per direc
 #### Executable:
 
 Parameter     | Description                                        | Example Value
----------       -----------                                        | -------------
+---------     | -----------                                        | -------------
 `[LocalFile]` | Allows specifying a file located within a package. | `[LocalFile]file.exe`
 
 #### OperatingSystem:
