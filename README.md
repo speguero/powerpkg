@@ -27,6 +27,28 @@ However, `powerpkg` was purposely designed to process one package file per direc
 
 ## Package File
 
+#### TaskName:
+
+#### Executable:
+
+Parameter     | Description                                        | Example Value
+---------       -----------                                        | -------------
+`[LocalFile]` | Allows specifying a file located within a package. | `[LocalFile]file.exe`
+
+#### OperatingSystem:
+
+#### InstructionSet:
+
+#### TerminateProcess:
+
+#### TerminateMessage:
+
+#### SuccessExitCode:
+
+#### ContinueIfFail:
+
+#### VerifyInstall:
+
 ## Script Configuration
 
 The script configuration file (`powerpkg.conf`) is not required for the utilization of `powerpkg.ps1`.
@@ -77,7 +99,7 @@ Consider the following recommended package structure:
         +-- powerpkg.ps1
 ```
 
-Within this collection, we have directory `example_package1`, which is associated with one particular application. However, within it lies two packages, `install` and `uninstall`. Both packages perform two different functions for `example_package1`. Within these packages are individual package files that hold specific instructions for their accompanying script, `powerpkg.ps1`, to process.
+Within this collection, we have directory `example_package1`, which is associated with an application, but solely exists to organize the two packages (subdirectories) within it, `install` and `uninstall`. Both packages perform two different functions for said application. Within these packages are individual package files that hold specific instructions for their accompanying script, `powerpkg.ps1`, to process.
 
 The same is true for directory `example_package2`.
 
