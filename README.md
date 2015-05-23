@@ -27,27 +27,34 @@ However, `powerpkg` was purposely designed to process one package file per direc
 
 ## Package File
 
-#### TaskName:
+#### TaskName
 
-#### Executable:
+#### Executable
 
 Parameter     | Description                                        | Example Value
 ---------     | -----------                                        | -------------
 `[LocalFile]` | Allows specifying a file located within a package. | `[LocalFile]file.exe`
 
-#### OperatingSystem:
+#### OperatingSystem
 
-#### InstructionSet:
+#### InstructionSet
 
-#### TerminateProcess:
+#### TerminateProcess
 
-#### TerminateMessage:
+#### TerminateMessage
 
-#### SuccessExitCode:
+#### SuccessExitCode
 
-#### ContinueIfFail:
+#### ContinueIfFail
 
-#### VerifyInstall:
+#### VerifyInstall
+
+Parameter        | Description | Example Value
+---------        | ----------- | -------------
+`[Hotfix]`       |             |
+`[Path]`         |             |
+`[Vers_File]`    |             |
+`[Vers_Product]` |             |
 
 ## Script Configuration
 
