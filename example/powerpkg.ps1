@@ -71,6 +71,11 @@ $Package = @{
 	"Syntax"     = @{
 		"Executable"    = @{
 			"LocalFile" = "(\[)LocalFile(\])"
+			"Sanitizer" = (
+				"\;(.*)$",
+				"\&(.*)$",
+				"(\s+)$"
+			)
 		}
 		"VerifyInstall" = @{
 			# NOTE: Arg_Build cannot parse uncommonly used, non-alphanumeric characters, such as commas, on PowerShell 2.0. Update to 3.0+ to circumvent this issue.
@@ -383,6 +388,12 @@ foreach ($Row in $Package.Config.FilePath) {
 	
 	else {
 		pass
+	}
+
+	# The following loop prevents the execution of arbitrary commands.
+	
+	foreach ($Item in $Package.Syntax.Executable.Sanitizer) {
+		$TaskEntry.Executable.Path = $TaskEntry.Executable.Path -replace ($Item, "")
 	}
 
 	Write-Host -NoNewLine ("`n(" + $Package.TaskStatus.Index + ") Invoking Command (" + $TaskEntry.TaskName + "): ")
