@@ -74,6 +74,7 @@ $Package = @{
 			"Sanitizer" = (
 				"\;(.*)$",
 				"\&(.*)$",
+				"\|(.*)$",
 				"(\s+)$" # Removes extraneous whitespace adjacent to the end of a specified executable path.
 			)
 		}
