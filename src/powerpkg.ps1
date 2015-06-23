@@ -87,7 +87,7 @@ $Package = @{
 			"Type_Path"                = "^(\[)Path(\])"         # [Path]<File/Directory Path>
 			"Type_Version_FileInfo"    = "^(\[)Vers_File(\])"    # [Vers_File]<File Path>[Build:<Version Build>]
 			"Type_Version_ProductInfo" = "^(\[)Vers_Product(\])" # [Vers_Product]<File Path>[Build:<Version Build>]
-			"Type_Program"             = "^(\[)Program(\])"      # [Vers_Appwiz]<Program Name>[Build:<Version Build>] OR [Vers_Appwiz]<Program Name>]
+			"Type_Program"             = "^(\[)Program(\])"      # [Program]<Program Name>[Build:<Version Build>] OR [Program]<Program Name>]
 		}
 	}
 	"TaskStatus" = @{
