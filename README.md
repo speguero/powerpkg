@@ -7,8 +7,7 @@ A Windows application deployment script with an emphasis on simplicity and stand
 2. [Philosophy](#philosophy)
 3. [Package File](#package-file)
 4. [Script Configuration](#script-configuration)
-5. [Package Directory Structure](#package-directory-structure)
-6. [Result](#result)
+5. [Example Usage](#example-usage)
 7. [Debugging](#debugging)
 
 ## Requirement
@@ -55,6 +54,7 @@ Parameter        | Description | Example Value
 `[Path]`         |             |
 `[Vers_File]`    |             |
 `[Vers_Product]` |             |
+`[Program]`      |             |
 
 ## Script Configuration
 
@@ -66,30 +66,12 @@ BlockHost            | `Null` | Prevents specified hosts from processing package
 PackageName          | `Null` | Allows specifying a different package name apart from the name of the directory a package resides in.
 SuppressNotification | `True` | Prevents a balloon notification from displaying upon a successful deployment. A value of `False` in `powerpkg.conf` changes this behavior.
 
-## Package Directory Structure
+## Example Usage
 
 Consider the following recommended package structure:
 
 ```
-/collection
-|
-|-- /example_package1
-|   |
-|   |-- install
-|   |   |
-|   |   |-- package.json
-|   |   |-- package.csv
-|   |   |-- powerpkg.conf
-|   |   +-- powerpkg.ps1
-|   |
-|   +-- uninstall
-|       |
-|       |-- package.json
-|       |-- package.csv
-|       |-- powerpkg.conf
-|       +-- powerpkg.ps1
-|
-+-- /example_package2
++-- /example_package
     |
     |-- install
     |   |
@@ -106,11 +88,9 @@ Consider the following recommended package structure:
         +-- powerpkg.ps1
 ```
 
-Within this collection, we have directory `example_package1`, which is associated with an application, but solely exists to organize the two packages (subdirectories) within it, `install` and `uninstall`. Both packages perform two different functions for said application. Within these packages are individual package files that hold specific instructions for their accompanying script, `powerpkg.ps1`, to process.
+Here, we have directory `example_package`. In this case, it is associated with a specific application and solely a placeholder for two packages located within it, `install` and `uninstall`.
 
-The same is true for directory `example_package2`.
-
-## Result
+As you may have noticed, both packages serve a unique purpose in relation to `example_package`. Within these packages are individual package files, `package.json` and `package.csv`, that contain specific instructions that the accompanying script, `powerpkg.ps1`, processes.
 
 ## Debugging
 
