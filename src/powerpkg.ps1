@@ -327,12 +327,11 @@ foreach ($Row in $Package.Config.FilePath) {
 				"AlreadyPrompted" = $False # Ensures to only display TerminateMessage prompt once, if terminating more than one process.
 			}
 			"VerifyInstall"    = @{
-				"Path"         = $Row.VerifyInstall
-				"VersionBuild" = @{
-					"Specified"  = 0
-					"Discovered" = 0
-				}
-				"Existence"    = 0
+				"Path"             = $Row.VerifyInstall
+				"SpecifiedBuild"   = 0
+				"DiscoveredBuild"  = 0
+				"Existence"        = $Null
+				"ProgramReference" = $Null
 			}
 			"SuccessExitCode"  = $Row.SuccessExitCode
 			"ContinueIfFail"   = $Row.ContinueIfFail
@@ -434,7 +433,7 @@ foreach ($Row in $Package.Config.FilePath) {
 	}
 	
 	else {
-		$Script.Output = ("InstructionSet: Operating system based on """ + $Machine.InstructionSet + """ and not """ + $TaskEntry.InstructionSet + """.")
+		$Script.Output = ("InstructionSet: Userspace instruction set is """ + $Machine.InstructionSet + """ and not """ + $TaskEntry.InstructionSet + """.")
 
 		Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
 		continue
@@ -476,12 +475,12 @@ foreach ($Row in $Package.Config.FilePath) {
 		try {
 			$TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Arg_Build | Out-Null
 
-			$TaskEntry.VerifyInstall.Path                    = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Arg_Build, "")
-			$TaskEntry.VerifyInstall.VersionBuild.Specified  = $Matches[1]
-			$TaskEntry.VerifyInstall.VersionBuild.Discovered = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Path) | % {$_.FileVersion}
+			$TaskEntry.VerifyInstall.Path            = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Arg_Build, "")
+			$TaskEntry.VerifyInstall.SpecifiedBuild  = $Matches[1]
+			$TaskEntry.VerifyInstall.DiscoveredBuild = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Path) | % {$_.FileVersion}
 
-			if ($TaskEntry.VerifyInstall.VersionBuild.Specified -eq $TaskEntry.VerifyInstall.VersionBuild.Discovered) {
-				$Script.Output = ("VerifyInstall: [Vers_File] """ + $TaskEntry.VerifyInstall.VersionBuild.Specified + """ exists.")
+			if ($TaskEntry.VerifyInstall.SpecifiedBuild -eq $TaskEntry.VerifyInstall.DiscoveredBuild) {
+				$Script.Output = ("VerifyInstall: [Vers_File] """ + $TaskEntry.VerifyInstall.SpecifiedBuild + """ exists.")
 
 				Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
 				continue
@@ -503,12 +502,12 @@ foreach ($Row in $Package.Config.FilePath) {
 		try {
 			$TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Arg_Build | Out-Null
 
-			$TaskEntry.VerifyInstall.Path                    = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Arg_Build, "")
-			$TaskEntry.VerifyInstall.VersionBuild.Specified  = $Matches[1]
-			$TaskEntry.VerifyInstall.VersionBuild.Discovered = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Path) | % {$_.ProductVersion}
+			$TaskEntry.VerifyInstall.Path            = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Arg_Build, "")
+			$TaskEntry.VerifyInstall.SpecifiedBuild  = $Matches[1]
+			$TaskEntry.VerifyInstall.DiscoveredBuild = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Path) | % {$_.ProductVersion}
 
-			if ($TaskEntry.VerifyInstall.VersionBuild.Specified -eq $TaskEntry.VerifyInstall.VersionBuild.Discovered) {
-				$Script.Output = ("VerifyInstall: [Vers_Product] """ + $TaskEntry.VerifyInstall.VersionBuild.Specified + """ exists.")
+			if ($TaskEntry.VerifyInstall.SpecifiedBuild -eq $TaskEntry.VerifyInstall.DiscoveredBuild) {
+				$Script.Output = ("VerifyInstall: [Vers_Product] """ + $TaskEntry.VerifyInstall.SpecifiedBuild + """ exists.")
 
 				Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
 				continue
@@ -529,10 +528,20 @@ foreach ($Row in $Package.Config.FilePath) {
 
 		try {
 			if ($TaskEntry.VerifyInstall.Path -notmatch $Package.Syntax.VerifyInstall.Arg_Build) {
-				$TaskEntry.VerifyInstall.VersionBuild.Discovered = $Machine.ProgramList | ? {$_.DisplayName -eq $TaskEntry.VerifyInstall.Path} | % {$_.DisplayName}
+				if ($TaskEntry.VerifyInstall.Path -match "^\{(.*)\}$") {
+					$TaskEntry.VerifyInstall.ProgramReference = "PSChildName"
+				}
+
+				else {
+					$TaskEntry.VerifyInstall.ProgramReference = "DisplayName"
+				}
+
+				$TaskEntry.VerifyInstall.Existence = (
+					$Machine.ProgramList | ? {$_.$($TaskEntry.VerifyInstall.ProgramReference) -eq $TaskEntry.VerifyInstall.Path} | % {$_.DisplayName}
+				)
 				
-				if ($TaskEntry.VerifyInstall.Path -eq $TaskEntry.VerifyInstall.VersionBuild.Discovered) {
-					$Script.Output = ("VerifyInstall: [Program] Name """ + $TaskEntry.VerifyInstall.Path + """ exists.")
+				if ($TaskEntry.VerifyInstall.Existence -ne $Null) {
+					$Script.Output = ("VerifyInstall: [Program] """ + $TaskEntry.VerifyInstall.Path + """ exists.")
 
 					Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
 					continue
@@ -545,12 +554,23 @@ foreach ($Row in $Package.Config.FilePath) {
 			
 			else {
 				$TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Arg_Build | Out-Null
-				$TaskEntry.VerifyInstall.Path                    = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Arg_Build, "")
-				$TaskEntry.VerifyInstall.VersionBuild.Specified  = $Matches[1]
-				$TaskEntry.VerifyInstall.VersionBuild.Discovered = $Machine.ProgramList | ? {$_.DisplayName -eq $TaskEntry.VerifyInstall.Path} | % {$_.DisplayVersion}
+				$TaskEntry.VerifyInstall.Path           = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Arg_Build, "")
+				$TaskEntry.VerifyInstall.SpecifiedBuild = $Matches[1]
+
+				if ($TaskEntry.VerifyInstall.Path -match "^\{(.*)\}$") {
+					$TaskEntry.VerifyInstall.ProgramReference = "PSChildName"
+				}
+
+				else {
+					$TaskEntry.VerifyInstall.ProgramReference = "DisplayName"
+				}
+
+				$TaskEntry.VerifyInstall.DiscoveredBuild = (
+					$Machine.ProgramList | ? {$_.$($TaskEntry.VerifyInstall.ProgramReference) -eq $TaskEntry.VerifyInstall.Path} | % {$_.DisplayVersion}
+				)
 				
-				if ($TaskEntry.VerifyInstall.VersionBuild.Specified -eq $TaskEntry.VerifyInstall.VersionBuild.Discovered) {
-					$Script.Output = ("VerifyInstall: [Program] Build """ + $TaskEntry.VerifyInstall.VersionBuild.Specified + """ exists.")
+				if ($TaskEntry.VerifyInstall.SpecifiedBuild -eq $TaskEntry.VerifyInstall.DiscoveredBuild) {
+					$Script.Output = ("VerifyInstall: [Program] """ + $TaskEntry.VerifyInstall.SpecifiedBuild + """ exists.")
 
 					Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
 					continue
