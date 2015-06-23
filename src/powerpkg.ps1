@@ -58,6 +58,7 @@ $Machine = @{
 	"Hostname"       = [System.Environment]::GetEnvironmentVariable("ComputerName")
 	"Username"       = [System.Environment]::GetEnvironmentVariable("Username")
 	"SystemDrive"    = [System.Environment]::GetEnvironmentVariable("SystemDrive")
+	"ProgramList"    = Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall" | % {Get-ItemProperty $_.PSPath}
 }
 
 $Package = @{
@@ -86,6 +87,7 @@ $Package = @{
 			"Type_Path"                = "^(\[)Path(\])"         # [Path]<File/Directory Path>
 			"Type_Version_FileInfo"    = "^(\[)Vers_File(\])"    # [Vers_File]<File Path>[Build:<Version Build>]
 			"Type_Version_ProductInfo" = "^(\[)Vers_Product(\])" # [Vers_Product]<File Path>[Build:<Version Build>]
+			"Type_Program"             = "^(\[)Program(\])"      # [Vers_Appwiz]<Program Name>[Build:<Version Build>] OR [Vers_Appwiz]<Program Name>]
 		}
 	}
 	"TaskStatus" = @{
@@ -367,6 +369,10 @@ foreach ($Row in $Package.Config.FilePath) {
 		break
 	}
 	
+	elseif ($TaskEntry.TaskName -match "^\#") { # Allows for skipping tasks for the sole purpose of package testing.
+		continue
+	}
+	
 	else {
 		pass
 	}
@@ -511,6 +517,50 @@ foreach ($Row in $Package.Config.FilePath) {
 			else {
 				throw
 			} 
+		}
+
+		catch [Exception] {
+			pass
+		}
+	}
+	
+	elseif ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Program) {
+		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Program, "")
+
+		try {
+			if ($TaskEntry.VerifyInstall.Path -notmatch $Package.Syntax.VerifyInstall.Arg_Build) {
+				$TaskEntry.VerifyInstall.VersionBuild.Discovered = $Machine.ProgramList | ? {$_.DisplayName -eq $TaskEntry.VerifyInstall.Path} | % {$_.DisplayName}
+				
+				if ($TaskEntry.VerifyInstall.Path -eq $TaskEntry.VerifyInstall.VersionBuild.Discovered) {
+					$Script.Output = ("VerifyInstall: [Program] Name """ + $TaskEntry.VerifyInstall.Path + """ exists.")
+
+					Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
+					continue
+				}
+				
+				else {
+					throw
+				}
+			}
+			
+			else {
+				$TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Arg_Build | Out-Null
+				$TaskEntry.VerifyInstall.Path                    = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Arg_Build, "")
+				$TaskEntry.VerifyInstall.VersionBuild.Specified  = $Matches[1]
+			
+				$TaskEntry.VerifyInstall.VersionBuild.Discovered = $Machine.ProgramList | ? {$_.DisplayName -eq $TaskEntry.VerifyInstall.Path} | % {$_.DisplayVersion}
+				
+				if ($TaskEntry.VerifyInstall.VersionBuild.Specified -eq $TaskEntry.VerifyInstall.VersionBuild.Discovered) {
+					$Script.Output = ("VerifyInstall: [Program] Build """ + $TaskEntry.VerifyInstall.VersionBuild.Specified + """ exists.")
+
+					Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
+					continue
+				}
+				
+				else {
+					throw
+				}
+			}
 		}
 
 		catch [Exception] {
@@ -664,4 +714,3 @@ else {
 }
 
 exit($Script.ExitCode)
-
