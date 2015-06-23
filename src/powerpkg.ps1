@@ -547,7 +547,6 @@ foreach ($Row in $Package.Config.FilePath) {
 				$TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Arg_Build | Out-Null
 				$TaskEntry.VerifyInstall.Path                    = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Arg_Build, "")
 				$TaskEntry.VerifyInstall.VersionBuild.Specified  = $Matches[1]
-			
 				$TaskEntry.VerifyInstall.VersionBuild.Discovered = $Machine.ProgramList | ? {$_.DisplayName -eq $TaskEntry.VerifyInstall.Path} | % {$_.DisplayVersion}
 				
 				if ($TaskEntry.VerifyInstall.VersionBuild.Specified -eq $TaskEntry.VerifyInstall.VersionBuild.Discovered) {
