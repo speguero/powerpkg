@@ -58,7 +58,10 @@ $Machine = @{
 	"Hostname"       = [System.Environment]::GetEnvironmentVariable("ComputerName")
 	"Username"       = [System.Environment]::GetEnvironmentVariable("Username")
 	"SystemDrive"    = [System.Environment]::GetEnvironmentVariable("SystemDrive")
-	"ProgramList"    = Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall" | % {Get-ItemProperty $_.PSPath}
+	"ProgramList"    = @(
+		"HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall",
+		"HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
+	)
 }
 
 $Package = @{
@@ -87,7 +90,7 @@ $Package = @{
 			"Type_Path"                = "^(\[)Path(\])"         # [Path]<File/Directory Path>
 			"Type_Version_FileInfo"    = "^(\[)Vers_File(\])"    # [Vers_File]<File Path>[Build:<Version Build>]
 			"Type_Version_ProductInfo" = "^(\[)Vers_Product(\])" # [Vers_Product]<File Path>[Build:<Version Build>]
-			"Type_Program"             = "^(\[)Program(\])"      # [Program]<Program Name>[Build:<Version Build>] OR [Program]<Program Name>]
+			"Type_Program"             = "^(\[)Program(\])"      # [Program]<Program Name/Product Code>[Build:<Version Build>] OR [Program]<Program Name/Product Code>]
 		}
 	}
 	"TaskStatus" = @{
@@ -536,9 +539,17 @@ foreach ($Row in $Package.Config.FilePath) {
 					$TaskEntry.VerifyInstall.ProgramReference = "DisplayName"
 				}
 
-				$TaskEntry.VerifyInstall.Existence = (
-					$Machine.ProgramList | ? {$_.$($TaskEntry.VerifyInstall.ProgramReference) -eq $TaskEntry.VerifyInstall.Path} | % {$_.DisplayName}
-				)
+				foreach ($Path in $Machine.ProgramList) {
+					if (Test-Path $Path) {
+						$TaskEntry.VerifyInstall.Existence = @(
+							Get-ChildItem $Path | % {Get-ItemProperty $_.PSPath} | ? {$_.$($TaskEntry.VerifyInstall.ProgramReference) -eq $TaskEntry.VerifyInstall.Path} | % {$_.DisplayName}
+						)
+					}
+
+					else {
+						pass
+					}
+				}
 				
 				if ($TaskEntry.VerifyInstall.Existence -ne $Null) {
 					$Script.Output = ("VerifyInstall: [Program] """ + $TaskEntry.VerifyInstall.Path + """ exists.")
@@ -565,11 +576,19 @@ foreach ($Row in $Package.Config.FilePath) {
 					$TaskEntry.VerifyInstall.ProgramReference = "DisplayName"
 				}
 
-				$TaskEntry.VerifyInstall.DiscoveredBuild = (
-					$Machine.ProgramList | ? {$_.$($TaskEntry.VerifyInstall.ProgramReference) -eq $TaskEntry.VerifyInstall.Path} | % {$_.DisplayVersion}
-				)
-				
-				if ($TaskEntry.VerifyInstall.SpecifiedBuild -eq $TaskEntry.VerifyInstall.DiscoveredBuild) {
+				foreach ($Path in $Machine.ProgramList) {
+					if (Test-Path $Path) {
+						$TaskEntry.VerifyInstall.DiscoveredBuild = @(
+							Get-ChildItem $Path | % {Get-ItemProperty $_.PSPath} | ? {$_.$($TaskEntry.VerifyInstall.ProgramReference) -eq $TaskEntry.VerifyInstall.Path} | % {$_.DisplayVersion}
+						)
+					}
+
+					else {
+						pass
+					}
+				}
+
+				if ($TaskEntry.VerifyInstall.DiscoveredBuild -contains $TaskEntry.VerifyInstall.SpecifiedBuild) {
 					$Script.Output = ("VerifyInstall: [Program] """ + $TaskEntry.VerifyInstall.SpecifiedBuild + """ exists.")
 
 					Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
