@@ -405,7 +405,7 @@ foreach ($Row in $Package.Config.FilePath) {
 		$TaskEntry.Executable.Path = $TaskEntry.Executable.Path -replace ($Item, "")
 	}
 
-	Write-Host -NoNewLine ("`n(" + $Package.TaskStatus.Index + ") Invoking Command (" + $TaskEntry.TaskName + "): ")
+	Write-Host -NoNewLine ("`n(" + $Package.TaskStatus.Index + ") " + $TaskEntry.TaskName + ": ")
 	Write-Host -ForegroundColor Cyan ("`n[" + $TaskEntry.Executable.Path + "]`n")
 	
 	# ---- OPERATING SYSTEM COLUMN ----
@@ -617,24 +617,24 @@ foreach ($Row in $Package.Config.FilePath) {
 		
 		foreach ($Process in $TaskEntry.TerminateProcess) {
 			try {
-				$RunningProcess = Get-Process $Process
-			
-				if ($RunningProcess) {
-					if ($TaskEntry.TerminateMessage.Prompt -notmatch "^$" -and $TaskEntry.TerminateMessage.AlreadyPrompted -eq $False) {
-						Show-DialogBox -Title $Package.Name -Message $TaskEntry.TerminateMessage.Prompt | Out-Null
-						$TaskEntry.TerminateMessage.AlreadyPrompted = $True
-					}
-
-					else {
-						pass
-					}
-
-					Get-Process $Process | Stop-Process -Force
+				if (Get-Process $Process) {
+					pass
 				}
 
 				else {
 					continue
 				}
+				
+				if ($TaskEntry.TerminateMessage.Prompt -notmatch "^$" -and $TaskEntry.TerminateMessage.AlreadyPrompted -eq $False) {
+					Show-DialogBox -Title $Package.Name -Message $TaskEntry.TerminateMessage.Prompt | Out-Null
+					$TaskEntry.TerminateMessage.AlreadyPrompted = $True
+				}
+
+				else {
+					pass
+				}
+
+				Get-Process $Process | Stop-Process -Force
 			}
 			
 			catch [Exception] {
@@ -717,7 +717,7 @@ if ($Script.ExitCode -eq 0 -and $Package.TaskStatus.Successful -eq 0) {
 }
 
 else {
-	$Package.TaskStatus.TotalProcessed = [Int32]$Package.TaskStatus.Successful + [Int32]$Package.TaskStatus.Unsuccessful
+	$Package.TaskStatus.TotalProcessed = [Int]$Package.TaskStatus.Successful + [Int]$Package.TaskStatus.Unsuccessful
 
 	$Package.Result = (
 		"`nTasks Processed : " + $Package.TaskStatus.TotalProcessed + `
