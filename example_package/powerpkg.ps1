@@ -306,7 +306,7 @@ Write-Host -ForegroundColor Cyan (
 	"`nInitiating Package (" + $Package.Name + "):`n"                              + `
 	"`nHost                       : " + $Machine.Hostname                          + `
 	"`nOperating System (Windows) : " + $Machine.OSVersion                         + `
-	"`nUserspace Architecture     : " + $Machine.UserspaceArchitecture                    + `
+	"`nUserspace Architecture     : " + $Machine.UserspaceArchitecture             + `
 	"`nUser                       : " + $Machine.Username + "`n"                   + `
 	"`n----`n"                                                                     + `
 	"`nConfiguration Importation  : " + $Script.Config.ImportState                 + `
