@@ -101,13 +101,6 @@ $Package = @{
 	}
 }
 
-$Package += @{
-	"Notification" = @{
-		"Header" = "Installed '" + $Package.Name + "' package!"
-		"Footer" = "Questions or concerns? Contact your system administrator for more information."
-	}
-}
-
 # ---- FUNCTIONS ----
 
 function pass {
@@ -264,6 +257,16 @@ if ($Script.Config.TotalImported -gt 0) {
 
 else {
 	$Script.Config.ImportState = $False
+}
+
+# ---- CREATION OF NOTIFICATION DETAILS ----
+
+$Package += @{
+	"Notification" = @{
+		"Header" = "Installed '" + $Package.Name + "' package!"
+		"Footer" = "Questions or concerns? Contact your system administrator for more information."
+	}
+
 }
 
 # ---- HOST BLOCK PROCESSING ----
