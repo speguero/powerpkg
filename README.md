@@ -24,13 +24,13 @@ A Windows package deployment script with an emphasis on simplicity and standardi
 
 ## Requirement
 
-Before reading through this documentation, please note that a minimum of **PowerShell 2.0** is required to utilize this project. However, PowerShell 3.0+ is recommended.
+Before reading through this documentation, please note that a minimum of **PowerShell 2.0** is required to utilize this project. However, PowerShell 3.0 or higher is recommended.
 
 ## Philosophy
 
 **One** script to perform **all** functions.
 
-The sole purpose of powerpkg is to enable maintainability when managing package deployments on the Windows platform. This allows an administrator to consolidate an unsustainable collection of unique scripts as one PowerShell script.
+The sole purpose of powerpkg is to enable maintainability when managing package deployments on the Windows platform. This allows an administrator to consolidate an unsustainable collection of unique scripts into one PowerShell script.
 
 ## Getting Started
 
@@ -49,25 +49,27 @@ powershell.exe -ExecutionPolicy Unrestricted -File "example_package\powerpkg.ps1
 >
 > For more information on the usage of both `package.json` and `package.csv`, refer to the [Package File](#package-file) segment of this README.
 >
-> To discover basic usage of powerpkg, refer to the [How It Works](#how-it-works) section of this README.
+> To discover basic usage of powerpkg, refer to the [How It Works](#how-it-works) segment of this README.
 
 ## How It Works
 
 **(1)**: Create one of the following [package files](#package-file):
+
   - **`package.json` (PowerShell 3.0+):**
-```json
-[
-    {
-        "TaskName": "Example Task Entry",
-        "Executable": "powershell.exe Write-Output 'Hello, World!'"
-    }
-]
-```
+  ```json
+  [
+      {
+          "TaskName": "Example Task Entry",
+          "Executable": "powershell.exe Write-Output 'Hello, World!'"
+      }
+  ]
+  ```
+  
   - **`package.csv` (PowerShell 2.0):**
-```
-TaskName,Executable
-Example Task Entry,powershell.exe Write-Output 'Hello, World!'
-```
+  ```
+  TaskName,Executable
+  "Example Task Entry","powershell.exe Write-Output ""Hello, World!"""
+  ```
 
 **(2)**: Create `powerpkg.conf`, the script configuration file, with the following content:
 ```
@@ -98,7 +100,7 @@ Suppress Notification      : False
 ----
 
 (1) Example Task Entry:
-[powershell.exe Write-Output 'Hello, World!']
+[powershell.exe Write-Output "Hello, World!"]
 
 Hello, World!
 
@@ -126,7 +128,7 @@ OK: (0)
 
 ## Package File
 
-Package files consist of desired instructions, or task entries, that are processed by `powerpkg.ps1` at runtime.
+Package files consist of specific instructions, or task entries, that are processed by `powerpkg.ps1` at runtime.
 
 > **NOTE**:
 >
@@ -158,7 +160,7 @@ Specific instructions are stored in the form of task entries, which are presente
 
 ```
 TaskName,Executable,OperatingSystem,Architecture,TerminateProcess,TerminateMessage,SuccessExitCode,ContinueIfFail,VerifyInstall
-,,,,,,,,
+"","","","","","","","",""
 ```
 
 For more information on the variety of parameters utilized within a task entry, refer to the Package File segment of [Section](#section) for a list of said parameters, or review the following information below:
@@ -166,7 +168,7 @@ For more information on the variety of parameters utilized within a task entry, 
 #### `TaskName`
 
 - **Required**: Yes
-- **Purpose**: A name of an individual task entry.
+- **Purpose**: A name for an individual task entry.
 - **Usage**:
 
 ```json
@@ -180,7 +182,7 @@ For more information on the variety of parameters utilized within a task entry, 
 #### `Executable`
 
 - **Required**: Yes
-- **Purpose**: An executable file or MS-DOS command to invoke.
+- **Purpose**: An executable file/path or MS-DOS command to invoke.
 - **Subparamaters**:
 
 Subparameter     | Description
@@ -301,7 +303,7 @@ For executable invocations that depend on a specific architectural environment, 
 #### `SuccessExitCode`
 
 - **Required**: No
-- **Purpose**: Non-zero exit codes that also determine a successful task entry.
+- **Purpose**: Non-zero exit codes that also determine a successful task entry. Used in conjunction with the exit code of `0`, so manually specifying such a value is unnecessary. 
 - **Usage**:
 
 ```json
@@ -394,7 +396,7 @@ To utilize the **`[Vers_*]`** subparameters, you will need to retrieve the file 
   ]
   ```
 
-To utilize the **`[Program]`** subparameter, you can either verify the existence of a:
+To utilize the **`[Program]`** subparameter, you can verify the existence of a:
 
 - **Product Code**:
   - Open the `Programs and Features` applet of the Windows Control Panel, and retrieve the name of the installed program you wish to verify the existence of:
@@ -402,9 +404,14 @@ To utilize the **`[Program]`** subparameter, you can either verify the existence
 
   - Within PowerShell, enter the following command:
   ```powershell
-  Get-ChildItem HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | % {Get-ItemProperty $_.PSPath} | ? {$_.DisplayName -eq "Example Program"} | Select PSChildName
+  Get-ChildItem HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall | % {Get-ItemProperty $_.PSPath} | ? {$_.DisplayName -eq "Example Program"} | Select PSChildName
   ```
-
+  
+  - Within PowerShell, enter the following command, if you're utilizing a x86 program on an AMD64 system:
+  ```powershell
+  Get-ChildItem HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall | % {Get-ItemProperty $_.PSPath} | ? {$_.DisplayName -eq "Example Program"} | Select PSChildName
+  ```
+  
   - And you will notice the following output:
   ```
   PSChildName
@@ -472,11 +479,11 @@ Here are more valid example use cases of the `VerifyInstall` parameter and its r
 
 The script configuration file (`powerpkg.conf`) is not required for the utilization of `powerpkg.ps1`. When `powerpkg.conf` is nonexistent, the default values for the following parameters below are used:
 
-Parameter            | Description                                                                                                                                | Default Value | Example Value
----------            | -----------                                                                                                                                | ------------- | -------------
-BlockHost            | Prevents specified hosts from processing package files.                                                                                    | `Null`        | `examplehost1`, `examplehost1,examplehost2`
-PackageName          | Allows specifying a different package name apart from the name of the directory a package resides in.                                      | `Null`        | `"Example Package"`
-SuppressNotification | Prevents a balloon notification from displaying upon a successful deployment. A value of `False` in `powerpkg.conf` changes this behavior. | `True`        | `True`, `False`
+Parameter            | Description                                                                                                             | Default Value | Example Value
+---------            | -----------                                                                                                             | ------------- | -------------
+BlockHost            | Prevents specified hosts from processing a package.                                                                     | `Null`        | `examplehost1`, `examplehost1,examplehost2`
+PackageName          | Allows specifying a different package name apart from the name of the directory a package resides in.                   | `Null`        | `"Example Package"`
+SuppressNotification | Prevents a balloon notification from displaying upon a successful deployment. A value of `False` changes this behavior. | `True`        | `True`, `False`
 
 ## Debugging
 
@@ -487,7 +494,7 @@ Code | Description
 1    | A task entry terminated with a non-zero exit status.
 2    | An exception rose from a task entry.
 3    | Initial task entry processing failed.
-4    | A host has been blocked from processing package files.
+4    | A host has been blocked from processing a package.
 5    | A package file was not found.
 6    | No task entries were processed.
 7    | A task entry is missing required information.
