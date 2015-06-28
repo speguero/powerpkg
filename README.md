@@ -1,6 +1,8 @@
 # powerpkg
 
-A Windows application deployment script with an emphasis on simplicity and standardization.
+![Header](/readme_header.gif)
+
+A Windows package deployment script with an emphasis on simplicity and standardization. Written in PowerShell.
 
 ## Section
 1. [Requirement](#requirement)
