@@ -400,7 +400,7 @@ To utilize the **`[Program]`** subparameter, you can either verify the existence
 
 - **Product Code**:
   - Open the `Programs and Features` applet of the Windows Control Panel, and retrieve the name of the installed program you wish to verify the existence of:
-  ![Header](/readme/example_verifyinstall_program.gif)
+  ![Programs and Features](/readme/example_verifyinstall_program.gif)
 
   - Within PowerShell, enter the following command:
   ```powershell
@@ -434,7 +434,7 @@ To utilize the **`[Program]`** subparameter, you can either verify the existence
 
 - **Program Name**:
   - Open the `Programs and Features` applet of the Windows Control Panel, and retrieve the name of the installed program you wish to verify the existence of:
-  ![Header](/readme/example_verifyinstall_program.gif)
+  ![Programs and Features](/readme/example_verifyinstall_program.gif)
 
   - Then, specify a program name in this fashion:
   ```json
