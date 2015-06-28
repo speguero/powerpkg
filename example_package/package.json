@@ -24,7 +24,7 @@
 	{
 		"TaskName": "Ensure to Run on 64-bit Windows Only",
 		"Executable": "powershell.exe Write-Output \"You will receive this output if you are using a 64-bit OS.\"",
-		"InstructionSet": "amd64"
+		"Architecture": "AMD64"
 	},
 	{
 		"TaskName": "Ensure to Run on Windows 8.1 Only",

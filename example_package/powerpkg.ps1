@@ -53,12 +53,12 @@ $Script += @{
 }
 
 $Machine = @{
-	"InstructionSet" = [System.Environment]::GetEnvironmentVariable("Processor_Architecture")
-	"OSVersion"      = [System.Environment]::OSVersion.Version.ToString()
-	"Hostname"       = [System.Environment]::GetEnvironmentVariable("ComputerName")
-	"Username"       = [System.Environment]::GetEnvironmentVariable("Username")
-	"SystemDrive"    = [System.Environment]::GetEnvironmentVariable("SystemDrive")
-	"ProgramList"    = @(
+	"UserspaceArchitecture" = [System.Environment]::GetEnvironmentVariable("Processor_Architecture")
+	"OSVersion"             = [System.Environment]::OSVersion.Version.ToString()
+	"Hostname"              = [System.Environment]::GetEnvironmentVariable("ComputerName")
+	"Username"              = [System.Environment]::GetEnvironmentVariable("Username")
+	"SystemDrive"           = [System.Environment]::GetEnvironmentVariable("SystemDrive")
+	"ProgramList"           = @(
 		"HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall",
 		"HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
 	)
@@ -306,7 +306,7 @@ Write-Host -ForegroundColor Cyan (
 	"`nInitiating Package (" + $Package.Name + "):`n"                              + `
 	"`nHost                       : " + $Machine.Hostname                          + `
 	"`nOperating System (Windows) : " + $Machine.OSVersion                         + `
-	"`nInstruction Set            : " + $Machine.InstructionSet                    + `
+	"`nUserspace Architecture     : " + $Machine.UserspaceArchitecture                    + `
 	"`nUser                       : " + $Machine.Username + "`n"                   + `
 	"`n----`n"                                                                     + `
 	"`nConfiguration Importation  : " + $Script.Config.ImportState                 + `
@@ -323,7 +323,7 @@ foreach ($Row in $Package.Config.FilePath) {
 				"Path"     = $Row.Executable
 			}
 			"OperatingSystem"  = $Row.OperatingSystem
-			"InstructionSet"   = $Row.InstructionSet
+			"Architecture"     = $Row.Architecture
 			"TerminateProcess" = $Row.TerminateProcess
 			"TerminateMessage" = @{
 				"Prompt"          = $Row.TerminateMessage
@@ -425,18 +425,18 @@ foreach ($Row in $Package.Config.FilePath) {
 		continue
 	}
 	
-	# ---- INSTRUCTION SET COLUMN ----
+	# ---- ARCHITECTURE COLUMN ----
 	
-	if ($TaskEntry.InstructionSet -match "^$") {
+	if ($TaskEntry.Architecture -match "^$") {
 		pass
 	}
 
-	elseif ($TaskEntry.InstructionSet -match $Machine.InstructionSet) {
+	elseif ($TaskEntry.Architecture -match $Machine.UserspaceArchitecture) {
 		pass
 	}
 	
 	else {
-		$Script.Output = ("InstructionSet: Userspace instruction set is """ + $Machine.InstructionSet + """ and not """ + $TaskEntry.InstructionSet + """.")
+		$Script.Output = ("Architecture: Userspace is based upon """ + $Machine.UserspaceArchitecture + """ and not """ + $TaskEntry.Architecture + """.")
 
 		Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
 		continue
