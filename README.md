@@ -40,7 +40,10 @@ To begin test driving powerpkg:
 
 **(1)**: Clone this repository or download it as a ZIP file.
 
-**(2)**: Run `powershell.exe -ExecutionPolicy Unrestricted -File example_package\powerpkg.ps1`.
+**(2)**: Invoke `powerpkg.ps1`:
+```shell
+powershell.exe -ExecutionPolicy Unrestricted -File "example_package\powerpkg.ps1"
+```
 
 **(3)**: *And that's it!*
 
@@ -76,8 +79,8 @@ SuppressNotification False
 ```
 
 **(3)**: Invoke `powerpkg.ps1`:
-```
-powershell.exe -ExecutionPolicy Unrestricted -File powerpkg.ps1
+```shell
+powershell.exe -ExecutionPolicy Unrestricted -File "powerpkg.ps1"
 ```
 
 **(4)**: As `powerpkg.ps1` is running, you will notice output similar to the following example:
@@ -119,7 +122,7 @@ OK: (0)
 
 > **NOTE**:
 >
-> If you wish to discover in-depth usage of powerpkg, refer to the [Package File](#package-file) and [Script Configuration](#script-configuration) segments of this README.
+> To discover in-depth usage of powerpkg, refer to the [Package File](#package-file) and [Script Configuration](#script-configuration) segments of this README.
 
 ## Package File
 
