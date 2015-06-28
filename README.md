@@ -2,7 +2,7 @@
 
 A Windows package deployment script with an emphasis on simplicity and standardization. Written in PowerShell.
 
-![Header](/readme_header.gif)
+![Header](/readme/header.gif)
 
 ## Section
 1. [Requirement](#requirement)
@@ -358,7 +358,7 @@ Subparameter     | Description                                                  
 
 When utilizing the `VerifyInstall` parameter, you must specify one of the following subparamaters mentioned above.
 
-As you may have noticed, certain parameters take advantage of a `[Build:]` argument, which allows you to verify the existence of a specific version number associated with an installed program or executable file. To use this argument, you must specify it at the right side of a provided `VerifyInstall` value, then insert a version number on the right side of its colon. Take the following as an example:
+As you may have noticed, certain parameters take advantage of a **`[Build:]`** argument, which allows you to verify the existence of a specific version number associated with an installed program or executable file. To use this argument, you must specify it at the right side of a provided `VerifyInstall` value, then insert a version number on the right side of its colon. Take the following as an example:
 
 ```json
 [
@@ -367,6 +367,92 @@ As you may have noticed, certain parameters take advantage of a `[Build:]` argum
     }
 ]
 ```
+
+To utilize the **`[Vers_*]`** subparameters, you will need to retrieve the file or product version numbers from an executable file. To do so:
+
+  - Invoke the following command:
+
+  ```powershell
+  [System.Diagnostics.FileVersionInfo]::GetVersionInfo("C:\example_file.exe") | Select FileVersion, ProductVersion
+  ```
+
+  - And you will notice the following output:
+
+  ```
+  FileVersion       ProductVersion
+  -----------       --------------
+  1.0               1.0
+  ```
+
+  - Then, specify either outputted value inside the `[Build:]` argument in this fashion:
+  ```json
+  [
+      {
+          "VerifyInstall": "[Vers_File]C:\\example_file.exe[Build:1.0]"
+      },
+      {
+          "VerifyInstall": "[Vers_Product]C:\\example_file.exe[Build:1.0]"
+      }
+  ]
+  ```
+
+To utilize the **`[Program]`** subparameter, you can either verify the existence of a:
+
+- **Product Code**:
+  - Open the `Programs and Features` applet of the Windows Control Panel, and retrieve the name of the installed program you wish to verify the existence of:
+  ![Header](/readme/example_verifyinstall_program.gif)
+
+  - Within PowerShell, enter the following command:
+  ```powershell
+  Get-ChildItem HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | % {Get-ItemProperty $_.PSPath} | ? {$_.DisplayName -eq "Example Program"} | Select PSChildName
+  ```
+
+  - And you will notice the following output:
+  ```
+  PSChildName
+  -----------
+  {00000000-0000-0000-0000-000000000000}
+  ```
+
+  - Then, specify the outputted value in this fashion:
+  ```json
+  [
+      {
+          "VerifyInstall": "[Program]{00000000-0000-0000-0000-000000000000}"
+      }
+  ]
+  ```
+
+  - Or if you wish to verify the existence an installed program's respective version number along with its product code:
+  ```json
+  [
+      {
+          "VerifyInstall": "[Program]{00000000-0000-0000-0000-000000000000}[Build:1.0]"
+      }
+  ]
+  ```
+
+- **Program Name**:
+  - Open the `Programs and Features` applet of the Windows Control Panel, and retrieve the name of the installed program you wish to verify the existence of:
+  ![Header](/readme/example_verifyinstall_program.gif)
+
+  - Then, specify a program name in this fashion:
+  ```json
+  [
+      {
+          "VerifyInstall": "[Program]Example Program"
+      }
+  ]
+  ```
+
+  - Or if you wish to verify the existence an installed program's respective version number along with its name:
+  ```json
+  [
+      {
+          "VerifyInstall": "[Program]Example Program[Build:1.0]"
+      }
+  ]
+  ```
 
 Here are more valid example use cases of the `VerifyInstall` parameter and its respective subparameters:
 
@@ -380,24 +466,6 @@ Here are more valid example use cases of the `VerifyInstall` parameter and its r
     },
     {
         "VerifyInstall": "[Path]C:\\example_directory"
-    },
-    {
-        "VerifyInstall": "[Vers_File]C:\\example_file.exe[Build:1.0]"
-    },
-    {
-        "VerifyInstall": "[Vers_Product]C:\\example_file.exe[Build:1.0]"
-    },
-    {
-        "VerifyInstall": "[Program]{00000000-0000-0000-0000-000000000000}"
-    },
-    {
-        "VerifyInstall": "[Program]{00000000-0000-0000-0000-000000000000}[Build:1.0]"
-    },
-    {
-        "VerifyInstall": "[Program]Example Program Name"
-    },
-    {
-        "VerifyInstall": "[Program]Example Program Name[Build:1.0]"
     }
 ]
 ```
