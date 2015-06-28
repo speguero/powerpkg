@@ -123,6 +123,8 @@ OK: (0)
 > **NOTE**:
 >
 > To discover in-depth usage of powerpkg, refer to the [Package File](#package-file) and [Script Configuration](#script-configuration) segments of this README.
+>
+> To further familiarize yourself with powerpkg and how it works, examining the contents of the `\example_package` directory is highly recommended.
 
 ## Package File
 
