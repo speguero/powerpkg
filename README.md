@@ -60,7 +60,7 @@ powershell.exe -ExecutionPolicy Unrestricted -File "example_package\powerpkg.ps1
   [
       {
           "TaskName": "Example Task Entry",
-          "Executable": "powershell.exe Write-Output 'Hello, World!'"
+          "Executable": "powershell.exe Write-Output \"Hello, World!\""
       }
   ]
   ```
