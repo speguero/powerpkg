@@ -2,8 +2,6 @@
 
 A Windows package deployment script with an emphasis on simplicity and standardization. Written in PowerShell.
 
-![Header](/readme/header.gif)
-
 ## Section
 1. [Requirement](#requirement)
 2. [Philosophy](#philosophy)
