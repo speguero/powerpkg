@@ -17,6 +17,7 @@ A Windows application deployment script with an emphasis on simplicity and stand
   - [VerifyInstall](#verifyinstall)
 4. [Script Configuration](#script-configuration)
 5. [Debugging](#debugging)
+6. [License](#license)
 
 ## Requirement
 
@@ -330,13 +331,13 @@ Here are more valid example use cases of the `VerifyInstall` parameter and its r
 
 ## Script Configuration
 
-The script configuration file (`powerpkg.conf`) is not required for the utilization of `powerpkg.ps1`.
+The script configuration file (`powerpkg.conf`) is not required for the utilization of `powerpkg.ps1`. When `powerpkg.conf` is nonexistent, the default values for the following parameters below are used:
 
-Type                 | Value  | Description
-----                 | -----  | -----------
-BlockHost            | `Null` | Prevents specified hosts from processing package files.
-PackageName          | `Null` | Allows specifying a different package name apart from the name of the directory a package resides in.
-SuppressNotification | `True` | Prevents a balloon notification from displaying upon a successful deployment. A value of `False` in `powerpkg.conf` changes this behavior.
+Parameter            | Description                                                                                                                                | Default Value | Example Value
+---------            | -----------                                                                                                                                | ------------- | -------------
+BlockHost            | Prevents specified hosts from processing package files.                                                                                    | `Null`        | `examplehost1`, `examplehost1,examplehost2`
+PackageName          | Allows specifying a different package name apart from the name of the directory a package resides in.                                      | `Null`        | `"Example Package"`
+SuppressNotification | Prevents a balloon notification from displaying upon a successful deployment. A value of `False` in `powerpkg.conf` changes this behavior. | `True`        | `True`, `False`
 
 ## Debugging
 
@@ -351,3 +352,7 @@ Code | Description
 5    | A package file was not found.
 6    | No task entries were processed.
 7    | A task entry is missing required information.
+
+## License
+
+powerpkg is licensed under the MIT license, so that all PowerShell administrators can take advantage of this project I have worked very hard on. You guys rock!
