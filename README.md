@@ -1,13 +1,15 @@
 # powerpkg
 
-![Header](/readme_header.gif)
-
 A Windows package deployment script with an emphasis on simplicity and standardization. Written in PowerShell.
+
+![Header](/readme_header.gif)
 
 ## Section
 1. [Requirement](#requirement)
 2. [Philosophy](#philosophy)
-3. [Package File](#package-file)
+3. [Getting Started](#getting-started)
+4. [How It Works](#how-it-works)
+5. [Package File](#package-file)
   - [TaskName](#taskname)
   - [Executable](#executable)
   - [OperatingSystem](#operatingsystem)
@@ -17,9 +19,10 @@ A Windows package deployment script with an emphasis on simplicity and standardi
   - [SuccessExitCode](#successexitcode)
   - [ContinueIfFail](#continueiffail)
   - [VerifyInstall](#verifyinstall)
-4. [Script Configuration](#script-configuration)
-5. [Debugging](#debugging)
-6. [License](#license)
+6. [Script Configuration](#script-configuration)
+7. [Debugging](#debugging)
+8. [License](#license)
+9. [Additional Comments](#additional-comments)
 
 ## Requirement
 
@@ -29,39 +32,102 @@ Before reading through this documentation, please note that a minimum of **Power
 
 **One** script to perform **all** functions.
 
-The sole purpose of `powerpkg` is to enable maintainability when managing application deployments on the Windows platform. This allows an administrator to consolidate an unsustainable collection of unique scripts as one PowerShell script.
+The sole purpose of powerpkg is to enable maintainability when managing package deployments on the Windows platform. This allows an administrator to consolidate an unsustainable collection of unique scripts as one PowerShell script.
 
 ## Getting Started
 
-Firstly, consider the following recommended package structure:
+To begin test driving powerpkg:
 
+**(1)**: Clone this repository or download it as a ZIP file.
+
+**(2)**: Run `powershell.exe -ExecutionPolicy Unrestricted -File example_package\powerpkg.ps1`.
+
+**(3)**: *And that's it!*
+
+> **NOTE**:
+>
+> For more information on the usage of both `package.json` and `package.csv`, refer to the [Package File](#package-file) segment of this README.
+>
+> To discover basic usage of powerpkg, refer to the [How It Works](#how-it-works) section of this README.
+
+## How It Works
+
+**(1)**: Create one of the following [package files](#package-file):
+  - **`package.json` (PowerShell 3.0+):**
+```json
+[
+    {
+        "TaskName": "Example Task Entry",
+        "Executable": "powershell.exe Write-Output 'Hello, World!'"
+    }
+]
 ```
-+-- /example_package
-    |
-    |-- install
-    |   |
-    |   |-- package.json
-    |   |-- package.csv
-    |   |-- powerpkg.conf
-    |   +-- powerpkg.ps1
-    |
-    +-- uninstall
-        |
-        |-- package.json
-        |-- package.csv
-        |-- powerpkg.conf
-        +-- powerpkg.ps1
+  - **`package.csv` (PowerShell 2.0):**
+```
+TaskName,Executable
+Example Task Entry,powershell.exe Write-Output 'Hello, World!'
 ```
 
-Here, we have directory `example_package`. In this case, it is associated with a specific application and solely a placeholder for two packages located within it, `install` and `uninstall`.
+**(2)**: Create `powerpkg.conf`, the script configuration file, with the following content:
+```
+BlockHost
+PackageName "Example Package"
+SuppressNotification False
+```
 
-As you may have noticed, both packages serve a unique purpose in relation to `example_package`. Within these packages are individual package files, `package.json` and `package.csv`, that contain specific instructions that the accompanying script, `powerpkg.ps1`, processes. *Modifying the script itself is not necessary.*
+**(3)**: Invoke `powerpkg.ps1`:
+```
+powershell.exe -ExecutionPolicy Unrestricted -File powerpkg.ps1
+```
+
+**(4)**: As `powerpkg.ps1` is running, you will notice output similar to the following example:
+```
+Initiating Package (Example Package):
+
+Host                       : examplehost1
+Operating System (Windows) : 6.3
+Userspace Architecture     : AMD64
+User                       : misterpeguero
+
+----
+
+Configuration Importation  : True
+Suppress Notification      : False
+
+----
+
+(1) Example Task Entry:
+[powershell.exe Write-Output 'Hello, World!']
+
+Hello, World!
+
+OK: (0)
+
+----
+
+Package Results (Example Package):
+
+Tasks Processed : 1
+ ^
+ |
+ |---- Success : 1
+ +---- Failure : 0
+
+OK: (0)
+```
+**(5)**: *And that's it!*
+
+> **NOTE**:
+>
+> If you wish to discover in-depth usage of powerpkg, refer to the [Package File](#package-file) and [Script Configuration](#script-configuration) segments of this README.
 
 ## Package File
 
 Package files consist of desired instructions, or task entries, that are processed by `powerpkg.ps1` at runtime.
 
-> **NOTE**: You may have noticed that this project features both JSON (`package.json`) and CSV (`package.csv`) package files. Unfortunately, usage of `package.csv` is required for Windows systems utilizing PowerShell 2.0, as JSON support is nonexistent on said systems.
+> **NOTE**:
+>
+> You may have noticed that this project features both JSON (`package.json`) and CSV (`package.csv`) package files. Unfortunately, usage of `package.csv` is required for Windows systems utilizing PowerShell 2.0, as JSON support is nonexistent on said systems.
 >
 > If you are using PowerShell 3.0 or higher, ``package.csv`` is not required and can be deleted.
 
@@ -92,7 +158,7 @@ TaskName,Executable,OperatingSystem,Architecture,TerminateProcess,TerminateMessa
 ,,,,,,,,
 ```
 
-For more information on the variety of paramaters utilized within a task entry, refer to the Package File segment of [Section](#section) for a list of said parameters, or review the following information below:
+For more information on the variety of parameters utilized within a task entry, refer to the Package File segment of [Section](#section) for a list of said parameters, or review the following information below:
 
 #### `TaskName`
 
@@ -343,7 +409,7 @@ SuppressNotification | Prevents a balloon notification from displaying upon a su
 
 ## Debugging
 
-### Exit Codes:
+#### Exit Codes:
 
 Code | Description
 ---- | -----------
@@ -357,4 +423,8 @@ Code | Description
 
 ## License
 
-powerpkg is licensed under the MIT license, so that all PowerShell administrators can take advantage of this project I have worked very hard on. You guys rock!
+powerpkg is licensed under the MIT license. For more information regarding this license, refer to the `LICENSE` file located at the root of this repository.
+
+## Additional Comments
+
+Fellow PowerShell enthusiasts, this is my contribution to you all. I hope you take advantage of this project I have worked very hard on. You guys rock!
