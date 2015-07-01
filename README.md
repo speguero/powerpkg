@@ -327,8 +327,8 @@ By default, an unsuccessful task entry will cause `powerpkg.ps1` to fail. When e
 
 Value | Result
 ----- | ------
-True  | `powerpkg.ps1` will continue processing remaining task entires.
-False | `powerpkg.ps1` will fail.
+True  | `powerpkg.ps1` will continue processing remaining task entires. A task entry set to continue when resulting in a non-zero exit code will not alter the exit code of `powerpkg.ps1`.
+False | `powerpkg.ps1` will fail and result in a non-zero exit code.
 
 And specify your desired value in this fashion:
 
@@ -491,8 +491,8 @@ SuppressNotification | Prevents a balloon notification from displaying upon a su
 
 Code | Description
 ---- | -----------
-1    | A task entry terminated with a non-zero exit status.
-2    | An exception rose from a task entry.
+1    | A task entry terminated with a non-zero exit code.
+2    | An exception rose from a task entry during its executable invocation process.
 3    | Initial task entry processing failed.
 4    | A host has been blocked from processing a package.
 5    | A package file was not found.

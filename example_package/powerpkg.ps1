@@ -94,10 +94,11 @@ $Package = @{
 		}
 	}
 	"TaskStatus" = @{
-		"Index"          = 0
-		"Successful"     = 0
-		"Unsuccessful"   = 0
-		"TotalProcessed" = 0
+		"Index"                   = 0
+		"Successful"              = 0
+		"Unsuccessful"            = 0
+		"TotalProcessed"          = 0
+		"TotalFailedButContinued" = 0
 	}
 }
 
@@ -205,7 +206,7 @@ if (Test-Path $Script.Config.FilePath) {
 		
 		if ($Type -eq "BlockHost") {
 			if ($Value -notmatch "^$") {
-				$Script.Config.BlockHost = $Value -split ","
+				$Script.Config.BlockHost = $Value -split (",")
 				$Script.Config.TotalImported++
 			}
 			
@@ -616,7 +617,7 @@ foreach ($Row in $Package.Config.FilePath) {
 	# ---- PROCESS TERMINATION COLUMNS ----
 	
 	if ($TaskEntry.TerminateProcess -notmatch "^$") {
-		$TaskEntry.TerminateProcess = $TaskEntry.TerminateProcess -split ","
+		$TaskEntry.TerminateProcess = $TaskEntry.TerminateProcess -split (",")
 		
 		foreach ($Process in $TaskEntry.TerminateProcess) {
 			try {
@@ -657,7 +658,7 @@ foreach ($Row in $Package.Config.FilePath) {
 	}
 	
 	else {
-		$TaskEntry.SuccessExitCode  = $TaskEntry.SuccessExitCode -split ","
+		$TaskEntry.SuccessExitCode  = $TaskEntry.SuccessExitCode -split (",")
 		$TaskEntry.SuccessExitCode += 0
 	}
 	
@@ -677,15 +678,15 @@ foreach ($Row in $Package.Config.FilePath) {
 	
 		else {
 			Write-Host -ForegroundColor Red (Write-Result -Status "WARN" -Code $TaskEntry.Executable.ExitCode -Output $Script.Output)
-			
-			$Script.ExitCode                  = 1
-			$Package.TaskStatus.Unsuccessful += 1
+			$Package.TaskStatus.Unsuccessful++
 			
 			if ($TaskEntry.ContinueIfFail -ne "true") {
+				$Script.ExitCode = 1
 				break
 			}
 			
 			else {
+				$Package.TaskStatus.TotalFailedButContinued++
 				pass
 			}
 		}
@@ -695,8 +696,8 @@ foreach ($Row in $Package.Config.FilePath) {
 		$Script.Output = ("Executable Invocation: " + $Error[0])
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 2 -Output $Script.Output)
 		
-		$Script.ExitCode                  = 2
-		$Package.TaskStatus.Unsuccessful += 1
+		$Script.ExitCode = 2
+		$Package.TaskStatus.Unsuccessful++
 		continue
 	}
 	
@@ -713,7 +714,7 @@ foreach ($Row in $Package.Config.FilePath) {
 
 # ---- TASK STATUS REPORTING ---
 
-if ($Script.ExitCode -eq 0 -and $Package.TaskStatus.Successful -eq 0) {
+if ($Script.ExitCode -eq 0 -and $Package.TaskStatus.Successful -eq 0 -and $Package.TaskStatus.Unsuccessful -eq 0) {
 	Write-Host -ForegroundColor Red "`nWARN: No task entries were processed.`n"
 	
 	$Script.ExitCode = 6
@@ -733,7 +734,7 @@ else {
 
 	Write-Host ("`nPackage Results (" + $Package.Name + "):")
 
-	if ($Script.ExitCode -eq 0 -and $Package.TaskStatus.Unsuccessful -eq 0) {
+	if ($Script.ExitCode -eq 0 -and $Package.TaskStatus.Unsuccessful -eq 0 -or $Package.TaskStatus.TotalFailedButContinued -gt 0) {
 		$Package.Result += ("`nOK: (" + $Script.ExitCode + ")`n")
 		
 		Write-Host -ForegroundColor Green $Package.Result
