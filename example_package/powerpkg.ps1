@@ -695,22 +695,23 @@ foreach ($Row in $Package.Config.FilePath) {
 	catch [Exception] {
 		$Script.Output = ("Executable Invocation: " + $Error[0])
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 2 -Output $Script.Output)
-		
-		$Script.ExitCode = 2
 		$Package.TaskStatus.Unsuccessful++
-		continue
+		
+		if ($TaskEntry.ContinueIfFail -ne "true") {
+			$Script.ExitCode = 2
+			break
+		}
+		
+		else {
+			$Package.TaskStatus.TotalFailedButContinued++
+			pass
+		}
 	}
 	
 	finally {
 		Pop-Location
 	}
 }
-
-<#
-
-	Insert custom code within this segment of the script.
-
-#>
 
 # ---- TASK STATUS REPORTING ---
 
