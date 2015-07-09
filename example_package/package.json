@@ -1,45 +1,42 @@
 [
 	{
-		"TaskName": "Create Test File",
-		"Executable": "powershell.exe New-Item $env:UserProfile\\Desktop\\powerpkg_file.txt -ItemType File -Force"
-	},
-	{
-		"TaskName": "Use Whitespace in Argument",
-		"Executable": "ipconfig.exe > \"%USERPROFILE%\\Desktop\\powerpkg_file with spaces.txt\""
+		"TaskName": "Use Whitespace in Arguments",
+		"Executable": "powershell.exe -NoProfile New-Item \"$env:UserProfile\\Desktop\\'powerpkg file.txt'\" -ItemType File -Force"
 	},
 	{
 		"TaskName": "Render Non-Zero Exit Code Okay",
-		"Executable": "powershell.exe exit(1234)",
+		"Executable": "powershell.exe -NoProfile exit(1234)",
 		"SuccessExitCode": "1234"
 	},
 	{
 		"TaskName": "Invoke File Located Within Package Directory",
-		"Executable": "powershell.exe \"[LocalFile]example.ps1\""
+		"Executable": "powershell.exe -NoProfile -File \"[LocalFile]example.ps1\""
 	},
 	{
-		"TaskName": "Continue Processing Package Despite Error",
-		"Executable": "powershell.exe exit(1)",
-		"ContinueIfFail": "true"
+		"TaskName": "Continue Processing Package Despite Error and Disregard Process Count",
+		"Executable": "powershell.exe -NoProfile exit(1)",
+		"ContinueIfFail": "true",
+		"SkipProcessCount": "true"
 	},
 	{
 		"TaskName": "Ensure to Run on 64-bit Windows Only",
-		"Executable": "powershell.exe Write-Output \"You will receive this output if you are using a 64-bit OS.\"",
+		"Executable": "powershell.exe -NoProfile Write-Host \"You will receive this output if you are using a 64-bit OS.\"",
 		"Architecture": "AMD64"
 	},
 	{
 		"TaskName": "Ensure to Run on Windows 8.1 Only",
-		"Executable": "powershell.exe Write-Output \"You will receive this output if you are using Windows 8.1.\"",
+		"Executable": "powershell.exe -NoProfile Write-Host \"You will receive this output if you are using Windows 8.1.\"",
 		"OperatingSystem": "6.3"
 	},
 	{
 		"TaskName": "Restart Process With Warning",
-		"Executable": "powershell.exe Write-Output \"Explorer restarted.\"",
+		"Executable": "powershell.exe -NoProfile Write-Host \"Explorer restarted.\"",
 		"TerminateProcess": "explorer",
 		"TerminateMessage": "Explorer will terminate. When prepared, click on the OK button."
 	},
 	{
 		"TaskName": "Verify Internet Explorer Installation",
-		"Executable": "powershell.exe Write-Output \"Internet Explorer does not exist.\"",
+		"Executable": "powershell.exe -NoProfile Write-Output \"Internet Explorer does not exist.\"",
 		"VerifyInstall": "[Path]C:\\Program Files\\Internet Explorer\\iexplore.exe"
 	}
 ]

@@ -57,7 +57,6 @@ $Machine = @{
 	"OSVersion"             = [System.Environment]::OSVersion.Version.ToString()
 	"Hostname"              = [System.Environment]::GetEnvironmentVariable("ComputerName")
 	"Username"              = [System.Environment]::GetEnvironmentVariable("Username")
-	"SystemDrive"           = [System.Environment]::GetEnvironmentVariable("SystemDrive")
 	"ProgramList"           = @(
 		"HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall",
 		"HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
@@ -103,6 +102,76 @@ $Package = @{
 }
 
 # ---- FUNCTIONS ----
+
+function Invoke-Executable {
+
+	Param (
+		[Parameter(Mandatory = $True)]
+		[String]
+		$Path
+	)
+	
+	$Invocation = @{
+		"Input"      = $Path
+		"Executable" = @{
+			"Value"    = $Null
+			"Quoted"   = "^(\"")(.*)(\"")"
+			"Unquoted" = "^(\S+)"
+		}
+		"Arguments"  = @{
+			"Value"              = $Null
+			"LeftwardWhitespace" = "^(\s+)(.*)"
+		}
+	}
+
+	# Split executable and its arguments.
+	
+	if ($Invocation.Input -match $Invocation.Executable.Quoted) {
+		$Invocation.Executable.Value = $Invocation.Input -match $Invocation.Executable.Quoted
+		$Invocation.Executable.Value = $Matches[2]
+		$Invocation.Arguments.Value  = $Invocation.Input -replace ($Invocation.Executable.Quoted, "")
+	}
+
+	else {
+		$Invocation.Executable.Value = $Path -match $Invocation.Executable.Unquoted
+		$Invocation.Executable.Value = $Matches[1]
+		$Invocation.Arguments.Value  = $Path -replace ($Invocation.Executable.Unquoted, "")
+	}
+	
+	# Remove potential whitespace between executable and its arguments.
+	
+	if ($Invocation.Arguments.Value -match $Invocation.Arguments.LeftwardWhitespace) {
+		$Invocation.Arguments.Value = $Invocation.Arguments.Value -match $Invocation.Arguments.LeftwardWhitespace
+		$Invocation.Arguments.Value = $Matches[2]
+	}
+	
+	else {}
+	
+	try {
+		$ProcessStartInfo                        = New-Object System.Diagnostics.ProcessStartInfo
+		$ProcessStartInfo.FileName               = $Invocation.Executable.Value
+		$ProcessStartInfo.RedirectStandardError  = $True
+		$ProcessStartInfo.RedirectStandardOutput = $True
+		$ProcessStartInfo.UseShellExecute        = $False
+		$ProcessStartInfo.Arguments              = $Invocation.Arguments.Value
+		
+		$Process           = New-Object System.Diagnostics.Process
+		$Process.StartInfo = $ProcessStartInfo
+		$Process.Start() | Out-Null
+		$Process.WaitForExit()
+
+		$Result = New-Object PSObject -Property @{
+			"ExitCode" = $Process.ExitCode
+			"Output"   = $Process.StandardOutput.ReadToEnd()
+		}
+		
+		return $Result
+	}
+
+	catch [Exception] {
+		throw
+	}
+}
 
 function pass {
 
@@ -170,13 +239,22 @@ function Write-Result {
 		$Output,
 		
 		[String]
-		$Status
+		$Status,
+		
+		[Switch]
+		$AddNewLine
 	)
 	
 	[String]$Result = ""
 
 	if ($Output -notmatch "^$") {
-		$Result += ($Output + "`n`n")
+		if ($AddNewLine) {
+			$Result += ($Output + "`n`n")
+		}
+		
+		else {
+			$Result += ($Output + "`n")
+		}
 	}
 	
 	else {}
@@ -323,8 +401,8 @@ foreach ($Row in $Package.Config.FilePath) {
 		$TaskEntry = @{
 			"TaskName"         = $Row.TaskName
 			"Executable"       = @{
-				"ExitCode" = 0
-				"Path"     = $Row.Executable
+				"Result" = $Null
+				"Path"   = $Row.Executable
 			}
 			"OperatingSystem"  = $Row.OperatingSystem
 			"Architecture"     = $Row.Architecture
@@ -342,6 +420,7 @@ foreach ($Row in $Package.Config.FilePath) {
 			}
 			"SuccessExitCode"  = $Row.SuccessExitCode
 			"ContinueIfFail"   = $Row.ContinueIfFail
+			"SkipProcessCount" = $Row.SkipProcessCount
 		}
 
 		if ($TaskEntry.TaskName -match "^#") {
@@ -359,7 +438,7 @@ foreach ($Row in $Package.Config.FilePath) {
 	
 	catch [Exception] {
 		$Script.Output = ("Task Entry (" + $TaskEntry.TaskName + "): " + $Error[0])
-		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 3 -Output $Script.Output)
+		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 3 -Output $Script.Output -AddNewLine)
 		
 		$Script.ExitCode = 3
 		break
@@ -369,7 +448,7 @@ foreach ($Row in $Package.Config.FilePath) {
 	
 	if ($TaskEntry.TaskName -match "^$") {
 		$Script.Output = ("TaskName: Specification is required for """ + $TaskEntry.Executable + """ at entry " + [String]$Package.TaskStatus.Index + ".")
-		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 7 -Output $Script.Output)
+		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 7 -Output $Script.Output -AddNewLine)
 		
 		$Script.ExitCode = 7
 		break
@@ -389,7 +468,7 @@ foreach ($Row in $Package.Config.FilePath) {
 	
 	if ($TaskEntry.Executable.Path -match "^$") {
 		$Script.Output = ("Executable: Specification is required for """ + $TaskEntry.TaskName + """ at entry " + [String]$Package.TaskStatus.Index + ".")
-		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 7 -Output $Script.Output)
+		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 7 -Output $Script.Output -AddNewLine)
 		
 		$Script.ExitCode = 7
 		break
@@ -425,7 +504,7 @@ foreach ($Row in $Package.Config.FilePath) {
 	else {
 		$Script.Output = ("OperatingSystem: It is """ + $Machine.OSVersion + """ and not """ + $TaskEntry.OperatingSystem + """.")
 
-		Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
+		Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output -AddNewLine)
 		continue
 	}
 	
@@ -440,9 +519,9 @@ foreach ($Row in $Package.Config.FilePath) {
 	}
 	
 	else {
-		$Script.Output = ("Architecture: Userspace is based upon """ + $Machine.UserspaceArchitecture + """ and not """ + $TaskEntry.Architecture + """.")
+		$Script.Output = ("Architecture: """ + $TaskEntry.Architecture + """ is a requirement.")
 
-		Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
+		Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output -AddNewLine)
 		continue
 	}
 	
@@ -453,7 +532,7 @@ foreach ($Row in $Package.Config.FilePath) {
 		$TaskEntry.VerifyInstall.Existence = Get-Hotfix | ? {$_.HotfixID -eq $TaskEntry.VerifyInstall.Path}
 
 		if ($TaskEntry.VerifyInstall.Existence -ne $Null) {
-			Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output ("VerifyInstall: [Hotfix] """ + $TaskEntry.VerifyInstall.Path + """ exists."))
+			Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output ("VerifyInstall: [Hotfix] """ + $TaskEntry.VerifyInstall.Path + """ exists.") -AddNewLine)
 			continue
 		}
 
@@ -467,7 +546,7 @@ foreach ($Row in $Package.Config.FilePath) {
 		$TaskEntry.VerifyInstall.Existence = Test-Path $TaskEntry.VerifyInstall.Path
 
 		if ($TaskEntry.VerifyInstall.Existence -eq $True) {
-			Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output ("VerifyInstall: [Path] """ + $TaskEntry.VerifyInstall.Path + """ exists."))
+			Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output ("VerifyInstall: [Path] """ + $TaskEntry.VerifyInstall.Path + """ exists.") -AddNewLine)
 			continue
 		}
 
@@ -489,7 +568,7 @@ foreach ($Row in $Package.Config.FilePath) {
 			if ($TaskEntry.VerifyInstall.SpecifiedBuild -eq $TaskEntry.VerifyInstall.DiscoveredBuild) {
 				$Script.Output = ("VerifyInstall: [Vers_File] """ + $TaskEntry.VerifyInstall.SpecifiedBuild + """ exists.")
 
-				Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
+				Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output -AddNewLine)
 				continue
 			}
 			
@@ -516,7 +595,7 @@ foreach ($Row in $Package.Config.FilePath) {
 			if ($TaskEntry.VerifyInstall.SpecifiedBuild -eq $TaskEntry.VerifyInstall.DiscoveredBuild) {
 				$Script.Output = ("VerifyInstall: [Vers_Product] """ + $TaskEntry.VerifyInstall.SpecifiedBuild + """ exists.")
 
-				Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
+				Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output -AddNewLine)
 				continue
 			}
 			
@@ -558,7 +637,7 @@ foreach ($Row in $Package.Config.FilePath) {
 				if ($TaskEntry.VerifyInstall.Existence -ne $Null) {
 					$Script.Output = ("VerifyInstall: [Program] """ + $TaskEntry.VerifyInstall.Path + """ exists.")
 
-					Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
+					Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output -AddNewLine)
 					continue
 				}
 				
@@ -595,7 +674,7 @@ foreach ($Row in $Package.Config.FilePath) {
 				if ($TaskEntry.VerifyInstall.DiscoveredBuild -contains $TaskEntry.VerifyInstall.SpecifiedBuild) {
 					$Script.Output = ("VerifyInstall: [Program] """ + $TaskEntry.VerifyInstall.SpecifiedBuild + """ exists.")
 
-					Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output)
+					Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output -AddNewLine)
 					continue
 				}
 				
@@ -665,20 +744,30 @@ foreach ($Row in $Package.Config.FilePath) {
 	# ---- INVOCATION PROCESS ----
 	
 	try {
-		# Prevents the Command Prompt from outputting an error regarding the usage of a UNC path as a startup path.
-		Push-Location $Machine.SystemDrive
+		$TaskEntry.Executable.Result = (Invoke-Executable -Path $TaskEntry.Executable.Path)
 		
-		$Script.Output = (& "cmd.exe" /c $TaskEntry.Executable.Path 2>&1)
-		$TaskEntry.Executable.ExitCode = $LastExitCode
-		
-		if ($TaskEntry.SuccessExitCode -contains $TaskEntry.Executable.ExitCode) {
-			Write-Host -ForegroundColor Green (Write-Result -Status "OK" -Code $TaskEntry.Executable.ExitCode -Output $Script.Output)
-			$Package.TaskStatus.Successful++
+		if ($TaskEntry.SuccessExitCode -contains $TaskEntry.Executable.Result.ExitCode) {
+			Write-Host -ForegroundColor Green (Write-Result -Status "OK" -Code $TaskEntry.Executable.Result.ExitCode -Output $TaskEntry.Executable.Result.Output)
+			
+			if ($TaskEntry.SkipProcessCount -ne "true") {
+				$Package.TaskStatus.Successful++
+			}
+			
+			else {
+				continue
+			}
 		}
 	
 		else {
-			Write-Host -ForegroundColor Red (Write-Result -Status "WARN" -Code $TaskEntry.Executable.ExitCode -Output $Script.Output)
-			$Package.TaskStatus.Unsuccessful++
+			Write-Host -ForegroundColor Red (Write-Result -Status "WARN" -Code $TaskEntry.Executable.Result.ExitCode -Output $TaskEntry.Executable.Result.Output)
+			
+			if ($TaskEntry.SkipProcessCount -ne "true") {
+				$Package.TaskStatus.Unsuccessful++
+			}
+			
+			else {
+				pass
+			}
 			
 			if ($TaskEntry.ContinueIfFail -ne "true") {
 				$Script.ExitCode = 1
@@ -687,15 +776,22 @@ foreach ($Row in $Package.Config.FilePath) {
 			
 			else {
 				$Package.TaskStatus.TotalFailedButContinued++
-				pass
+				continue
 			}
 		}
 	}
 	
 	catch [Exception] {
 		$Script.Output = ("Executable Invocation: " + $Error[0])
-		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 2 -Output $Script.Output)
-		$Package.TaskStatus.Unsuccessful++
+		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 2 -Output $TaskEntry.Executable.Result.Output -AddNewLine)
+		
+		if ($TaskEntry.SkipProcessCount -ne "true") {
+			$Package.TaskStatus.Unsuccessful++
+		}
+		
+		else {
+			pass
+		}
 		
 		if ($TaskEntry.ContinueIfFail -ne "true") {
 			$Script.ExitCode = 2
@@ -704,12 +800,8 @@ foreach ($Row in $Package.Config.FilePath) {
 		
 		else {
 			$Package.TaskStatus.TotalFailedButContinued++
-			pass
+			continue
 		}
-	}
-	
-	finally {
-		Pop-Location
 	}
 }
 

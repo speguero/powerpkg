@@ -17,6 +17,7 @@ A Windows package deployment script with an emphasis on simplicity and standardi
   - [SuccessExitCode](#successexitcode)
   - [ContinueIfFail](#continueiffail)
   - [VerifyInstall](#verifyinstall)
+  - [SkipProcessCount](#skipprocesscount)
 6. [Script Configuration](#script-configuration)
 7. [Debugging](#debugging)
 8. [License](#license)
@@ -151,7 +152,8 @@ Specific instructions are stored in the form of task entries, which are presente
         "TerminateMessage": "",
         "SuccessExitCode": "",
         "ContinueIfFail": "",
-        "VerifyInstall": ""
+        "VerifyInstall": "",
+	"SkipProcessCount": ""
     }
 ]
 ```
@@ -323,12 +325,12 @@ For executable invocations that depend on a specific architectural environment, 
 - **Purpose**: Specify as to whether or not to continue with remaining task entires if a specific task entry fails.
 - **Usage**:
 
-By default, an unsuccessful task entry will cause `powerpkg.ps1` to fail. When explicitly utilizing the `ContinueIfFail` parameter and specifying the following value:
+When explicitly utilizing the `ContinueIfFail` parameter and specifying the following value:
 
-Value | Result
------ | ------
-True  | `powerpkg.ps1` will continue processing remaining task entires. A task entry set to continue when resulting in a non-zero exit code will not alter the exit code of `powerpkg.ps1`.
-False | `powerpkg.ps1` will fail and result in a non-zero exit code.
+Value           | Result
+-----           | ------
+True            | `powerpkg.ps1` will continue processing remaining task entires. A task entry set to continue when resulting in a non-zero exit code will not alter the exit code of `powerpkg.ps1`.
+False (Default) | `powerpkg.ps1` will fail and result in a non-zero exit code.
 
 And specify your desired value in this fashion:
 
@@ -471,6 +473,29 @@ Here are more valid example use cases of the `VerifyInstall` parameter and its r
     },
     {
         "VerifyInstall": "[Path]C:\\example_directory"
+    }
+]
+```
+
+#### `SkipProcessCount`
+
+- **Required**: No
+- **Purpose**: Specify as to whether or not a processed task entry should be counted as such and contribute to the overall total of processed task entries, whether it succeeds or fails.
+- **Usage**:
+
+When explicitly utilizing the `SkipProcessCount` parameter and specifying the following value:
+
+Value           | Result
+-----           | ------
+True            | `powerpkg.ps1` will not count a processed task entry as such.
+False (Default) | `powerpkg.ps1` will count a processed task entry as such.
+
+And specify your desired value in this fashion:
+
+```json
+[
+    {
+        "SkipProcessCount": "true"
     }
 ]
 ```

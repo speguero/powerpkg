@@ -8,7 +8,8 @@
 		"TerminateMessage": "",
 		"SuccessExitCode": "",
 		"ContinueIfFail": "",
-		"VerifyInstall": ""
+		"VerifyInstall": "",
+		"SkipProcessCount": ""
 	},
 	{
 		"TaskName": "",
@@ -19,6 +20,7 @@
 		"TerminateMessage": "",
 		"SuccessExitCode": "",
 		"ContinueIfFail": "",
-		"VerifyInstall": ""
+		"VerifyInstall": "",
+		"SkipProcessCount": ""
 	}
 ]
