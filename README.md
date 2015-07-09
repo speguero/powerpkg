@@ -61,7 +61,7 @@ powershell.exe -ExecutionPolicy Unrestricted -File "example_package\powerpkg.ps1
   [
       {
           "TaskName": "Example Task Entry",
-          "Executable": "powershell.exe Write-Output \"Hello, World!\""
+          "Executable": "powershell.exe Write-Host \"Hello, World!\""
       }
   ]
   ```
@@ -69,7 +69,7 @@ powershell.exe -ExecutionPolicy Unrestricted -File "example_package\powerpkg.ps1
   - **`package.csv` (PowerShell 2.0):**
   ```
   TaskName,Executable
-  "Example Task Entry","powershell.exe Write-Output ""Hello, World!"""
+  "Example Task Entry","powershell.exe Write-Host ""Hello, World!"""
   ```
 
 **(2)**: Create `powerpkg.conf`, the script configuration file, with the following content:
@@ -101,7 +101,7 @@ Suppress Notification      : False
 ----
 
 (1) Example Task Entry:
-[powershell.exe Write-Output "Hello, World!"]
+[powershell.exe Write-Host "Hello, World!"]
 
 Hello, World!
 
