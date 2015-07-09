@@ -783,7 +783,7 @@ foreach ($Row in $Package.Config.FilePath) {
 	
 	catch [Exception] {
 		$Script.Output = ("Executable Invocation: " + $Error[0])
-		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 2 -Output $TaskEntry.Executable.Result.Output -AddNewLine)
+		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 2 -Output $Script.Output -AddNewLine)
 		
 		if ($TaskEntry.SkipProcessCount -ne "true") {
 			$Package.TaskStatus.Unsuccessful++
