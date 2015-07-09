@@ -153,7 +153,7 @@ Specific instructions are stored in the form of task entries, which are presente
         "SuccessExitCode": "",
         "ContinueIfFail": "",
         "VerifyInstall": "",
-	"SkipProcessCount": ""
+        "SkipProcessCount": ""
     }
 ]
 ```
@@ -161,8 +161,8 @@ Specific instructions are stored in the form of task entries, which are presente
 **CSV** (PowerShell 2.0):
 
 ```
-TaskName,Executable,OperatingSystem,Architecture,TerminateProcess,TerminateMessage,SuccessExitCode,ContinueIfFail,VerifyInstall
-"","","","","","","","",""
+TaskName,Executable,OperatingSystem,Architecture,TerminateProcess,TerminateMessage,SuccessExitCode,ContinueIfFail,VerifyInstall,SkipProcessCount
+"","","","","","","","","",""
 ```
 
 For more information on the variety of parameters utilized within a task entry, refer to the Package File segment of [Section](#section) for a list of said parameters, or review the following information below:
