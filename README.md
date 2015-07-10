@@ -61,7 +61,7 @@ powershell.exe -ExecutionPolicy Unrestricted -File "example_package\powerpkg.ps1
   [
       {
           "TaskName": "Example Task Entry",
-          "Executable": "powershell.exe Write-Host \"Hello, World!\""
+          "Executable": "powershell.exe -NoProfile Write-Host \"Hello, World!\""
       }
   ]
   ```
@@ -69,7 +69,7 @@ powershell.exe -ExecutionPolicy Unrestricted -File "example_package\powerpkg.ps1
   - **`package.csv` (PowerShell 2.0):**
   ```
   TaskName,Executable
-  "Example Task Entry","powershell.exe Write-Host ""Hello, World!"""
+  "Example Task Entry","powershell.exe -NoProfile Write-Host ""Hello, World!"""
   ```
 
 **(2)**: Create `powerpkg.conf`, the script configuration file, with the following content:
@@ -101,7 +101,7 @@ Suppress Notification      : False
 ----
 
 (1) Example Task Entry:
-[powershell.exe Write-Host "Hello, World!"]
+[powershell.exe -NoProfile Write-Host "Hello, World!"]
 
 Hello, World!
 
@@ -184,7 +184,7 @@ For more information on the variety of parameters utilized within a task entry, 
 #### `Executable`
 
 - **Required**: Yes
-- **Purpose**: An executable file/path or MS-DOS command to invoke.
+- **Purpose**: An executable file/path to invoke.
 - **Subparamaters**:
 
 Subparameter     | Description
@@ -193,10 +193,32 @@ Subparameter     | Description
 
 - **Usage**:
 
+***Whitespace***
+
+When specifying an executable path or arguments containing whitespace, it is recommended to surround such text with double quotation marks. An individual quotation mark should be escaped in the following manner:
+
+Quotation Mark | Package File Type
+-------------- | -----------------
+`\"`           | JSON
+`""`           | CSV
+
+For individual file and/or directory names containing whitespace, such items should be surrounded by **single** quotation marks. Example: `\"[LocalFile]'an example.ps1'\"`
+
+It is also recommended to always surround files and/or directories specified with the `[LocalFile]` parameter with double quotation marks, to prevent I/O exceptions from being thrown with the usage of whitespace within the directory path of a package directory.
+ 
+***Environment Variables***
+
+Unfortunately, at this time, powerpkg does not support the independent usage of environment variables. However, as a workaround, you can:
+
+- Call `cmd.exe` in the following manner: `cmd.exe /c notepad.exe %SYSTEMDRIVE%\test.txt`.
+- Call `powershell.exe` in the following manner: `powershell.exe Start-Process -FileName notepad.exe -ArgumentList $env:SYSTEMDRIVE\test.txt -Wait`.
+
+Here are some valid example use cases of the `Executable` parameter:
+
 ```json
 [
     {
-        "Executable": "mspaint.exe"
+        "Executable": "ipconfig.exe"
     }
 ]
 ```
@@ -216,6 +238,13 @@ Subparameter     | Description
     }
 ]
 ```
+
+```json
+[
+    {
+        "Executable": "\"[LocalFile]example_directory\\'example file with whitespace.exe'\""
+    }
+]
 
 #### `OperatingSystem`
 
@@ -358,7 +387,11 @@ Subparameter     | Description                                                  
 
 - **Usage**:
 
-When utilizing the `VerifyInstall` parameter, you must specify one of the following subparamaters mentioned above.
+> **NOTE**:
+>
+> When utilizing the `VerifyInstall` parameter, you **must** specify one of the following subparamaters mentioned above.
+
+***`[Build]`***
 
 As you may have noticed, certain parameters take advantage of a **`[Build:]`** argument, which allows you to verify the existence of a specific version number associated with an installed program or executable file. To use this argument, you must specify it at the right side of a provided `VerifyInstall` value, then insert a version number on the right side of its colon. Take the following as an example:
 
@@ -369,6 +402,8 @@ As you may have noticed, certain parameters take advantage of a **`[Build:]`** a
     }
 ]
 ```
+
+***`[Vers_*]`***
 
 To utilize the **`[Vers_*]`** subparameters, you will need to retrieve the file or product version numbers from an executable file. To do so:
 
@@ -397,6 +432,8 @@ To utilize the **`[Vers_*]`** subparameters, you will need to retrieve the file 
       }
   ]
   ```
+
+***`[Program]`***
 
 To utilize the **`[Program]`** subparameter, you can verify the existence of a:
 
@@ -531,3 +568,4 @@ powerpkg is licensed under the MIT license. For more information regarding this 
 ## Additional Comments
 
 Fellow PowerShell enthusiasts, this is my contribution to you all. I hope you take advantage of this project I have worked very hard on. You guys rock!
+

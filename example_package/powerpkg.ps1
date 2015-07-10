@@ -133,9 +133,9 @@ function Invoke-Executable {
 	}
 
 	else {
-		$Invocation.Executable.Value = $Path -match $Invocation.Executable.Unquoted
+		$Invocation.Executable.Value = $Invocation.Input -match $Invocation.Executable.Unquoted
 		$Invocation.Executable.Value = $Matches[1]
-		$Invocation.Arguments.Value  = $Path -replace ($Invocation.Executable.Unquoted, "")
+		$Invocation.Arguments.Value  = $Invocation.Input -replace ($Invocation.Executable.Unquoted, "")
 	}
 	
 	# Remove potential whitespace between executable and its arguments.
