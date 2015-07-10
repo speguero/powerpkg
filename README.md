@@ -257,6 +257,7 @@ When utilizing this parameter, you will want to specify the NT kernel version nu
 
 Windows Operating System | NT Kernel Version
 ------------------------ | -----------------
+10                       | 10.0
 8.1                      | 6.3
 8                        | 6.2
 7                        | 6.1
