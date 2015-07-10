@@ -1,5 +1,7 @@
 # powerpkg
 
+![Header](/readme/header.gif)
+
 A Windows package deployment script with an emphasis on simplicity and standardization. Written in PowerShell.
 
 ## Section
