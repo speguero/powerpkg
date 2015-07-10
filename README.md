@@ -245,6 +245,7 @@ Here are some valid example use cases of the `Executable` parameter:
         "Executable": "\"[LocalFile]example_directory\\'example file with whitespace.exe'\""
     }
 ]
+```
 
 #### `OperatingSystem`
 
@@ -391,7 +392,7 @@ Subparameter     | Description                                                  
 >
 > When utilizing the `VerifyInstall` parameter, you **must** specify one of the following subparamaters mentioned above.
 
-***`[Build]`***
+***[Build]***
 
 As you may have noticed, certain parameters take advantage of a **`[Build:]`** argument, which allows you to verify the existence of a specific version number associated with an installed program or executable file. To use this argument, you must specify it at the right side of a provided `VerifyInstall` value, then insert a version number on the right side of its colon. Take the following as an example:
 
@@ -403,7 +404,7 @@ As you may have noticed, certain parameters take advantage of a **`[Build:]`** a
 ]
 ```
 
-***`[Vers_*]`***
+***[Vers_]***
 
 To utilize the **`[Vers_*]`** subparameters, you will need to retrieve the file or product version numbers from an executable file. To do so:
 
@@ -433,7 +434,7 @@ To utilize the **`[Vers_*]`** subparameters, you will need to retrieve the file 
   ]
   ```
 
-***`[Program]`***
+***[Program]***
 
 To utilize the **`[Program]`** subparameter, you can verify the existence of a:
 
