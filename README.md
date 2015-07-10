@@ -409,7 +409,7 @@ As you may have noticed, certain parameters take advantage of a **`[Build:]`** a
 ]
 ```
 
-However, unlike the `OperatingSystem` parameter, whatever `[Build:]` version number is specified must be identical to the version number of the installed program or executable file one would want to refer to.
+However, unlike the `OperatingSystem` parameter, whatever `[Build:]` version number is specified must be identical to the version number of an installed program or executable file.
 
 ***[Vers_]***
 
