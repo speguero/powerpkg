@@ -502,7 +502,7 @@ foreach ($Row in $Package.Config.FilePath) {
 	}
 	
 	else {
-		$Script.Output = ("OperatingSystem: It is """ + $Machine.OSVersion + """ and not """ + $TaskEntry.OperatingSystem + """.")
+		$Script.Output = ("OperatingSystem: """ + $TaskEntry.OperatingSystem + """ is a requirement.")
 
 		Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output -AddNewLine)
 		continue

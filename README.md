@@ -273,6 +273,10 @@ And specify a NT kernel version number in this fashion:
 ]
 ```
 
+> **NOTE**:
+>
+> Because the `OperatingSystem` parameter determines to find a match between a specified value (`6.1`) and the complete version number of a Windows operating system (`6.1.7601`), the value of `6.1.7601`, which indicates a specific build of Windows 7, can be specified, as well.
+
 #### `Architecture`
 
 - **Required**: No
@@ -393,7 +397,7 @@ Subparameter     | Description                                                  
 >
 > When utilizing the `VerifyInstall` parameter, you **must** specify one of the following subparamaters mentioned above.
 
-***[Build]***
+***[Build:]***
 
 As you may have noticed, certain parameters take advantage of a **`[Build:]`** argument, which allows you to verify the existence of a specific version number associated with an installed program or executable file. To use this argument, you must specify it at the right side of a provided `VerifyInstall` value, then insert a version number on the right side of its colon. Take the following as an example:
 
@@ -404,6 +408,8 @@ As you may have noticed, certain parameters take advantage of a **`[Build:]`** a
     }
 ]
 ```
+
+However, unlike the `OperatingSystem` parameter, whatever `[Build:]` version number is specified must be identical to the version number of the installed program or executable file one would want to refer to.
 
 ***[Vers_]***
 
