@@ -189,13 +189,13 @@ For more information on the variety of parameters utilized within a task entry, 
 - **Purpose**: An executable file/path to invoke.
 - **Subparamaters**:
 
-Subparameter     | Description
-------------     | -----------
-`[LocalFile]`    | Specifies a file located within a package directory.
+Subparameter | Description
+------------ | -----------
+`[Package]`  | Specifies a file located within a package directory.
 
 - **Usage**:
 
-***Whitespace***
+***Whitespace and Quotation Marks***
 
 When specifying an executable path or arguments containing whitespace, it is recommended to surround such text with double quotation marks. An individual quotation mark should be escaped in the following manner:
 
@@ -204,9 +204,9 @@ Quotation Mark | Package File Type
 `\"`           | JSON
 `""`           | CSV
 
-For individual file and/or directory names containing whitespace, such items should be surrounded by **single** quotation marks. Example: `\"[LocalFile]'an example.ps1'\"`
+For individual file and/or directory names containing whitespace, such items should be surrounded by **single** quotation marks. Example: `\"[Package]'an example.ps1'\"`
 
-It is also recommended to always surround files and/or directories specified with the `[LocalFile]` parameter with double quotation marks, to prevent I/O exceptions from being thrown with the usage of whitespace within the directory path of a package directory.
+It is also recommended to always surround files and/or directories specified with the `[Package]` parameter with double quotation marks, to prevent I/O exceptions from being thrown with the usage of whitespace within the directory path of a package directory.
  
 ***Environment Variables***
 
@@ -228,7 +228,7 @@ Here are some valid example use cases of the `Executable` parameter:
 ```json
 [
     {
-        "Executable": "msiexec.exe /i \"[LocalFile]example.msi\" /qn /norestart"
+        "Executable": "msiexec.exe /i \"[Package]example.msi\" /qn /norestart"
     }
 ]
 ```
@@ -236,7 +236,7 @@ Here are some valid example use cases of the `Executable` parameter:
 ```json
 [
     {
-        "Executable": "\"[LocalFile]example.exe\""
+        "Executable": "\"[Package]example.exe\""
     }
 ]
 ```
@@ -244,7 +244,7 @@ Here are some valid example use cases of the `Executable` parameter:
 ```json
 [
     {
-        "Executable": "\"[LocalFile]example_directory\\'example file with whitespace.exe'\""
+        "Executable": "\"[Package]example_directory\\'example file with whitespace.exe'\""
     }
 ]
 ```

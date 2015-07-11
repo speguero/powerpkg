@@ -82,7 +82,7 @@ $Package = @{
 	"Result"     = $Null
 	"Syntax"     = @{
 		"Executable"    = @{
-			"LocalFile" = "(\[)LocalFile(\])"
+			"Package" = "(\[)Package(\])"
 			"Sanitizer" = (
 				"\;(.*)$",
 				"\&(.*)$",
@@ -483,8 +483,8 @@ foreach ($Row in $Package.Config.FilePath) {
 		break
 	}
 
-	elseif ($TaskEntry.Executable.Path -match $Package.Syntax.Executable.LocalFile) {
-		$TaskEntry.Executable.Path = $TaskEntry.Executable.Path -Replace ($Package.Syntax.Executable.LocalFile, $Script.CurrentDirectory)
+	elseif ($TaskEntry.Executable.Path -match $Package.Syntax.Executable.Package) {
+		$TaskEntry.Executable.Path = $TaskEntry.Executable.Path -Replace ($Package.Syntax.Executable.Package, $Script.CurrentDirectory)
 	}
 	
 	else {

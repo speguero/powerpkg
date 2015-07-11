@@ -10,7 +10,7 @@
 	},
 	{
 		"TaskName": "Invoke File Located Within Package Directory",
-		"Executable": "powershell.exe -NoProfile -File \"[LocalFile]example.ps1\""
+		"Executable": "powershell.exe -NoProfile -File \"[Package]example.ps1\""
 	},
 	{
 		"TaskName": "Continue Processing Package Despite Error and Disregard Process Count",
