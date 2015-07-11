@@ -128,7 +128,7 @@ OK: (0)
 >
 > To further familiarize yourself with powerpkg and how it works, examining the contents of the `\example_package` directory is highly recommended.
 
-## Package File
+## Package File (`package.json`, `package.csv`)
 
 > **NOTE**:
 >
@@ -540,9 +540,9 @@ And specify your desired value in this fashion:
 ]
 ```
 
-## Script Configuration
+## Script Configuration File (`powerpkg.conf`)
 
-The script configuration file (`powerpkg.conf`) is not required for the utilization of `powerpkg.ps1`. When `powerpkg.conf` is nonexistent, the default values for the following parameters below are used:
+The script configuration file is not required for the utilization of `powerpkg.ps1`. However, if `powerpkg.conf` is nonexistent, the default values for the following parameters below are used:
 
 Parameter            | Description                                                                               | Default Value | Example Value
 ---------            | -----------                                                                               | ------------- | -------------
