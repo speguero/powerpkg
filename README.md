@@ -191,7 +191,7 @@ For more information on the variety of parameters utilized within a task entry, 
 
 Subparameter | Description
 ------------ | -----------
-`[Package]`  | Specifies a file located within a package directory.
+`[Package]`  | Allows for specifying a file or directory located within a package directory.
 
 - **Usage**:
 
