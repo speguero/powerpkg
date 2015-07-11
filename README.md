@@ -32,7 +32,7 @@ _Proudly written in PowerShell._
 
 ## Requirement
 
-Before reading through this documentation, please note that a minimum of **PowerShell 2.0** is required to utilize this project. However, PowerShell 3.0 or higher is recommended.
+Before reading through this documentation, please note that a minimum of **PowerShell 2.0** is required to utilize this project. **However, PowerShell 3.0 or higher is recommended.**
 
 ## Getting Started
 
@@ -224,6 +224,9 @@ Here are some valid example use cases of the `Executable` parameter:
         "Executable": "msiexec.exe /i \"[Package]example.msi\" /qn /norestart"
     },
     {
+        "Executable": "cmd.exe /q /c \"[Package]example.bat\""
+    },
+    {
         "Executable": "\"[Package]example.exe\""
     },
     {
@@ -321,7 +324,11 @@ For executable invocations that depend on a specific architectural environment, 
 ### `SuccessExitCode`
 
 > - **Required**: No
-> - **Purpose**: Non-zero exit codes that also determine a successful task entry. Used in conjunction with the exit code of `0`, so manually specifying such a value is unnecessary. 
+> - **Purpose**: Non-zero exit codes that also determine a successful task entry.
+
+> **NOTE**:
+>
+> The `0` exit code is automatically applied to any specified value, regardless as to whether or not it is explicitly specified.
 
 ```json
 [
