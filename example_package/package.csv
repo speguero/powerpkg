@@ -6,4 +6,4 @@ TaskName,Executable,OperatingSystem,Architecture,TerminateProcess,TerminateMessa
 "Ensure to Run on 64-bit Windows Only","powershell.exe -NoProfile Write-Host ""You will receive this output if you are using a 64-bit OS.""",,"AMD64",,,,,,
 "Ensure to Run on Windows 8.1 Only","powershell.exe -NoProfile Write-Host ""You will receive this output if you are using Windows 8.1.""","6.3",,,,,,,
 "Restart Process With Warning","powershell.exe -NoProfile Write-Host ""Explorer restarted.""",,,"explorer","Explorer will terminate. When prepared, click on the OK button.",,,,
-"Verify Internet Explorer Installation","powershell.exe -NoProfile Write-Host ""Internet Explorer does not exist.""",,,,,,,"[Path]C:\Program Files\Internet Explorer\iexplore.exe",
+"Verify Internet Explorer Installation","powershell.exe -NoProfile Write-Host ""Internet Explorer does not exist.""",,,,,,,"[Path]$env:PROGRAMFILES\Internet Explorer\iexplore.exe",
