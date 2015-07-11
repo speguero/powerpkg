@@ -398,6 +398,10 @@ Subparameter     | Description                                                  
 > **NOTE**:
 >
 > When utilizing the `VerifyInstall` parameter, you **must** specify one of the following subparamaters mentioned above.
+>
+> The usage of PowerShell environment variables, such as `$env:SYSTEMDRIVE`, is supported by the `VerifyInstall` parameter.
+>
+> The usage of quotation marks is not a requirement, even for paths that contain whitespace.
 
 ***[Build:]***
 
@@ -431,11 +435,14 @@ To utilize the **`[Vers_*]`** subparameters, you will need to retrieve the file 
   1.0               1.0
   ```
 
-  - Then, specify either outputted value inside the `[Build:]` argument in this fashion:
+  - Then, specify either outputted value inside the `[Build:]` argument in the following manner:
   ```json
   [
       {
           "VerifyInstall": "[Vers_File]C:\\example_file.exe[Build:1.0]"
+      },
+      {
+          "VerifyInstall": "[Vers_File]$env:SYSTEMDRIVE\\example_file.exe[Build:1.0]"
       },
       {
           "VerifyInstall": "[Vers_Product]C:\\example_file.exe[Build:1.0]"
@@ -520,6 +527,18 @@ Here are more valid example use cases of the `VerifyInstall` parameter and its r
     },
     {
         "VerifyInstall": "[Path]C:\\example_directory"
+    },
+    {
+        "VerifyInstall": "[Path]C:\\example directory with whitespace"
+    },
+    {
+        "VerifyInstall": "[Path]$env:SYSTEMDRIVE\\example_directory"
+    },
+    {
+        "VerifyInstall": "[Path]HKLM:\\registry_path"
+    },
+    {
+        "VerifyInstall": "[Path]env:\\ENVIRONMENT_VARIABLE"
     }
 ]
 ```

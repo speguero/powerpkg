@@ -112,6 +112,43 @@ $Package = @{
 
 # ---- FUNCTIONS ----
 
+function Get-EnvironmentVariableValue {
+
+	Param (
+		[String]
+		$Path
+	)
+
+	$Function = @{
+		"EnvironmentVariableSyntax" = @{
+			"Before" = "^(\$)env(\:)"
+			"After"  = "env:\"
+		}
+		"Path"                      = $Path
+		"Result"                    = $Null
+	}
+
+	foreach ($Item in $Function.Path -split "\\") {
+		if ($Item -match $Function.EnvironmentVariableSyntax.Before) {
+			$Item = $Item -replace $Function.EnvironmentVariableSyntax.Before, $Function.EnvironmentVariableSyntax.After
+			
+			try {
+				$Item = (Get-Content $Item -ErrorAction Stop)
+			}
+
+			catch [Exception] {
+				continue
+			}
+		}
+
+		else {}
+
+		$Function.Result += @($Item)
+	}
+
+	return ($Function.Result -join "\")
+}
+
 function Invoke-Executable {
 
 	Param (
@@ -552,6 +589,7 @@ foreach ($Row in $Package.Config.FilePath) {
 	
 	elseif ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Path) {
 		$TaskEntry.VerifyInstall.Path      = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Path, "")
+		$TaskEntry.VerifyInstall.Path      = Get-EnvironmentVariableValue -Path $TaskEntry.VerifyInstall.Path
 		$TaskEntry.VerifyInstall.Existence = Test-Path $TaskEntry.VerifyInstall.Path
 
 		if ($TaskEntry.VerifyInstall.Existence -eq $True) {
@@ -571,9 +609,10 @@ foreach ($Row in $Package.Config.FilePath) {
 			$TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Arg_Build | Out-Null
 
 			$TaskEntry.VerifyInstall.Path            = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Arg_Build, "")
+			$TaskEntry.VerifyInstall.Path            = Get-EnvironmentVariableValue -Path $TaskEntry.VerifyInstall.Path
 			$TaskEntry.VerifyInstall.SpecifiedBuild  = $Matches[1]
 			$TaskEntry.VerifyInstall.DiscoveredBuild = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Path) | % {$_.FileVersion}
-
+			
 			if ($TaskEntry.VerifyInstall.SpecifiedBuild -eq $TaskEntry.VerifyInstall.DiscoveredBuild) {
 				$Script.Output = ("VerifyInstall: [Vers_File] """ + $TaskEntry.VerifyInstall.SpecifiedBuild + """ exists.")
 
@@ -598,6 +637,7 @@ foreach ($Row in $Package.Config.FilePath) {
 			$TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Arg_Build | Out-Null
 
 			$TaskEntry.VerifyInstall.Path            = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Arg_Build, "")
+			$TaskEntry.VerifyInstall.Path            = Get-EnvironmentVariableValue -Path $TaskEntry.VerifyInstall.Path
 			$TaskEntry.VerifyInstall.SpecifiedBuild  = $Matches[1]
 			$TaskEntry.VerifyInstall.DiscoveredBuild = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Path) | % {$_.ProductVersion}
 
