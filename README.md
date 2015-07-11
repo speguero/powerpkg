@@ -215,7 +215,9 @@ Unfortunately, at this time, powerpkg does not support the independent usage of 
 - Call `cmd.exe` in the following manner: `cmd.exe /c notepad.exe %SYSTEMDRIVE%\test.txt`.
 - Call `powershell.exe` in the following manner: `powershell.exe Start-Process -FileName notepad.exe -ArgumentList $env:SYSTEMDRIVE\test.txt -Wait`.
 
-Here are some valid example use cases of the `Executable` parameter:
+#### Examples
+
+Here are other valid example use cases of the `Executable` parameter:
 
 ```json
 [
@@ -499,7 +501,9 @@ To utilize the **`[Program]`** subparameter, you can verify the existence of a:
   ]
   ```
 
-Here are more valid example use cases of the `VerifyInstall` parameter and its respective subparameters:
+#### Examples
+
+Here are other valid example use cases of the `VerifyInstall` parameter and its respective subparameters:
 
 ```json
 [
