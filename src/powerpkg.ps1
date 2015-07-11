@@ -10,7 +10,7 @@
 	
 	
 	.SYNOPSIS
-	powerpkg: A Windows package deployment script with an emphasis on simplicity and standardization.
+	powerpkg: A monolithic Windows package deployment script with an emphasis on simplicity, maintainability, and standardization.
 	
 	.DESCRIPTION
 	For information in regards to usage, consult the powerpkg README.md file.
