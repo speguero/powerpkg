@@ -82,7 +82,7 @@ $Package = @{
 	"Result"     = $Null
 	"Syntax"     = @{
 		"Executable"    = @{
-			"Package" = "(\[)Package(\])"
+			"Package"   = "(\[)Package(\])"
 			"Sanitizer" = (
 				"\;(.*)$",
 				"\&(.*)$",
