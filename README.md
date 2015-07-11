@@ -407,7 +407,7 @@ However, unlike the `OperatingSystem` parameter, whatever `[Build:]` version num
 
 To utilize the **`[Vers_*]`** subparameters, you will need to retrieve the file or product version numbers from an executable file. To do so:
 
-  - Invoke the following command:
+  - Within PowerShell, invoke the following command:
 
   ```powershell
   [System.Diagnostics.FileVersionInfo]::GetVersionInfo("C:\example_file.exe") | Select FileVersion, ProductVersion
