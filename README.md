@@ -195,6 +195,10 @@ Subparameter | Description
 
 - **Usage**:
 
+> **NOTE**:
+>
+> **Before calling `powershell.exe`, ensure to specify the `-NoProfile` parameter (`powershell.exe -NoProfile Example-Command`), to minimize the risk of arbitrary code execution.**
+
 ***Whitespace and Quotation Marks***
 
 When specifying an executable path or arguments containing whitespace, it is recommended to surround such text with double quotation marks. An individual quotation mark should be escaped in the following manner:
@@ -221,28 +225,13 @@ Here are some valid example use cases of the `Executable` parameter:
 [
     {
         "Executable": "ipconfig.exe"
-    }
-]
-```
-
-```json
-[
+    },
     {
         "Executable": "msiexec.exe /i \"[Package]example.msi\" /qn /norestart"
-    }
-]
-```
-
-```json
-[
+    },
     {
         "Executable": "\"[Package]example.exe\""
-    }
-]
-```
-
-```json
-[
+    },
     {
         "Executable": "\"[Package]example_directory\\'example file with whitespace.exe'\""
     }
