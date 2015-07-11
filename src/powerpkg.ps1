@@ -483,7 +483,7 @@ foreach ($Row in $Package.Config.FilePath) {
 	}
 	
 	catch [Exception] {
-		$Script.Output = ("Task Entry (" + $TaskEntry.TaskName + "): " + $Error[0])
+		$Script.Output = ("`nTask Entry (" + $TaskEntry.TaskName + "): " + $Error[0])
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 3 -Output $Script.Output -AddNewLine)
 		
 		$Script.ExitCode = 3
@@ -492,8 +492,10 @@ foreach ($Row in $Package.Config.FilePath) {
 	
 	# ---- TASK NAME COLUMN ----
 	
-	if ($TaskEntry.TaskName -match "^$") {
-		$Script.Output = ("TaskName: Specification is required for """ + $TaskEntry.Executable + """ at entry " + [String]$Package.TaskStatus.Index + ".")
+	$Package.TaskStatus.Index = $Package.TaskStatus.Index + 1
+	
+	if ($TaskEntry.TaskName -match "^$" -or $TaskEntry.TaskName -match "^(\s+)$") {
+		$Script.Output = ("`nTaskName: Specification is required for """ + $TaskEntry.Executable.Path + """ at Task Entry " + [String]$Package.TaskStatus.Index + ".")
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 7 -Output $Script.Output -AddNewLine)
 		
 		$Script.ExitCode = 7
@@ -510,10 +512,8 @@ foreach ($Row in $Package.Config.FilePath) {
 	
 	# ---- EXECUTABLE COLUMN ----
 	
-	$Package.TaskStatus.Index = $Package.TaskStatus.Index + 1
-	
-	if ($TaskEntry.Executable.Path -match "^$") {
-		$Script.Output = ("Executable: Specification is required for """ + $TaskEntry.TaskName + """ at entry " + [String]$Package.TaskStatus.Index + ".")
+	if ($TaskEntry.Executable.Path -match "^$" -or $TaskEntry.Executable.Path -match "^(\s+)$") {
+		$Script.Output = ("`nExecutable: Specification is required for """ + $TaskEntry.TaskName + """ at Task Entry " + [String]$Package.TaskStatus.Index + ".")
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 7 -Output $Script.Output -AddNewLine)
 		
 		$Script.ExitCode = 7
@@ -856,10 +856,16 @@ foreach ($Row in $Package.Config.FilePath) {
 
 # ---- TASK STATUS REPORTING ---
 
-if ($Script.ExitCode -eq 0 -and $Package.TaskStatus.Successful -eq 0 -and $Package.TaskStatus.Unsuccessful -eq 0) {
+if ($Package.TaskStatus.Successful -eq 0 -and $Package.TaskStatus.Unsuccessful -eq 0) {
 	Write-Host -ForegroundColor Red "`nWARN: No task entries were processed.`n"
 	
-	$Script.ExitCode = 6
+	if ($Script.ExitCode -eq 0) {
+		$Script.ExitCode = 6
+	}
+	
+	else {
+		pass
+	}
 }
 
 else {
