@@ -544,11 +544,11 @@ And specify your desired value in this fashion:
 
 The script configuration file (`powerpkg.conf`) is not required for the utilization of `powerpkg.ps1`. When `powerpkg.conf` is nonexistent, the default values for the following parameters below are used:
 
-Parameter            | Description                                                                                                             | Default Value | Example Value
----------            | -----------                                                                                                             | ------------- | -------------
-BlockHost            | Prevents specified hosts from processing a package.                                                                     | `Null`        | `examplehost1`, `examplehost1,examplehost2`
-PackageName          | Allows specifying a different package name apart from the name of the directory a package resides in.                   | `Null`        | `"Example Package"`
-SuppressNotification | Prevents a balloon notification from displaying upon a successful deployment. A value of `False` changes this behavior. | `True`        | `True`, `False`
+Parameter            | Description                                                                               | Default Value | Example Value
+---------            | -----------                                                                               | ------------- | -------------
+BlockHost            | Prevents specified hosts from processing a package.                                       | `Null`        | `examplehost1`, `examplehost1,examplehost2`
+PackageName          | Allows for specifying a different package name apart from the name of a package directory | `Null`        | `"Example Package"`
+SuppressNotification | Prevents a balloon notification from displaying upon a successful deployment.             | `True`        | `True`, `False`
 
 ## Debugging
 
@@ -559,10 +559,10 @@ Code | Description
 1    | A task entry terminated with a non-zero exit code.
 2    | An exception rose from a task entry during its executable invocation process.
 3    | Initial task entry processing failed.
-4    | A host has been blocked from processing a package.
+4    | A host has been prevented from processing a package.
 5    | A package file was not found.
 6    | No task entries were processed.
-7    | A task entry is missing required information.
+7    | A task entry is missing a required value.
 
 ## License
 
