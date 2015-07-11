@@ -2,7 +2,9 @@
 
 ![Header](/readme/header.gif)
 
-A monolithic Windows package deployment script with an emphasis on simplicity, maintainability, and standardization. Written in PowerShell.
+A monolithic Windows package deployment script with an emphasis on simplicity, maintainability, and standardization. Specify what executables to invoke, and how to invoke them, inside a mere configuration file. powerpkg will process it and take care of the rest.
+
+Proudly written in PowerShell.
 
 ## Section
 1. [Requirement](#requirement)
