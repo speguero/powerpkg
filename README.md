@@ -25,7 +25,7 @@ _Proudly written in PowerShell._
   - [ContinueIfFail](#continueiffail)
   - [VerifyInstall](#verifyinstall)
   - [SkipProcessCount](#skipprocesscount)
-5. [Script Configuration (`powerpkg.conf`)](#script-configuration-powerpkgconf)
+5. [Script Configuration File (`powerpkg.conf`)](#script-configuration-file-powerpkgconf)
 6. [Debugging](#debugging)
 7. [License](#license)
 8. [Additional Comments](#additional-comments)
