@@ -130,15 +130,13 @@ OK: (0)
 
 ## Package File
 
-Package files consist of specific instructions, or task entries, that are processed by `powerpkg.ps1` at runtime.
-
 > **NOTE**:
 >
 > You may have noticed that this project features both JSON (`package.json`) and CSV (`package.csv`) package files. Unfortunately, usage of `package.csv` is required for Windows systems utilizing PowerShell 2.0, as JSON support is nonexistent on said systems.
 >
 > If you are using PowerShell 3.0 or higher, ``package.csv`` is not required and can be deleted.
 
-Specific instructions are stored in the form of task entries, which are presented in the following fashion:
+Package files are configuration files that consist of instructions, or **task entries**, that specify what executables to invoke and how to invoke them. The following are examples of an individual task entry in both JSON and CSV format:
 
 **JSON** (PowerShell 3.0+):
 
@@ -166,13 +164,12 @@ TaskName,Executable,OperatingSystem,Architecture,TerminateProcess,TerminateMessa
 "","","","","","","","","",""
 ```
 
-For more information on the variety of parameters utilized within a task entry, refer to the Package File segment of [Section](#section) for a list of said parameters, or review the following information below:
+For more information regarding the variety of parameters available to leverage task entries, refer to the Package File segment of [Section](#section) for a list of the parameters in question, or review the following information below:
 
-#### `TaskName`
+### `TaskName`
 
-- **Required**: Yes
-- **Purpose**: A name for an individual task entry.
-- **Usage**:
+> - **Required**: Yes
+> - **Purpose**: The title for an individual task entry.
 
 ```json
 [
@@ -182,23 +179,21 @@ For more information on the variety of parameters utilized within a task entry, 
 ]
 ```
 
-#### `Executable`
+### `Executable`
 
-- **Required**: Yes
-- **Purpose**: An executable file/path to invoke.
-- **Subparamaters**:
-
-Subparameter | Description
------------- | -----------
-`[Package]`  | Allows for specifying a file or directory located within a package directory.
-
-- **Usage**:
+> - **Required**: Yes
+> - **Purpose**: An executable file/path to invoke.
+> - **Subparamaters**:
+> 
+> Subparameter | Description
+> ------------ | -----------
+> `[Package]`  | Allows for specifying a file or directory located within a package directory.
 
 > **NOTE**:
 >
-> **Before calling `powershell.exe`, ensure to specify the `-NoProfile` parameter (`powershell.exe -NoProfile Example-Command`), to minimize the risk of arbitrary code execution.**
+> Before calling `powershell.exe`, ensure to specify the `-NoProfile` parameter (`powershell.exe -NoProfile Example-Command`), to minimize the risk of arbitrary code execution.
 
-***Whitespace and Quotation Marks***
+#### Whitespace and Quotation Marks
 
 When specifying an executable path or arguments containing whitespace, it is recommended to surround such text with double quotation marks. An individual quotation mark should be escaped in the following manner:
 
@@ -210,8 +205,8 @@ Quotation Mark | Package File Type
 For individual file and/or directory names containing whitespace, such items should be surrounded by **single** quotation marks. Example: `\"[Package]'an example.ps1'\"`
 
 It is also recommended to always surround files and/or directories specified with the `[Package]` parameter with double quotation marks, to prevent I/O exceptions from being thrown with the usage of whitespace within the directory path of a package directory.
- 
-***Environment Variables***
+
+#### Environment Variables
 
 Unfortunately, at this time, powerpkg does not support the independent usage of environment variables. However, as a workaround, you can:
 
@@ -237,11 +232,10 @@ Here are some valid example use cases of the `Executable` parameter:
 ]
 ```
 
-#### `OperatingSystem`
+### `OperatingSystem`
 
-- **Required**: No
-- **Purpose**: The operating system a task entry should be processed under.
-- **Usage**:
+> - **Required**: No
+> - **Purpose**: The operating system a task entry should be processed under.
 
 When utilizing this parameter, you will want to specify the NT kernel version number of a specific Windows operating system:
 
@@ -267,11 +261,10 @@ And specify a NT kernel version number in this fashion:
 >
 > Because the `OperatingSystem` parameter determines to find a match between a specified value (`6.1`) and the complete version number of a Windows operating system (`6.1.7601`), the value of `6.1.7601`, which indicates a specific build of Windows 7, can be specified, as well.
 
-#### `Architecture`
+### `Architecture`
 
-- **Required**: No
-- **Purpose**: The userspace architecture a task entry should be processed under.
-- **Usage**:
+> - **Required**: No
+> - **Purpose**: The userspace architecture a task entry should be processed under.
 
 For executable invocations that depend on a specific architectural environment, you will want to specify the following for:
 
@@ -295,11 +288,10 @@ For executable invocations that depend on a specific architectural environment, 
 ]
 ```
 
-#### `TerminateProcess`
+### `TerminateProcess`
 
-- **Required**: No, except when utilizing the `TerminateMessage` parameter.
-- **Purpose**: A process, or list of process, to terminate prior to executable invocation.
-- **Usage**:
+> - **Required**: No, except when utilizing the `TerminateMessage` parameter.
+> - **Purpose**: A process, or list of process, to terminate prior to executable invocation.
 
 ```json
 [
@@ -312,11 +304,10 @@ For executable invocations that depend on a specific architectural environment, 
 ]
 ```
 
-#### `TerminateMessage`
+### `TerminateMessage`
 
-- **Required**: No
-- **Purpose**: A message to display to an end-user prior to the termination of processes. Used in conjunction with the `TerminateProcess` parameter.
-- **Usage**:
+> - **Required**: No
+> - **Purpose**: A message to display to an end-user prior to the termination of processes. Used in conjunction with the `TerminateProcess` parameter.
 
 ```json
 [
@@ -327,11 +318,10 @@ For executable invocations that depend on a specific architectural environment, 
 ]
 ```
 
-#### `SuccessExitCode`
+### `SuccessExitCode`
 
-- **Required**: No
-- **Purpose**: Non-zero exit codes that also determine a successful task entry. Used in conjunction with the exit code of `0`, so manually specifying such a value is unnecessary. 
-- **Usage**:
+> - **Required**: No
+> - **Purpose**: Non-zero exit codes that also determine a successful task entry. Used in conjunction with the exit code of `0`, so manually specifying such a value is unnecessary. 
 
 ```json
 [
@@ -344,11 +334,10 @@ For executable invocations that depend on a specific architectural environment, 
 ]
 ```
 
-#### `ContinueIfFail`
+### `ContinueIfFail`
 
-- **Required**: No
-- **Purpose**: Specify as to whether or not to continue with remaining task entires if a specific task entry fails.
-- **Usage**:
+> - **Required**: No
+> - **Purpose**: Specify as to whether or not to continue with remaining task entires if a specific task entry fails.
 
 When explicitly utilizing the `ContinueIfFail` parameter and specifying the following value:
 
@@ -367,21 +356,19 @@ And specify your desired value in this fashion:
 ]
 ```
 
-#### `VerifyInstall`
+### `VerifyInstall`
 
-- **Required**: No
-- **Purpose**: Skip a task entry if a program, hotfix, file/directory path, or a specific version of an executable file exist.
-- **Subparamaters**:
-
-Subparameter     | Description                                                        | Additional Arguments | Additional Arguments Required?
-------------     | -----------                                                        | -------------------- | ------------------------------
-`[Hotfix]`       | Verify the existence of a hotfix.                                  |                      |
-`[Path]`         | Verify the existence of a file or directory path.                  |                      |
-`[Vers_File]`    | Verify the file version of an executable file.                     | `[Build:]`           | Yes
-`[Vers_Product]` | Verify the product version of an executable file.                  | `[Build:]`           | Yes
-`[Program]`      | Verify the existence of an installed program name or product code. | `[Build:]`           | No
-
-- **Usage**:
+> - **Required**: No
+> - **Purpose**: Skip a task entry if a program, hotfix, file/directory path, or a specific version of an executable file exist.
+> - **Subparamaters**:
+>
+> Subparameter     | Description                                                        | Additional Arguments | Additional Arguments Required?
+> ------------     | -----------                                                        | -------------------- | ------------------------------
+> `[Hotfix]`       | Verify the existence of a hotfix.                                  |                      |
+> `[Path]`         | Verify the existence of a file or directory path.                  |                      |
+> `[Vers_File]`    | Verify the file version of an executable file.                     | `[Build:]`           | Yes
+> `[Vers_Product]` | Verify the product version of an executable file.                  | `[Build:]`           | Yes
+> `[Program]`      | Verify the existence of an installed program name or product code. | `[Build:]`           | No
 
 > **NOTE**:
 >
@@ -391,7 +378,7 @@ Subparameter     | Description                                                  
 >
 > The usage of quotation marks is not a requirement, even for paths that contain whitespace.
 
-***[Build:] Argument***
+#### [Build:] Argument
 
 As you may have noticed, certain parameters take advantage of a **`[Build:]`** argument, which allows you to verify the existence of a specific version number associated with an installed program or executable file. To use this argument, you must specify it at the right side of a provided `VerifyInstall` value, then insert a version number on the right side of its colon. Take the following as an example:
 
@@ -405,7 +392,7 @@ As you may have noticed, certain parameters take advantage of a **`[Build:]`** a
 
 However, unlike the `OperatingSystem` parameter, whatever `[Build:]` version number is specified must be identical to the version number of an installed program or executable file.
 
-***[Vers_] Subparameters***
+#### [Vers_] Subparameters
 
 To utilize the **`[Vers_*]`** subparameters, you will need to retrieve the file or product version numbers from an executable file. To do so:
 
@@ -438,7 +425,7 @@ To utilize the **`[Vers_*]`** subparameters, you will need to retrieve the file 
   ]
   ```
 
-***[Program] Subparameter***
+#### [Program] Subparameter
 
 To utilize the **`[Program]`** subparameter, you can verify the existence of a:
 
@@ -531,11 +518,10 @@ Here are more valid example use cases of the `VerifyInstall` parameter and its r
 ]
 ```
 
-#### `SkipProcessCount`
+### `SkipProcessCount`
 
-- **Required**: No
-- **Purpose**: Specify as to whether or not a processed task entry should be counted as such and contribute to the overall total of processed task entries, whether it succeeds or fails.
-- **Usage**:
+> - **Required**: No
+> - **Purpose**: Specify as to whether or not a processed task entry should be counted as such and contribute to the overall total of processed task entries, whether it succeeds or fails.
 
 When explicitly utilizing the `SkipProcessCount` parameter and specifying the following value:
 
@@ -566,7 +552,7 @@ SuppressNotification | Prevents a balloon notification from displaying upon a su
 
 ## Debugging
 
-#### Exit Codes:
+### Exit Codes:
 
 Code | Description
 ---- | -----------
