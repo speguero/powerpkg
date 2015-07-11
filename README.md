@@ -552,7 +552,7 @@ SuppressNotification | Prevents a balloon notification from displaying upon a su
 
 ## Debugging
 
-### Exit Codes:
+### Exit Codes
 
 Code | Description
 ---- | -----------
