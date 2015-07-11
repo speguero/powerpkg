@@ -2,18 +2,19 @@
 
 ![Header](/readme/header.gif)
 
-A monolithic Windows package deployment script with an emphasis on simplicity, maintainability, and standardization.
+**One** to perform **all**.
+
+powerpkg is a monolithic Windows package deployment script with an emphasis on simplicity, maintainability, and standardization.
 
 Specify what executables to invoke, and how to invoke them, inside a mere configuration file. powerpkg will process it and take care of the rest.
 
-Proudly written in PowerShell.
+_Proudly written in PowerShell._
 
 ## Section
 1. [Requirement](#requirement)
-2. [Philosophy](#philosophy)
-3. [Getting Started](#getting-started)
-4. [How It Works](#how-it-works)
-5. [Package File](#package-file)
+2. [Getting Started](#getting-started)
+3. [How It Works](#how-it-works)
+4. [Package File](#package-file)
   - [TaskName](#taskname)
   - [Executable](#executable)
   - [OperatingSystem](#operatingsystem)
@@ -24,20 +25,14 @@ Proudly written in PowerShell.
   - [ContinueIfFail](#continueiffail)
   - [VerifyInstall](#verifyinstall)
   - [SkipProcessCount](#skipprocesscount)
-6. [Script Configuration](#script-configuration)
-7. [Debugging](#debugging)
-8. [License](#license)
-9. [Additional Comments](#additional-comments)
+5. [Script Configuration](#script-configuration)
+6. [Debugging](#debugging)
+7. [License](#license)
+8. [Additional Comments](#additional-comments)
 
 ## Requirement
 
 Before reading through this documentation, please note that a minimum of **PowerShell 2.0** is required to utilize this project. However, PowerShell 3.0 or higher is recommended.
-
-## Philosophy
-
-**One** script to perform **all** functions.
-
-The sole purpose of powerpkg is to enable maintainability when managing package deployments on the Windows platform. This allows an administrator to consolidate an unsustainable collection of unique scripts into one PowerShell script.
 
 ## Getting Started
 
