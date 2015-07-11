@@ -130,13 +130,15 @@ OK: (0)
 
 ## Package File (`package.json`, `package.csv`)
 
-Package files are configuration files that consist of instructions, or **task entries**, that specify what executables to invoke and how to invoke them. The following are examples of an individual task entry in both JSON and CSV format:
+Package files are configuration files that consist of instructions, or **task entries**, that specify what executables to invoke and how to invoke them.
 
 > **NOTE**:
 >
 > You may have noticed that this project features both JSON (`package.json`) and CSV (`package.csv`) package files. Unfortunately, usage of `package.csv` is required for Windows systems utilizing PowerShell 2.0, as JSON support is nonexistent on said systems.
 >
 > If you are using PowerShell 3.0 or higher, ``package.csv`` is not required and can be deleted.
+
+The following are examples of an individual task entry in both JSON and CSV format:
 
 **JSON** (PowerShell 3.0+):
 
