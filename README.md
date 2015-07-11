@@ -557,11 +557,11 @@ And specify your desired value in this fashion:
 
 The script configuration file is not required for the utilization of `powerpkg.ps1`. However, if `powerpkg.conf` is nonexistent, the default values for the following parameters below are used:
 
-Parameter            | Description                                                                               | Default Value | Example Value
----------            | -----------                                                                               | ------------- | -------------
-BlockHost            | Prevents specified hosts from processing a package.                                       | `Null`        | `examplehost1`, `examplehost1,examplehost2`
-PackageName          | Allows for specifying a different package name apart from the name of a package directory | `Null`        | `"Example Package"`
-SuppressNotification | Prevents a balloon notification from displaying upon a successful deployment.             | `True`        | `True`, `False`
+Parameter              | Description                                                                               | Default Value | Example Value
+---------              | -----------                                                                               | ------------- | -------------
+`BlockHost`            | Prevents specified hosts from processing a package.                                       | `Null`        | `examplehost1`, `examplehost1,examplehost2`
+`PackageName`          | Allows for specifying a different package name apart from the name of a package directory | `Null`        | `"Example Package"`
+`SuppressNotification` | Prevents a balloon notification from displaying upon a successful deployment.             | `True`        | `True`, `False`
 
 ## Debugging
 
