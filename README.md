@@ -49,13 +49,13 @@ powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "example_package\p
 
 > **NOTE**:
 >
-> For more information on the usage of both `package.json` and `package.csv`, refer to the [Package File](#package-file) segment of this README.
+> For more information on the usage of both `package.json` and `package.csv`, refer to the [Package File](#package-file-packagejson-packagecsv) segment of this README.
 >
 > To discover basic usage of powerpkg, refer to the [How It Works](#how-it-works) segment of this README.
 
 ## How It Works
 
-**(1)**: Create one of the following [package files](#package-file):
+**(1)**: Create one of the following [package files](#package-file-packagejson-packagecsv):
 
   - **`package.json` (PowerShell 3.0+):**
   ```json
@@ -128,7 +128,7 @@ The last line in the example output above (`OK: (0)`) solely reports the exit co
 >
 > If `powerpkg.ps1` terminates with a non-zero exit code, determine its meaning in the [Debugging](#debugging) segment of this README.
 >
-> To discover in-depth usage of powerpkg, refer to the [Package File](#package-file) and [Script Configuration](#script-configuration) segments of this README.
+> To discover in-depth usage of powerpkg, refer to the [Package File](#package-file-packagejson-packagecsv) and [Script Configuration](#script-configuration-powerpkgconf) segments of this README.
 >
 > To further familiarize yourself with powerpkg and how it works, examining the contents of the `\example_package` directory is highly recommended.
 
