@@ -128,7 +128,7 @@ The last line in the example output above (`OK: (0)`) solely reports the exit co
 >
 > If `powerpkg.ps1` terminates with a non-zero exit code, determine its meaning in the [Debugging](#debugging) segment of this README.
 >
-> To discover in-depth usage of powerpkg, refer to the [Package File](#package-file-packagejson-packagecsv) and [Script Configuration](#script-configuration-file-powerpkgconf) segments of this README.
+> To discover in-depth usage of powerpkg, refer to the [Package File](#package-file-packagejson-packagecsv) and [Script Configuration File](#script-configuration-file-powerpkgconf) segments of this README.
 >
 > To further familiarize yourself with powerpkg and how it works, examining the contents of the `\example_package` directory is highly recommended.
 
