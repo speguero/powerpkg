@@ -42,7 +42,7 @@ To begin test driving powerpkg:
 
 **(2)**: Invoke `powerpkg.ps1`:
 ```shell
-powershell.exe -ExecutionPolicy Unrestricted -File "example_package\powerpkg.ps1"
+powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "example_package\powerpkg.ps1"
 ```
 
 **(3)**: *And that's it!*
@@ -82,7 +82,7 @@ SuppressNotification False
 
 **(3)**: Invoke `powerpkg.ps1`:
 ```shell
-powershell.exe -ExecutionPolicy Unrestricted -File "powerpkg.ps1"
+powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "powerpkg.ps1"
 ```
 
 **(4)**: As `powerpkg.ps1` is running, you will notice output similar to the following example:
