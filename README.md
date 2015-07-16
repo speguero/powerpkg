@@ -412,17 +412,17 @@ Here are other valid example use cases of the `VerifyInstall` parameter and its 
 ```xml
 <VerifyInstall>[Hotfix]KB0000000</VerifyInstall>
 
-<VerifyInstall>[Path]C:\\example_file.exe</VerifyInstall>
+<VerifyInstall>[Path]C:\example_file.exe</VerifyInstall>
 
-<VerifyInstall>[Path]C:\\example_directory</VerifyInstall>
+<VerifyInstall>[Path]C:\example_directory</VerifyInstall>
 
-<VerifyInstall>[Path]C:\\example directory with whitespace</VerifyInstall>
+<VerifyInstall>[Path]C:\example directory with whitespace</VerifyInstall>
 
-<VerifyInstall>[Path]$env:SYSTEMDRIVE\\example_directory</VerifyInstall>
+<VerifyInstall>[Path]$env:SYSTEMDRIVE\example_directory</VerifyInstall>
 
-<VerifyInstall>[Path]HKLM:\\registry_path</VerifyInstall>
+<VerifyInstall>[Path]HKLM:\registry_path</VerifyInstall>
 
-<VerifyInstall>[Path]env:\\ENVIRONMENT_VARIABLE</VerifyInstall>
+<VerifyInstall>[Path]env:\ENVIRONMENT_VARIABLE</VerifyInstall>
 ]
 ```
 
