@@ -75,11 +75,8 @@ $Machine = @{
 $Package = @{
 	"Name"       = $MyInvocation.MyCommand.Definition.Split("\")[-2]
 	"Config"     = @{
-		"Content"       = $Null
-		"FilePath"      = $Null
-		"FilePath_CSV"  = $Script.CurrentDirectory + "package.csv"
-		"FilePath_XML"  = $Script.CurrentDirectory + "package.xml"
-		"FilePath_JSON" = $Script.CurrentDirectory + "package.json"
+		"Content"  = $Null
+		"FilePath" = $Script.CurrentDirectory + "package.xml"
 	}
 	"Result"     = $Null
 	"Syntax"     = @{
@@ -413,8 +410,7 @@ foreach ($ImportedHostname in $Script.Config.BlockHost) {
 # ---- IMPORTATION OF PACKAGE FILE ----
 
 try {
-	if (Test-Path $Package.Config.FilePath_XML) {
-		$Package.Config.FilePath     = $Package.Config.FilePath_XML
+	if (Test-Path $Package.Config.FilePath) {
 		[XML]$Package.Config.Content = Get-Content $Package.Config.FilePath
 		$Package.Config.Content      = $Package.Config.Content.Package.TaskEntry
 	}
