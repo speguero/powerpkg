@@ -423,7 +423,6 @@ Here are other valid example use cases of the `VerifyInstall` parameter and its 
 <VerifyInstall>[Path]HKLM:\registry_path</VerifyInstall>
 
 <VerifyInstall>[Path]env:\ENVIRONMENT_VARIABLE</VerifyInstall>
-]
 ```
 
 ### `SkipProcessCount`
