@@ -75,8 +75,10 @@ $Machine = @{
 $Package = @{
 	"Name"       = $MyInvocation.MyCommand.Definition.Split("\")[-2]
 	"Config"     = @{
+		"Content"       = $Null
 		"FilePath"      = $Null
 		"FilePath_CSV"  = $Script.CurrentDirectory + "package.csv"
+		"FilePath_XML"  = $Script.CurrentDirectory + "package.xml"
 		"FilePath_JSON" = $Script.CurrentDirectory + "package.json"
 	}
 	"Result"     = $Null
@@ -400,7 +402,7 @@ foreach ($ImportedHostname in $Script.Config.BlockHost) {
 	if ($Machine.Hostname -match $ImportedHostname -and $ImportedHostname -notmatch "^$") {
 		Write-Host -ForegroundColor Red ("`nERROR: Package '" + $Package.Name + "' will not be processed, as this host is blocked.`n")
 		
-		exit(4)
+		[Environment]::Exit(4)
 	}
 	
 	else {
@@ -411,21 +413,21 @@ foreach ($ImportedHostname in $Script.Config.BlockHost) {
 # ---- IMPORTATION OF PACKAGE FILE ----
 
 try {
-	if ($Script.CurrentPSVersion -ge 3) {
-		$Package.Config.FilePath = $Package.Config.FilePath_JSON
-		$Package.Config.FilePath = (Get-Content $Package.Config.FilePath | Out-String | ConvertFrom-JSON)
+	if (Test-Path $Package.Config.FilePath_XML) {
+		$Package.Config.FilePath     = $Package.Config.FilePath_XML
+		[XML]$Package.Config.Content = Get-Content $Package.Config.FilePath
+		$Package.Config.Content      = $Package.Config.Content.Package.TaskEntry
 	}
 	
 	else {
-		$Package.Config.FilePath = $Package.Config.FilePath_CSV
-		$Package.Config.FilePath = (Import-CSV $Package.Config.FilePath)
+		throw "No package file was present within the package directory."
 	}
 }
 
 catch [Exception] {
-	Write-Host -ForegroundColor Red ("`nERROR: Package file """ + $Package.Config.FilePath + """ could not be imported. Details: " + $Error[0])
+	Write-Host -ForegroundColor Red ("`nERROR: A package file could not be imported. Details: " + $Error[0])
 	
-	exit(5)
+	[Environment]::Exit(5)
 }
 
 # ---- PACKAGE FILE PROCESSING ----
@@ -442,7 +444,7 @@ Write-Host -ForegroundColor Cyan (
 	"`n----"
 )
 
-foreach ($Row in $Package.Config.FilePath) {
+foreach ($Row in $Package.Config.Content) {
 	try {
 		$TaskEntry = @{
 			"TaskName"         = $Row.TaskName
@@ -882,7 +884,7 @@ else {
 
 	Write-Host ("`nPackage Results (" + $Package.Name + "):")
 
-	if ($Script.ExitCode -eq 0 -and $Package.TaskStatus.Unsuccessful -eq 0 -or $Package.TaskStatus.TotalFailedButContinued -gt 0) {
+	if ($Script.ExitCode -eq 0) {
 		$Package.Result += ("`nOK: (" + $Script.ExitCode + ")`n")
 		
 		Write-Host -ForegroundColor Green $Package.Result
@@ -903,4 +905,4 @@ else {
 	}
 }
 
-exit($Script.ExitCode)
+[Environment]::Exit($Script.ExitCode)

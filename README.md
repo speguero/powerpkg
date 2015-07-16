@@ -14,7 +14,7 @@ _Proudly written in PowerShell._
 1. [Requirement](#requirement)
 2. [Getting Started](#getting-started)
 3. [How It Works](#how-it-works)
-4. [Package File (`package.json`, `package.csv`)](#package-file-packagejson-packagecsv)
+4. [Package File (`package.xml`)](#package-file-packagexml)
   - [TaskName](#taskname)
   - [Executable](#executable)
   - [OperatingSystem](#operatingsystem)
@@ -49,29 +49,20 @@ powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "example_package\p
 
 > **NOTE**:
 >
-> For more information on the usage of both `package.json` and `package.csv`, refer to the [Package File](#package-file-packagejson-packagecsv) segment of this README.
->
 > To discover basic usage of powerpkg, refer to the [How It Works](#how-it-works) segment of this README.
 
 ## How It Works
 
-**(1)**: Create one of the following [package files](#package-file-packagejson-packagecsv):
+**(1)**: Create the following [package file](#package-file-packagexml):
 
-  - **`package.json` (PowerShell 3.0+):**
-  ```json
-  [
-      {
-          "TaskName": "Example Task Entry",
-          "Executable": "powershell.exe -NoProfile Write-Host \"Hello, World!\""
-      }
-  ]
-  ```
-  
-  - **`package.csv` (PowerShell 2.0):**
-  ```
-  TaskName,Executable
-  "Example Task Entry","powershell.exe -NoProfile Write-Host ""Hello, World!"""
-  ```
+```xml
+<Package>
+	<TaskEntry>
+		<TaskName>Example Task Entry</TaskName>
+		<Executable>powershell.exe -NoProfile Write-Host "Hello, World!"</Executable>
+	</TaskEntry>
+</Package>
+```
 
 **(2)**: Create `powerpkg.conf`, the script configuration file, with the following content:
 ```
@@ -128,46 +119,29 @@ The last line in the example output above (`OK: (0)`) solely reports the exit co
 >
 > If `powerpkg.ps1` terminates with a non-zero exit code, determine its meaning in the [Debugging](#debugging) segment of this README.
 >
-> To discover in-depth usage of powerpkg, refer to the [Package File](#package-file-packagejson-packagecsv) and [Script Configuration File](#script-configuration-file-powerpkgconf) segments of this README.
+> To discover in-depth usage of powerpkg, refer to the [Package File](#package-file-packagexml) and [Script Configuration File](#script-configuration-file-powerpkgconf) segments of this README.
 >
 > To further familiarize yourself with powerpkg and how it works, examining the contents of the `\example_package` directory is highly recommended.
 
-## Package File (`package.json`, `package.csv`)
+## Package File (`package.xml`)
 
-Package files are configuration files that consist of instructions, or **task entries**, that specify what executables to invoke and how to invoke them.
+Package files are configuration files that consist of instructions, or **task entries**, that specify what executables to invoke and how to invoke them. The following is an example of an individual task entry in XML format:
 
-> **NOTE**:
->
-> You may have noticed that this project features both JSON (`package.json`) and CSV (`package.csv`) package files. Unfortunately, usage of `package.csv` is required for Windows systems utilizing PowerShell 2.0, as JSON support is nonexistent on said systems.
->
-> If you are utilizing PowerShell 3.0 or higher, ``package.csv`` is not required and can be deleted.
-
-The following are examples of an individual task entry in both JSON and CSV format:
-
-**JSON** (PowerShell 3.0+):
-
-```json
-[
-    {
-        "TaskName": "",
-        "Executable": "",
-        "OperatingSystem": "",
-        "Architecture": "",
-        "TerminateProcess": "",
-        "TerminateMessage": "",
-        "SuccessExitCode": "",
-        "ContinueIfFail": "",
-        "VerifyInstall": "",
-        "SkipProcessCount": ""
-    }
-]
-```
-
-**CSV** (PowerShell 2.0):
-
-```
-TaskName,Executable,OperatingSystem,Architecture,TerminateProcess,TerminateMessage,SuccessExitCode,ContinueIfFail,VerifyInstall,SkipProcessCount
-"","","","","","","","","",""
+```xml
+<Package>
+	<TaskEntry>
+		<TaskName></TaskName>
+		<Executable></Executable>
+		<OperatingSystem></OperatingSystem>
+		<Architecture></Architecture>
+		<TerminateProcess></TerminateProcess>
+		<TerminateMessage></TerminateMessage>
+		<SuccessExitCode></SuccessExitCode>
+		<ContinueIfFail></ContinueIfFail>
+		<VerifyInstall></VerifyInstall>
+		<SkipProcessCount></SkipProcessCount>
+	</TaskEntry>
+</Package>
 ```
 
 For more information regarding the variety of parameters available to leverage task entries, refer to the Package File segment of [Section](#section) for a list of the parameters in question, or review the following information below:
@@ -177,12 +151,8 @@ For more information regarding the variety of parameters available to leverage t
 > - **Required**: Yes
 > - **Purpose**: The title for an individual task entry.
 
-```json
-[
-    {
-        "TaskName": "Install Program"
-    }
-]
+```xml
+<TaskName>Install Program</TaskName>
 ```
 
 ### `Executable`
@@ -201,14 +171,9 @@ For more information regarding the variety of parameters available to leverage t
 
 #### Whitespace and Quotation Marks
 
-When specifying an executable path or arguments containing whitespace, it is recommended to surround such text with double quotation marks. An individual quotation mark should be escaped in the following manner:
+When specifying an executable path or arguments containing whitespace, it is recommended to surround such text with double quotation marks.
 
-Quotation Mark | Package File Type
--------------- | -----------------
-`\"`           | JSON
-`""`           | CSV
-
-For individual file and/or directory names containing whitespace, such items should be surrounded by **single** quotation marks. Example: `\"[Package]'an example.ps1'\"`
+For individual file and/or directory names containing whitespace, such items should be surrounded by **single** quotation marks. Example: `"[Package]'an example.ps1'"`
 
 It is also recommended to always surround files and/or directories specified with the `[Package]` parameter with double quotation marks, to prevent I/O exceptions from being thrown with the usage of whitespace within the directory path of a package directory.
 
@@ -223,24 +188,16 @@ Unfortunately, at this time, powerpkg does not support the independent usage of 
 
 Here are other valid example use cases of the `Executable` parameter:
 
-```json
-[
-    {
-        "Executable": "ipconfig.exe"
-    },
-    {
-        "Executable": "msiexec.exe /i \"[Package]example.msi\" /qn /norestart"
-    },
-    {
-        "Executable": "cmd.exe /q /c \"[Package]example.bat\""
-    },
-    {
-        "Executable": "\"[Package]example.exe\""
-    },
-    {
-        "Executable": "\"[Package]example_directory\\'example file with whitespace.exe'\""
-    }
-]
+```xml
+<Executable>ipconfig.exe</Executable>
+
+<Executable>msiexec.exe /i "[Package]example.msi" /qn /norestart</Executable>
+
+<Executable>cmd.exe /q /c "[Package]example.bat"</Executable>
+
+<Executable>"[Package]example.exe"</Executable>
+
+<Executable>"[Package]example_directory\'example file with whitespace.exe'"</Executable>
 ```
 
 ### `OperatingSystem`
@@ -260,12 +217,8 @@ Vista                    | 6.0
 
 And specify a NT kernel version number in this fashion:
 
-```json
-[
-    {
-        "OperatingSystem": "6.3"
-    }
-]
+```xml
+<OperatingSystem>6.3</OperatingSystem>
 ```
 
 > **NOTE**:
@@ -281,22 +234,14 @@ For executable invocations that depend on a specific architectural environment, 
 
 **AMD64** (x64 in Microsoft terminology) environments:
 
-```json
-[
-    {
-        "Architecture": "AMD64"
-    }
-]
+```xml
+<Architecture>AMD64</Architecture>
 ```
 
 **x86** environments:
 
-```json
-[
-    {
-        "Architecture": "x86"
-    }
-]
+```xml
+<Architecture>x86</Architecture>
 ```
 
 ### `TerminateProcess`
@@ -304,15 +249,10 @@ For executable invocations that depend on a specific architectural environment, 
 > - **Required**: No, except when utilizing the `TerminateMessage` parameter.
 > - **Purpose**: A process, or list of process, to terminate prior to executable invocation.
 
-```json
-[
-    {
-        "TerminateProcess": "explorer"
-    },
-    {
-        "TerminateProcess": "explorer,notepad"
-    }
-]
+```xml
+<TerminateProcess>explorer</TerminateProcess>
+
+<TerminateProcess>explorer,notepad</TerminateProcess>
 ```
 
 ### `TerminateMessage`
@@ -320,13 +260,8 @@ For executable invocations that depend on a specific architectural environment, 
 > - **Required**: No
 > - **Purpose**: A message to display to an end-user prior to the termination of processes. Used in conjunction with the `TerminateProcess` parameter.
 
-```json
-[
-    {
-        "TerminateProcess": "explorer",
-        "TerminateMessage": "File Explorer will terminate. When prepared, click on the OK button."
-    }
-]
+```xml
+<TerminateMessage>File Explorer will terminate. When prepared, click on the OK button.</TerminateMessage>
 ```
 
 ### `SuccessExitCode`
@@ -338,15 +273,10 @@ For executable invocations that depend on a specific architectural environment, 
 >
 > The `0` exit code is automatically applied to any specified value, regardless as to whether or not it is explicitly specified.
 
-```json
-[
-    {
-        "SuccessExitCode": "10"
-    },
-    {
-        "SuccessExitCode": "10,777,1000"
-    }
-]
+```xml
+<SuccessExitCode>10</SuccessExitCode>
+
+<SuccessExitCode>10,777,1000</SuccessExitCode>
 ```
 
 ### `ContinueIfFail`
@@ -363,12 +293,8 @@ False (Default) | `powerpkg.ps1` will fail and result in a non-zero exit code.
 
 And specify your desired value in this fashion:
 
-```json
-[
-    {
-        "ContinueIfFail": "true"
-    }
-]
+```xml
+<ContinueIfFail>true</ContinueIfFail>
 ```
 
 ### `VerifyInstall`
@@ -397,12 +323,8 @@ And specify your desired value in this fashion:
 
 As you may have noticed, certain parameters take advantage of a **`[Build:]`** argument, which allows you to verify the existence of a specific version number associated with an installed program or executable file. To use this argument, you must specify it at the right side of a provided `VerifyInstall` value, then insert a version number on the right side of its colon. Take the following as an example:
 
-```json
-[
-    {
-        "VerifyInstall": "[Vers_Product]C:\\example_file.exe[Build:1.0]"
-    }
-]
+```xml
+<VerifyInstall>[Vers_Product]C:\\example_file.exe[Build:1.0]</VerifyInstall>
 ```
 
 However, unlike the `OperatingSystem` parameter, whatever `[Build:]` version number is specified must be identical to the version number of an installed program or executable file.
@@ -426,18 +348,12 @@ To utilize the **`[Vers_*]`** subparameters, you will need to retrieve the file 
   ```
 
   - Then, specify either outputted value inside the `[Build:]` argument in the following manner:
-  ```json
-  [
-      {
-          "VerifyInstall": "[Vers_File]C:\\example_file.exe[Build:1.0]"
-      },
-      {
-          "VerifyInstall": "[Vers_File]$env:SYSTEMDRIVE\\example_file.exe[Build:1.0]"
-      },
-      {
-          "VerifyInstall": "[Vers_Product]C:\\example_file.exe[Build:1.0]"
-      }
-  ]
+  ```xml
+  <VerifyInstall>[Vers_File]C:\\example_file.exe[Build:1.0]</VerifyInstall>
+  
+  <VerifyInstall>[Vers_File]$env:SYSTEMDRIVE\\example_file.exe[Build:1.0]</VerifyInstall>
+  
+  <VerifyInstall>[Vers_Product]C:\\example_file.exe[Build:1.0]</VerifyInstall>
   ```
 
 #### [Program] Subparameter
@@ -466,21 +382,13 @@ To utilize the **`[Program]`** subparameter, you can verify the existence of a:
   ```
 
   - Then, specify the outputted value in this fashion:
-  ```json
-  [
-      {
-          "VerifyInstall": "[Program]{00000000-0000-0000-0000-000000000000}"
-      }
-  ]
+  ```xml
+  <VerifyInstall>[Program]{00000000-0000-0000-0000-000000000000}</VerifyInstall>
   ```
 
   - Or if you wish to verify the existence an installed program's respective version number along with its product code:
-  ```json
-  [
-      {
-          "VerifyInstall": "[Program]{00000000-0000-0000-0000-000000000000}[Build:1.0]"
-      }
-  ]
+  ```xml
+  <VerifyInstall>[Program]{00000000-0000-0000-0000-000000000000}[Build:1.0]</VerifyInstall>
   ```
 
 - **Program Name**:
@@ -488,50 +396,33 @@ To utilize the **`[Program]`** subparameter, you can verify the existence of a:
   ![Programs and Features](/readme/example_verifyinstall_program.gif)
 
   - Then, specify a program name in this fashion:
-  ```json
-  [
-      {
-          "VerifyInstall": "[Program]Example Program"
-      }
-  ]
+  ```xml
+  <VerifyInstall>[Program]Example Program</VerifyInstall>
   ```
 
   - Or if you wish to verify the existence an installed program's respective version number along with its name:
-  ```json
-  [
-      {
-          "VerifyInstall": "[Program]Example Program[Build:1.0]"
-      }
-  ]
+  ```xml
+  <VerifyInstall>[Program]Example Program[Build:1.0]</VerifyInstall>
   ```
 
 #### Examples
 
 Here are other valid example use cases of the `VerifyInstall` parameter and its respective subparameters:
 
-```json
-[
-    {
-        "VerifyInstall": "[Hotfix]KB0000000"
-    },
-    {
-        "VerifyInstall": "[Path]C:\\example_file.exe"
-    },
-    {
-        "VerifyInstall": "[Path]C:\\example_directory"
-    },
-    {
-        "VerifyInstall": "[Path]C:\\example directory with whitespace"
-    },
-    {
-        "VerifyInstall": "[Path]$env:SYSTEMDRIVE\\example_directory"
-    },
-    {
-        "VerifyInstall": "[Path]HKLM:\\registry_path"
-    },
-    {
-        "VerifyInstall": "[Path]env:\\ENVIRONMENT_VARIABLE"
-    }
+```xml
+<VerifyInstall>[Hotfix]KB0000000</VerifyInstall>
+
+<VerifyInstall>[Path]C:\\example_file.exe</VerifyInstall>
+
+<VerifyInstall>[Path]C:\\example_directory</VerifyInstall>
+
+<VerifyInstall>[Path]C:\\example directory with whitespace</VerifyInstall>
+
+<VerifyInstall>[Path]$env:SYSTEMDRIVE\\example_directory</VerifyInstall>
+
+<VerifyInstall>[Path]HKLM:\\registry_path</VerifyInstall>
+
+<VerifyInstall>[Path]env:\\ENVIRONMENT_VARIABLE</VerifyInstall>
 ]
 ```
 
@@ -549,12 +440,8 @@ False (Default) | `powerpkg.ps1` will count a processed task entry as such.
 
 And specify your desired value in this fashion:
 
-```json
-[
-    {
-        "SkipProcessCount": "true"
-    }
-]
+```xml
+<SkipProcessCount>true</SkipProcessCount>
 ```
 
 ## Script Configuration File (`powerpkg.conf`)
