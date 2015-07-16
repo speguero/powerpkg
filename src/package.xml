@@ -1,0 +1,26 @@
+<Package>
+	<TaskEntry>
+		<TaskName></TaskName>
+		<Executable></Executable>
+		<OperatingSystem></OperatingSystem>
+		<Architecture></Architecture>
+		<TerminateProcess></TerminateProcess>
+		<TerminateMessage></TerminateMessage>
+		<SuccessExitCode></SuccessExitCode>
+		<ContinueIfFail></ContinueIfFail>
+		<VerifyInstall></VerifyInstall>
+		<SkipProcessCount></SkipProcessCount>
+	</TaskEntry>
+	<TaskEntry>
+		<TaskName></TaskName>
+		<Executable></Executable>
+		<OperatingSystem></OperatingSystem>
+		<Architecture></Architecture>
+		<TerminateProcess></TerminateProcess>
+		<TerminateMessage></TerminateMessage>
+		<SuccessExitCode></SuccessExitCode>
+		<ContinueIfFail></ContinueIfFail>
+		<VerifyInstall></VerifyInstall>
+		<SkipProcessCount></SkipProcessCount>
+	</TaskEntry>
+</Package>

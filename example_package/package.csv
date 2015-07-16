@@ -1,9 +1,0 @@
-TaskName,Executable,OperatingSystem,Architecture,TerminateProcess,TerminateMessage,SuccessExitCode,ContinueIfFail,VerifyInstall,SkipProcessCount
-"Use Whitespace in Arguments","powershell.exe -NoProfile New-Item ""$env:UserProfile\Desktop\'powerpkg file.txt'"" -ItemType File -Force",,,,,,,,
-"Render Non-Zero Exit Code Okay","powershell.exe -NoProfile exit(1234)",,,,,"1234",,,
-"Invoke File Located Within Package Directory","powershell.exe -NoProfile ""[Package]example.ps1""",,,,,,,,
-"Continue Processing Package Despite Error and Disregard Process Count","powershell.exe -NoProfile exit(1)",,,,,,"true",,"true"
-"Ensure to Run on 64-bit Windows Only","powershell.exe -NoProfile Write-Host ""You will receive this output if you are using a 64-bit OS.""",,"AMD64",,,,,,
-"Ensure to Run on Windows 8.1 Only","powershell.exe -NoProfile Write-Host ""You will receive this output if you are using Windows 8.1.""","6.3",,,,,,,
-"Restart Process With Warning","powershell.exe -NoProfile Write-Host ""Explorer restarted.""",,,"explorer","Explorer will terminate. When prepared, click on the OK button.",,,,
-"Verify Internet Explorer Installation","powershell.exe -NoProfile Write-Host ""Internet Explorer does not exist.""",,,,,,,"[Path]$env:PROGRAMFILES\Internet Explorer\iexplore.exe",

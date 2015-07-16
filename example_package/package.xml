@@ -1,0 +1,42 @@
+<Package>
+	<TaskEntry>
+		<TaskName>Use Whitespace in Arguments</TaskName>
+		<Executable>powershell.exe -NoProfile New-Item "$env:UserProfile\Desktop\'powerpkg file.txt'" -ItemType File -Force</Executable>
+	</TaskEntry>
+	<TaskEntry>
+		<TaskName>Render Non-Zero Exit Code Okay</TaskName>
+		<Executable>powershell.exe -NoProfile exit(1234)</Executable>
+		<SuccessExitCode>1234</SuccessExitCode>
+	</TaskEntry>
+	<TaskEntry>
+		<TaskName>Invoke File Located Within Package Directory</TaskName>
+		<Executable>powershell.exe -NoProfile "[Package]example.ps1"</Executable>
+	</TaskEntry>
+	<TaskEntry>
+		<TaskName>Continue Processing Package Despite Error and Disregard Process Count</TaskName>
+		<Executable>powershell.exe -NoProfile exit(1)</Executable>
+		<ContinueIfFail>true</ContinueIfFail>
+		<SkipProcessCount>true</SkipProcessCount>
+	</TaskEntry>
+	<TaskEntry>
+		<TaskName>Ensure to Run on 64-bit Windows Only</TaskName>
+		<Executable>powershell.exe -NoProfile Write-Host "You will receive this output if you are using a 64-bit OS."</Executable>
+		<Architecture>AMD64</Architecture>
+	</TaskEntry>
+	<TaskEntry>
+		<TaskName>Ensure to Run on Windows 8.1 Only</TaskName>
+		<Executable>powershell.exe -NoProfile Write-Host "You will receive this output if you are using Windows 8.1."</Executable>
+		<OperatingSystem>6.3</OperatingSystem>
+	</TaskEntry>
+	<TaskEntry>
+		<TaskName>Restart Process With Warning</TaskName>
+		<Executable>powershell.exe -NoProfile Write-Host "Explorer restarted."</Executable>
+		<TerminateProcess>explorer</TerminateProcess>
+		<TerminateMessage>Explorer will terminate. When prepared, click on the OK button.</TerminateMessage>
+	</TaskEntry>
+	<TaskEntry>
+		<TaskName>Verify Internet Explorer Installation</TaskName>
+		<Executable>powershell.exe -NoProfile Write-Host "Internet Explorer does not exist."</Executable>
+		<VerifyInstall>[Path]$env:PROGRAMFILES\Internet Explorer\iexplore.exe</VerifyInstall>
+	</TaskEntry>
+</Package>
