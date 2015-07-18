@@ -324,7 +324,7 @@ And specify your desired value in this fashion:
 As you may have noticed, certain parameters take advantage of a **`[Build:]`** argument, which allows you to verify the existence of a specific version number associated with an installed program or executable file. To use this argument, you must specify it at the right side of a provided `VerifyInstall` value, then insert a version number on the right side of its colon. Take the following as an example:
 
 ```xml
-<VerifyInstall>[Vers_Product]C:\\example_file.exe[Build:1.0]</VerifyInstall>
+<VerifyInstall>[Vers_Product]C:\example_file.exe[Build:1.0]</VerifyInstall>
 ```
 
 However, unlike the `OperatingSystem` parameter, whatever `[Build:]` version number is specified must be identical to the version number of an installed program or executable file.
@@ -349,11 +349,11 @@ To utilize the **`[Vers_*]`** subparameters, you will need to retrieve the file 
 
   - Then, specify either outputted value inside the `[Build:]` argument in the following manner:
   ```xml
-  <VerifyInstall>[Vers_File]C:\\example_file.exe[Build:1.0]</VerifyInstall>
+  <VerifyInstall>[Vers_File]C:\example_file.exe[Build:1.0]</VerifyInstall>
   
-  <VerifyInstall>[Vers_File]$env:SYSTEMDRIVE\\example_file.exe[Build:1.0]</VerifyInstall>
+  <VerifyInstall>[Vers_File]$env:SYSTEMDRIVE\example_file.exe[Build:1.0]</VerifyInstall>
   
-  <VerifyInstall>[Vers_Product]C:\\example_file.exe[Build:1.0]</VerifyInstall>
+  <VerifyInstall>[Vers_Product]C:\example_file.exe[Build:1.0]</VerifyInstall>
   ```
 
 #### [Program] Subparameter
