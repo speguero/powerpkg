@@ -25,7 +25,6 @@ _Proudly written in PowerShell._
   - [ContinueIfFail](#continueiffail)
   - [VerifyInstall](#verifyinstall)
   - [SkipProcessCount](#skipprocesscount)
-5. [Script Configuration](#script-configuration)
 6. [Debugging](#debugging)
 7. [License](#license)
 8. [Additional Comments](#additional-comments)
@@ -135,7 +134,7 @@ Tasks Processed : 1
 
 OK: (0)
 ```
-**(7)**: *And that's it!* It is that easy to begin utilizing powerpkg.
+**(7)**: *And that's it!*
 
 The last line in the example output above (`OK: (0)`) solely reports the exit code of `powerpkg.ps1`. In this case, the zero exit code indicates a successful package deployment. Specified executables also report an exit code upon their invocation and have an influence on the exit code of `powerpkg.ps1`.
 
@@ -149,7 +148,7 @@ The last line in the example output above (`OK: (0)`) solely reports the exit co
 
 ## Package File (`package.xml`)
 
-A package file is a configuration file that consist of instructions that [specify how `powerpkg.ps1` should behave], what executables to invoke, and how to invoke them. The following is an example of a package file:
+A package file is a configuration file that consist of instructions that [specify how `powerpkg.ps1` should behave](), what executables to invoke, and how to invoke them. The following is an example of a package file:
 
 ```xml
 <Package>
@@ -170,30 +169,26 @@ A package file is a configuration file that consist of instructions that [specif
 		<VerifyInstall></VerifyInstall>
 		<SkipProcessCount></SkipProcessCount>
 	</TaskEntry>
-	<TaskEntry>
-		<TaskName></TaskName>
-		<Executable></Executable>
-		<OperatingSystem></OperatingSystem>
-		<Architecture></Architecture>
-		<TerminateProcess></TerminateProcess>
-		<TerminateMessage></TerminateMessage>
-		<SuccessExitCode></SuccessExitCode>
-		<ContinueIfFail></ContinueIfFail>
-		<VerifyInstall></VerifyInstall>
-		<SkipProcessCount></SkipProcessCount>
-	</TaskEntry>
 </Package>
 ```
 
-#### Script Configuration (`<Configuration>`)
+### Script Configuration (`<Configuration>`)
 
-#### Task Entries (`<TaskEntry>`)
+Script configuration is not required for the utilization of `powerpkg.ps1`. However, if custom configuration is nonexistent, the default values for the following parameters below are used:
+
+Parameter              | Description                                                                               | Default Value | Example Value
+---------              | -----------                                                                               | ------------- | -------------
+`BlockHost`            | Prevents specified hosts from processing a package.                                       | `Null`        | `examplehost1`, `examplehost1,examplehost2`
+`PackageName`          | Allows for specifying a different package name apart from the name of a package directory | `Null`        | `"Example Package"`
+`SuppressNotification` | Prevents a balloon notification from displaying upon a successful deployment.             | `True`        | `True`, `False`
+
+### Task Entries (`<TaskEntry>`)
 
 You must create individual process executable invocations accordingly.
 
 For more information regarding the variety of parameters available to leverage task entries, refer to the Package File segment of [Section](#section) for a list of the parameters in question, or review the following information below:
 
-### `TaskName`
+#### `TaskName`
 
 > - **Required**: Yes
 > - **Purpose**: The title for an individual task entry.
@@ -202,7 +197,7 @@ For more information regarding the variety of parameters available to leverage t
 <TaskName>Install Program</TaskName>
 ```
 
-### `Executable`
+#### `Executable`
 
 > - **Required**: Yes
 > - **Purpose**: An executable file/path to invoke.
@@ -216,7 +211,7 @@ For more information regarding the variety of parameters available to leverage t
 >
 > Before calling `powershell.exe`, ensure to specify the `-NoProfile` parameter (`powershell.exe -NoProfile Example-Command`), to minimize the risk of arbitrary code execution.
 
-#### Whitespace and Quotation Marks
+##### Whitespace and Quotation Marks
 
 When specifying an executable path or arguments containing whitespace, it is recommended to surround such text with double quotation marks.
 
@@ -224,14 +219,14 @@ For individual file and/or directory names containing whitespace, such items sho
 
 It is also recommended to always surround files and/or directories specified with the `[Package]` parameter with double quotation marks, to prevent I/O exceptions from being thrown with the usage of whitespace within the directory path of a package directory.
 
-#### Environment Variables
+##### Environment Variables
 
 Unfortunately, at this time, powerpkg does not support the independent usage of environment variables. However, as a workaround, you can:
 
 - Call `cmd.exe` in the following manner: `cmd.exe /c notepad.exe %SYSTEMDRIVE%\test.txt`.
 - Call `powershell.exe` in the following manner: `powershell.exe Start-Process -FileName notepad.exe -ArgumentList $env:SYSTEMDRIVE\test.txt -Wait`.
 
-#### Examples
+##### Examples
 
 Here are other valid example use cases of the `Executable` parameter:
 
@@ -247,7 +242,7 @@ Here are other valid example use cases of the `Executable` parameter:
 <Executable>"[Package]example_directory\'example file with whitespace.exe'"</Executable>
 ```
 
-### `OperatingSystem`
+#### `OperatingSystem`
 
 > - **Required**: No
 > - **Purpose**: The operating system a task entry should be processed under.
@@ -272,7 +267,7 @@ And specify a NT kernel version number in this fashion:
 >
 > Because the `OperatingSystem` parameter determines to find a match between a specified value (`6.1`) and the complete version number of a Windows operating system (`6.1.7601`), the value of `6.1.7601`, which indicates a specific build of Windows 7, can be specified, as well.
 
-### `Architecture`
+#### `Architecture`
 
 > - **Required**: No
 > - **Purpose**: The userspace architecture a task entry should be processed under.
@@ -291,7 +286,7 @@ For executable invocations that depend on a specific architectural environment, 
 <Architecture>x86</Architecture>
 ```
 
-### `TerminateProcess`
+#### `TerminateProcess`
 
 > - **Required**: No, except when utilizing the `TerminateMessage` parameter.
 > - **Purpose**: A process, or list of process, to terminate prior to executable invocation.
@@ -302,7 +297,7 @@ For executable invocations that depend on a specific architectural environment, 
 <TerminateProcess>explorer,notepad</TerminateProcess>
 ```
 
-### `TerminateMessage`
+#### `TerminateMessage`
 
 > - **Required**: No
 > - **Purpose**: A message to display to an end-user prior to the termination of processes. Used in conjunction with the `TerminateProcess` parameter.
@@ -311,7 +306,7 @@ For executable invocations that depend on a specific architectural environment, 
 <TerminateMessage>File Explorer will terminate. When prepared, click on the OK button.</TerminateMessage>
 ```
 
-### `SuccessExitCode`
+#### `SuccessExitCode`
 
 > - **Required**: No
 > - **Purpose**: Non-zero exit codes that also determine a successful task entry.
@@ -326,7 +321,7 @@ For executable invocations that depend on a specific architectural environment, 
 <SuccessExitCode>10,777,1000</SuccessExitCode>
 ```
 
-### `ContinueIfFail`
+#### `ContinueIfFail`
 
 > - **Required**: No
 > - **Purpose**: Specify as to whether or not to continue with remaining task entires if a specific task entry fails.
@@ -344,7 +339,7 @@ And specify your desired value in this fashion:
 <ContinueIfFail>true</ContinueIfFail>
 ```
 
-### `VerifyInstall`
+#### `VerifyInstall`
 
 > - **Required**: No
 > - **Purpose**: Skip a task entry if a program, hotfix, file/directory path, or a specific version of an executable file exist.
@@ -366,7 +361,7 @@ And specify your desired value in this fashion:
 >
 > The usage of quotation marks is not a requirement, even for paths that contain whitespace.
 
-#### [Build:] Argument
+##### [Build:] Argument
 
 As you may have noticed, certain parameters take advantage of a **`[Build:]`** argument, which allows you to verify the existence of a specific version number associated with an installed program or executable file. To use this argument, you must specify it at the right side of a provided `VerifyInstall` value, then insert a version number on the right side of its colon. Take the following as an example:
 
@@ -376,7 +371,7 @@ As you may have noticed, certain parameters take advantage of a **`[Build:]`** a
 
 However, unlike the `OperatingSystem` parameter, whatever `[Build:]` version number is specified must be identical to the version number of an installed program or executable file.
 
-#### [Vers_] Subparameters
+##### [Vers_] Subparameters
 
 To utilize the **`[Vers_*]`** subparameters, you will need to retrieve the file or product version numbers from an executable file. To do so:
 
@@ -403,7 +398,7 @@ To utilize the **`[Vers_*]`** subparameters, you will need to retrieve the file 
   <VerifyInstall>[Vers_Product]C:\example_file.exe[Build:1.0]</VerifyInstall>
   ```
 
-#### [Program] Subparameter
+##### [Program] Subparameter
 
 To utilize the **`[Program]`** subparameter, you can verify the existence of a:
 
@@ -452,7 +447,7 @@ To utilize the **`[Program]`** subparameter, you can verify the existence of a:
   <VerifyInstall>[Program]Example Program[Build:1.0]</VerifyInstall>
   ```
 
-#### Examples
+##### Examples
 
 Here are other valid example use cases of the `VerifyInstall` parameter and its respective subparameters:
 
@@ -472,7 +467,7 @@ Here are other valid example use cases of the `VerifyInstall` parameter and its 
 <VerifyInstall>[Path]env:\ENVIRONMENT_VARIABLE</VerifyInstall>
 ```
 
-### `SkipProcessCount`
+#### `SkipProcessCount`
 
 > - **Required**: No
 > - **Purpose**: Specify as to whether or not a processed task entry should be counted as such and contribute to the overall total of processed task entries, whether it succeeds or fails.
@@ -489,17 +484,6 @@ And specify your desired value in this fashion:
 ```xml
 <SkipProcessCount>true</SkipProcessCount>
 ```
-
-## Script Configuration
-
-The script configuration file is not required for the utilization of `powerpkg.ps1`. However, if custom configuration is nonexistent, the default values for the following parameters below are used:
-
-Parameter              | Description                                                                               | Default Value | Example Value
----------              | -----------                                                                               | ------------- | -------------
-`BlockHost`            | Prevents specified hosts from processing a package.                                       | `Null`        | `examplehost1`, `examplehost1,examplehost2`
-`PackageName`          | Allows for specifying a different package name apart from the name of a package directory | `Null`        | `"Example Package"`
-`SuppressNotification` | Prevents a balloon notification from displaying upon a successful deployment.             | `True`        | `True`, `False`
-
 ## Debugging
 
 ### Exit Codes
