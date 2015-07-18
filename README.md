@@ -16,7 +16,10 @@ _Proudly written in PowerShell._
 3. [How It Works](#how-it-works)
 4. [Package File (`package.xml`)](#package-file-packagexml)
   - [Script Configuration (`<Configuration>`)](#script-configuration-configuration)
-  - [Task Entries (`<TaskEntry>`)](#task-entries-taskentry)
+    - [PackageName](#packagename)
+    - [BlockHost](#blockhost)
+    - [SuppressNotification](#suppressnotification)
+  - [Task Entry (`<TaskEntry>`)](#task-entry-taskentry)
     - [TaskName](#taskname)
     - [Executable](#executable)
     - [OperatingSystem](#operatingsystem)
@@ -54,14 +57,14 @@ powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "example_package\p
 
 ## How It Works
 
-**(1)**: Save the following tags inside a [`package.xml`](#package-file-packagexml) file alongside `powerpkg.ps1`:
+**(1)**: Save the following XML element inside a [`package.xml`](#package-file-packagexml) file alongside `powerpkg.ps1`:
 
 ```xml
 <Package>
 </Package>
 ```
 
-**(2)**: Copy the following [script configuration](#script-configuration-configuration) example and paste it within the `<Package>` tags:
+**(2)**: Copy the following [script configuration](#script-configuration-configuration) XML element and paste it inside the `<Package>` XML element:
 
 ```xml
 <Configuration>
@@ -71,7 +74,7 @@ powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "example_package\p
 </Configuration>
 ```
 
-**(3)**: Copy the following [task entry](#task-entries-taskentry) example and paste it below the `<Configuration>` tags:
+**(3)**: Copy the following [task entry](#task-entry-taskentry) XML element and paste it below the `<Configuration>` XML element:
 
 ```xml
 <TaskEntry>
@@ -145,12 +148,15 @@ The last line in the example output above (`OK: (0)`) solely reports the exit co
 > If `powerpkg.ps1` terminates with a non-zero exit code, determine its meaning in the [Debugging](#debugging) segment of this README.
 >
 > To discover in-depth usage of powerpkg, refer to the [Package File](#package-file-packagexml) segment of this README.
->
-> To further familiarize yourself with powerpkg and how it works, examining the contents of the `\example_package` directory is highly recommended.
 
 ## Package File (`package.xml`)
 
-A package file is a configuration file that consist of instructions that [specify how `powerpkg.ps1` should behave](#script-configuration-configuration), [what executables to invoke, and how to invoke them](#task-entries-taskentry). The following is an example of a package file:
+A package file is a configuration file of `powerpkg.ps1` that consists of instructions that:
+
+  1. [Specify how `powerpkg.ps1` should behave](#script-configuration-configuration), using one `<Configuration>` XML element.
+  2. [What executables to invoke, and how to invoke them](#task-entry-taskentry), using one or more `<TaskEntry>` XML elements.
+
+And are typically presented in the following manner:
 
 ```xml
 <Package>
@@ -174,7 +180,46 @@ A package file is a configuration file that consist of instructions that [specif
 </Package>
 ```
 
+Which, with a bit of customization, can become the following example:
+
+```xml
+<Package>
+	<Configuration>
+		<PackageName>Example Package</PackageName>
+		<BlockHost>examplehost1,examplehost2</BlockHost>
+		<SuppressNotification>false</SuppressNotification>
+	</Configuration>
+	<TaskEntry>
+		<TaskName>Example Task Entry</TaskName>
+		<Executable>powershell.exe -NoProfile Write-Host "Hello World!"</Executable>
+		<OperatingSystem>6.1</OperatingSystem>
+		<Architecture>AMD64</Architecture>
+		<TerminateProcess>exampleprocess</TerminateProcess>
+		<TerminateMessage>Example Program will terminate. Press OK to continue.</TerminateMessage>
+		<SuccessExitCode>1234</SuccessExitCode>
+		<ContinueIfFail>true</ContinueIfFail>
+		<VerifyInstall>[Program]Example Program</VerifyInstall>
+		<SkipProcessCount>false</SkipProcessCount>
+	</TaskEntry>
+	<TaskEntry>
+		<TaskName>Another Example Task Entry</TaskName>
+		<Executable>powershell.exe -NoProfile Write-Host "Hello New England!"</Executable>
+	</TaskEntry>
+	<TaskEntry>
+		<TaskName>Yet Another Example Task Entry</TaskName>
+		<Executable>msiexec.exe /i "[Package]example_program.msi" /qn /norestart</Executable>
+		<VerifyInstall>[Program]Example Program</VerifyInstall>
+	</TaskEntry>
+</Package>
+```
+
+To further familiarize yourself with powerpkg (and especially the above examples), continue reading the [Script Configuration](#script-configuration-configuration) and [Task Entry](#task-entry-taskentry) segments of this README. Examining the contents of the `\example_package` directory is also encouraged.
+
 ### Script Configuration (`<Configuration>`)
+
+The `<Configuration>` XML element of a package file allows for specifying how `powerpkg.ps1` should behave. If `<Configuration>` is nonexistent or no values are specified within `package.xml`, the default values for the parameters mentioned below are used.
+
+`<Configuration>` should be specified only once within `package.xml`.
 
 #### `PackageName`
 
@@ -213,7 +258,11 @@ A package file is a configuration file that consist of instructions that [specif
 > <SuppressNotification>false</SuppressNotification>
 > ```
 
-### Task Entries (`<TaskEntry>`)
+### Task Entry (`<TaskEntry>`)
+
+The `<TaskEntry>` XML element allows for specifying what executables to invoke and how to invoke them.
+
+Because of its purpose, `<TaskEntry>` can also be specified more than once within `package.xml`.
 
 #### `TaskName`
 
