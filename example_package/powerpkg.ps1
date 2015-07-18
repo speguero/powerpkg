@@ -337,7 +337,7 @@ catch [Exception] {
 
 # ---- SCRIPT CONFIGURATION ----
 
-if ($Package.Content.Configuration.BlockHost -notmatch "^$" -or $Package.Content.Configuration.BlockHost -notmatch "^(\s+)$") {
+if ($Package.Content.Configuration.BlockHost -notmatch "^$") {
 	$Script.Config.BlockHost = $Package.Content.Configuration.BlockHost -split (",")
 	$Script.Config.TotalImported++
 }
@@ -346,7 +346,7 @@ else {
 	pass
 }
 
-if ($Package.Content.Configuration.PackageName -notmatch "^$" -or $Package.Content.Configuration.PackageName -notmatch "^(\s+)$") {
+if ($Package.Content.Configuration.PackageName -notmatch "^$") {
 	$Package.Name = $Package.Content.Configuration.PackageName
 	$Script.Config.TotalImported++
 }
