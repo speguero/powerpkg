@@ -63,24 +63,20 @@ powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "example_package\p
 **(2)**: Copy the following [script configuration](#script-configuration) example and paste it within the `<Package>` tags:
 
 ```xml
-<Package>
-	<Configuration>
-		<PackageName>Example Package</PackageName>
-		<BlockHost></BlockHost>
-		<SuppressNotification>false</SuppressNotification>
-	</Configuration>
-</Package>
+<Configuration>
+	<PackageName>Example Package</PackageName>
+	<BlockHost></BlockHost>
+	<SuppressNotification>false</SuppressNotification>
+</Configuration>
 ```
 
 **(3)**: Copy the following **task entry** example and paste it below the `<Configuration>` tags:
 
 ```xml
-<Package>
-	<TaskEntry>
-		<TaskName>Example Task Entry</TaskName>
-		<Executable>powershell.exe -NoProfile Write-Host "Hello World!"</Executable>
-	</TaskEntry>
-</Package>
+<TaskEntry>
+	<TaskName>Example Task Entry</TaskName>
+	<Executable>powershell.exe -NoProfile Write-Host "Hello World!"</Executable>
+</TaskEntry>
 ```
 
 **(4)**: Ensure your package file (`package.xml`) appears as this example:
