@@ -25,7 +25,7 @@ _Proudly written in PowerShell._
   - [ContinueIfFail](#continueiffail)
   - [VerifyInstall](#verifyinstall)
   - [SkipProcessCount](#skipprocesscount)
-5. [Script Configuration (`powerpkg.conf`)](#script-configuration)
+5. [Script Configuration](#script-configuration)
 6. [Debugging](#debugging)
 7. [License](#license)
 8. [Additional Comments](#additional-comments)
@@ -59,24 +59,45 @@ powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "example_package\p
 <Package>
 	<TaskEntry>
 		<TaskName>Example Task Entry</TaskName>
-		<Executable>powershell.exe -NoProfile Write-Host "Hello, World!"</Executable>
+		<Executable>powershell.exe -NoProfile Write-Host "Hello World!"</Executable>
 	</TaskEntry>
 </Package>
 ```
 
-**(2)**: Create `powerpkg.conf`, the script configuration file, with the following content:
-```
-BlockHost
-PackageName "Example Package"
-SuppressNotification False
+**(2)**: Create the script configuration with the following content:
+
+```xml
+<Package>
+	<Configuration>
+		<PackageName>Example Package</PackageName>
+		<BlockHost></BlockHost>
+		<SuppressNotification>false</SuppressNotification>
+	</Configuration>
+</Package>
 ```
 
-**(3)**: Invoke `powerpkg.ps1`:
+**(3)**: Ensure your package file appears as this example:
+
+```xml
+<Package>
+	<Configuration>
+		<PackageName>Example Package</PackageName>
+		<BlockHost></BlockHost>
+		<SuppressNotification>false</SuppressNotification>
+	</Configuration>
+	<TaskEntry>
+		<TaskName>Example Task Entry</TaskName>
+		<Executable>powershell.exe -NoProfile Write-Host "Hello World!"</Executable>
+	</TaskEntry>
+</Package>
+```
+
+**(4)**: Invoke `powerpkg.ps1`:
 ```shell
 powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "powerpkg.ps1"
 ```
 
-**(4)**: As `powerpkg.ps1` is running, you will notice output similar to the following example:
+**(5)**: As `powerpkg.ps1` is running, you will notice output similar to the following example:
 ```
 Initiating Package (Example Package):
 
@@ -93,9 +114,9 @@ Suppress Notification      : False
 ----
 
 (1) Example Task Entry:
-[powershell.exe -NoProfile Write-Host "Hello, World!"]
+[powershell.exe -NoProfile Write-Host "Hello World!"]
 
-Hello, World!
+Hello World!
 
 OK: (0)
 
@@ -111,7 +132,7 @@ Tasks Processed : 1
 
 OK: (0)
 ```
-**(5)**: *And that's it!*
+**(6)**: *And that's it!*
 
 The last line in the example output above (`OK: (0)`) solely reports the exit code of `powerpkg.ps1`. In this case, the zero exit code indicates a successful package deployment. Specified executables also report an exit code upon their invocation and have an influence on the exit code of `powerpkg.ps1`.
 
