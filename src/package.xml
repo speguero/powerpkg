@@ -1,4 +1,9 @@
 <Package>
+	<Configuration>
+		<PackageName></PackageName>
+		<BlockHost></BlockHost>
+		<SuppressNotification></SuppressNotification>
+	</Configuration>
 	<TaskEntry>
 		<TaskName></TaskName>
 		<Executable></Executable>

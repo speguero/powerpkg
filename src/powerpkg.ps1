@@ -10,7 +10,8 @@
 	
 	
 	.SYNOPSIS
-	powerpkg: A monolithic Windows package deployment script with an emphasis on simplicity, maintainability, and standardization.
+	powerpkg: A monolithic Windows package deployment script with an emphasis on simplicity,
+	maintainability, and standardization.
 	
 	.DESCRIPTION
 	For information in regards to usage, consult the powerpkg README.md file.
@@ -54,7 +55,6 @@ $Script += @{
 	"Config" = @{
 		"Content"              = $Null
 		"BlockHost"            = $Null
-		"FilePath"             = $Script.CurrentDirectory + "powerpkg.conf"
 		"SuppressNotification" = $True
 		"TotalImported"        = 0
 		"ImportState"          = $Null # Reports as to whether or not any script configuration file arguments were imported.
@@ -74,10 +74,12 @@ $Machine = @{
 
 $Package = @{
 	"Name"       = $MyInvocation.MyCommand.Definition.Split("\")[-2]
-	"Config"     = @{
-		"Content"  = $Null
-		"FilePath" = $Script.CurrentDirectory + "package.xml"
+	"Content"    = @{
+		"All"           = $Null
+		"Configuration" = $Null
+		"TaskEntry"     = $Null
 	}
+	"Path"       = $Script.CurrentDirectory + "package.xml"
 	"Result"     = $Null
 	"Syntax"     = @{
 		"Executable"    = @{
@@ -313,66 +315,55 @@ function Write-Result {
 	return $Result
 }
 
-# ---- IMPORTATION OF SCRIPT CONFIGURATION FILE ----
+# ---- IMPORTATION OF PACKAGE FILE ----
 
-if (Test-Path $Script.Config.FilePath) {
-	try {
-		$Script.Config.Content = (Import-CSV $Script.Config.FilePath -Delimiter " " -Header "Type", "Value")
-	}
-
-	catch [Exception] {
-		$Script.Config.Content = $Null
+try {
+	if (Test-Path $Package.Path) {
+		[XML]$Package.Content.All      = Get-Content $Package.Path
+		$Package.Content.Configuration = $Package.Content.All.Package.Configuration
+		$Package.Content.TaskEntry     = $Package.Content.All.Package.TaskEntry
 	}
 	
-	foreach ($Type in $Script.Config.Content | % {$_.Type}) {
-		$Value = ($Script.Config.Content | ? {$_.Type -eq $Type} | % {$_.Value})
-		
-		if ($Type -eq "BlockHost") {
-			if ($Value -notmatch "^$") {
-				$Script.Config.BlockHost = $Value -split (",")
-				$Script.Config.TotalImported++
-			}
-			
-			else {
-				continue
-			}
-		}
-		
-		elseif ($Type -eq "PackageName") {
-			if ($Value -notmatch "^$") {
-				$Package.Name = $Value
-				$Script.Config.TotalImported++
-			}
-			
-			else {
-				continue
-			}
-		}
-		
-		elseif ($Type -eq "SuppressNotification") {
-			if ($Value -eq $True) {
-				$Script.Config.SuppressNotification = $True
-				$Script.Config.TotalImported++
-			}
-			
-			elseif ($Value -eq $False) {
-				$Script.Config.SuppressNotification = $False
-				$Script.Config.TotalImported++
-			}
-			
-			else {
-				continue
-			}
-		}
-		
-		else {
-			continue
-		}
+	else {
+		throw "No package file was present within the package directory."
 	}
 }
 
-else {
-	pass
+catch [Exception] {
+	Write-Host -ForegroundColor Red ("`nERROR: A package file could not be imported. Details: " + $Error[0])
+	
+	[Environment]::Exit(5)
+}
+
+# ---- SCRIPT CONFIGURATION ----
+
+foreach ($Type in $Package.Content.Configuration) {
+	if ($Type.BlockHost -notmatch "^$") {
+		$Script.Config.BlockHost = $Type.BlockHost -split (",")
+		$Script.Config.TotalImported++
+	}
+	
+	else {
+		pass
+	}
+
+	if ($Type.PackageName -notmatch "^$") {
+		$Package.Name = $Type.PackageName
+		$Script.Config.TotalImported++
+	}
+	
+	else {
+		pass
+	}
+
+	if ($Type.PackageNamw -eq $False) {
+		$Script.Config.SuppressNotification = $False
+		$Script.Config.TotalImported++
+	}
+
+	else {
+		pass
+	}
 }
 
 if ($Script.Config.TotalImported -gt 0) {
@@ -407,25 +398,6 @@ foreach ($ImportedHostname in $Script.Config.BlockHost) {
 	}
 }
 
-# ---- IMPORTATION OF PACKAGE FILE ----
-
-try {
-	if (Test-Path $Package.Config.FilePath) {
-		[XML]$Package.Config.Content = Get-Content $Package.Config.FilePath
-		$Package.Config.Content      = $Package.Config.Content.Package.TaskEntry
-	}
-	
-	else {
-		throw "No package file was present within the package directory."
-	}
-}
-
-catch [Exception] {
-	Write-Host -ForegroundColor Red ("`nERROR: A package file could not be imported. Details: " + $Error[0])
-	
-	[Environment]::Exit(5)
-}
-
 # ---- PACKAGE FILE PROCESSING ----
 
 Write-Host -ForegroundColor Cyan (
@@ -440,7 +412,7 @@ Write-Host -ForegroundColor Cyan (
 	"`n----"
 )
 
-foreach ($Row in $Package.Config.Content) {
+foreach ($Row in $Package.Content.TaskEntry) {
 	try {
 		$TaskEntry = @{
 			"TaskName"         = $Row.TaskName

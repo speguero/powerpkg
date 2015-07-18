@@ -25,7 +25,7 @@ _Proudly written in PowerShell._
   - [ContinueIfFail](#continueiffail)
   - [VerifyInstall](#verifyinstall)
   - [SkipProcessCount](#skipprocesscount)
-5. [Script Configuration File (`powerpkg.conf`)](#script-configuration-file-powerpkgconf)
+5. [Script Configuration (`powerpkg.conf`)](#script-configuration)
 6. [Debugging](#debugging)
 7. [License](#license)
 8. [Additional Comments](#additional-comments)
@@ -119,7 +119,7 @@ The last line in the example output above (`OK: (0)`) solely reports the exit co
 >
 > If `powerpkg.ps1` terminates with a non-zero exit code, determine its meaning in the [Debugging](#debugging) segment of this README.
 >
-> To discover in-depth usage of powerpkg, refer to the [Package File](#package-file-packagexml) and [Script Configuration File](#script-configuration-file-powerpkgconf) segments of this README.
+> To discover in-depth usage of powerpkg, refer to the [Package File](#package-file-packagexml) and [Script Configuration](#script-configuration) segments of this README.
 >
 > To further familiarize yourself with powerpkg and how it works, examining the contents of the `\example_package` directory is highly recommended.
 
@@ -443,9 +443,9 @@ And specify your desired value in this fashion:
 <SkipProcessCount>true</SkipProcessCount>
 ```
 
-## Script Configuration File (`powerpkg.conf`)
+## Script Configuration
 
-The script configuration file is not required for the utilization of `powerpkg.ps1`. However, if `powerpkg.conf` is nonexistent, the default values for the following parameters below are used:
+The script configuration file is not required for the utilization of `powerpkg.ps1`. However, if custom configuration is nonexistent, the default values for the following parameters below are used:
 
 Parameter              | Description                                                                               | Default Value | Example Value
 ---------              | -----------                                                                               | ------------- | -------------

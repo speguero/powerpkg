@@ -1,4 +1,9 @@
 <Package>
+	<Configuration>
+		<PackageName>Example Package</PackageName>
+		<BlockHost>examplehost1,examplehost2</BlockHost>
+		<SuppressNotification>false</SuppressNotification>
+	</Configuration>
 	<TaskEntry>
 		<TaskName>Use Whitespace in Arguments</TaskName>
 		<Executable>powershell.exe -NoProfile New-Item "$env:UserProfile\Desktop\'powerpkg file.txt'" -ItemType File -Force</Executable>
