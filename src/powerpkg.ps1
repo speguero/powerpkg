@@ -337,33 +337,31 @@ catch [Exception] {
 
 # ---- SCRIPT CONFIGURATION ----
 
-foreach ($Type in $Package.Content.Configuration) {
-	if ($Type.BlockHost -notmatch "^$") {
-		$Script.Config.BlockHost = $Type.BlockHost -split (",")
-		$Script.Config.TotalImported++
-	}
-	
-	else {
-		pass
-	}
+if ($Package.Content.Configuration.BlockHost -notmatch "^$" -or $Package.Content.Configuration.BlockHost -notmatch "^(\s+)$") {
+	$Script.Config.BlockHost = $Package.Content.Configuration.BlockHost -split (",")
+	$Script.Config.TotalImported++
+}
 
-	if ($Type.PackageName -notmatch "^$") {
-		$Package.Name = $Type.PackageName
-		$Script.Config.TotalImported++
-	}
-	
-	else {
-		pass
-	}
+else {
+	pass
+}
 
-	if ($Type.PackageNamw -eq $False) {
-		$Script.Config.SuppressNotification = $False
-		$Script.Config.TotalImported++
-	}
+if ($Package.Content.Configuration.PackageName -notmatch "^$" -or $Package.Content.Configuration.PackageName -notmatch "^(\s+)$") {
+	$Package.Name = $Package.Content.Configuration.PackageName
+	$Script.Config.TotalImported++
+}
 
-	else {
-		pass
-	}
+else {
+	pass
+}
+
+if ($Package.Content.Configuration.SuppressNotification -eq $False) {
+	$Script.Config.SuppressNotification = $False
+	$Script.Config.TotalImported++
+}
+
+else {
+	pass
 }
 
 if ($Script.Config.TotalImported -gt 0) {
