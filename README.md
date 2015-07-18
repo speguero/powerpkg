@@ -15,19 +15,21 @@ _Proudly written in PowerShell._
 2. [Getting Started](#getting-started)
 3. [How It Works](#how-it-works)
 4. [Package File (`package.xml`)](#package-file-packagexml)
-  - [TaskName](#taskname)
-  - [Executable](#executable)
-  - [OperatingSystem](#operatingsystem)
-  - [Architecture](#architecture)
-  - [TerminateProcess](#terminateprocess)
-  - [TerminateMessage](#terminatemessage)
-  - [SuccessExitCode](#successexitcode)
-  - [ContinueIfFail](#continueiffail)
-  - [VerifyInstall](#verifyinstall)
-  - [SkipProcessCount](#skipprocesscount)
-6. [Debugging](#debugging)
-7. [License](#license)
-8. [Additional Comments](#additional-comments)
+  - [Script Configuration (`<Configuration>`)](#script-configuration-configuration)
+  - [Task Entries (`<TaskEntry>`)](#task-entries-taskentry)
+    - [TaskName](#taskname)
+    - [Executable](#executable)
+    - [OperatingSystem](#operatingsystem)
+    - [Architecture](#architecture)
+    - [TerminateProcess](#terminateprocess)
+    - [TerminateMessage](#terminatemessage)
+    - [SuccessExitCode](#successexitcode)
+    - [ContinueIfFail](#continueiffail)
+    - [VerifyInstall](#verifyinstall)
+    - [SkipProcessCount](#skipprocesscount)
+5. [Debugging](#debugging)
+6. [License](#license)
+7. [Additional Comments](#additional-comments)
 
 ## Requirement
 
@@ -59,7 +61,7 @@ powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "example_package\p
 </Package>
 ```
 
-**(2)**: Copy the following [script configuration](#script-configuration) example and paste it within the `<Package>` tags:
+**(2)**: Copy the following [script configuration](#script-configuration-configuration) example and paste it within the `<Package>` tags:
 
 ```xml
 <Configuration>
@@ -69,7 +71,7 @@ powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "example_package\p
 </Configuration>
 ```
 
-**(3)**: Copy the following **task entry** example and paste it below the `<Configuration>` tags:
+**(3)**: Copy the following [task entry](#task-entries-taskentry) example and paste it below the `<Configuration>` tags:
 
 ```xml
 <TaskEntry>
@@ -142,13 +144,13 @@ The last line in the example output above (`OK: (0)`) solely reports the exit co
 >
 > If `powerpkg.ps1` terminates with a non-zero exit code, determine its meaning in the [Debugging](#debugging) segment of this README.
 >
-> To discover in-depth usage of powerpkg, refer to the [Package File](#package-file-packagexml) and [Script Configuration](#script-configuration) segments of this README.
+> To discover in-depth usage of powerpkg, refer to the [Package File](#package-file-packagexml) and [Script Configuration](#script-configuration-configuration) segments of this README.
 >
 > To further familiarize yourself with powerpkg and how it works, examining the contents of the `\example_package` directory is highly recommended.
 
 ## Package File (`package.xml`)
 
-A package file is a configuration file that consist of instructions that [specify how `powerpkg.ps1` should behave](), what executables to invoke, and how to invoke them. The following is an example of a package file:
+A package file is a configuration file that consist of instructions that [specify how `powerpkg.ps1` should behave](#script-configuration-configuration), [what executables to invoke, and how to invoke them](#task-entries-taskentry). The following is an example of a package file:
 
 ```xml
 <Package>
@@ -179,7 +181,7 @@ Script configuration is not required for the utilization of `powerpkg.ps1`. Howe
 Parameter              | Description                                                                               | Default Value | Example Value
 ---------              | -----------                                                                               | ------------- | -------------
 `BlockHost`            | Prevents specified hosts from processing a package.                                       | `Null`        | `examplehost1`, `examplehost1,examplehost2`
-`PackageName`          | Allows for specifying a different package name apart from the name of a package directory | `Null`        | `"Example Package"`
+`PackageName`          | Allows for specifying a different package name apart from the name of a package directory | `Null`        | `Example Package`
 `SuppressNotification` | Prevents a balloon notification from displaying upon a successful deployment.             | `True`        | `True`, `False`
 
 ### Task Entries (`<TaskEntry>`)
