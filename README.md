@@ -144,7 +144,7 @@ The last line in the example output above (`OK: (0)`) solely reports the exit co
 >
 > If `powerpkg.ps1` terminates with a non-zero exit code, determine its meaning in the [Debugging](#debugging) segment of this README.
 >
-> To discover in-depth usage of powerpkg, refer to the [Package File](#package-file-packagexml) and [Script Configuration](#script-configuration-configuration) segments of this README.
+> To discover in-depth usage of powerpkg, refer to the [Package File](#package-file-packagexml) segment of this README.
 >
 > To further familiarize yourself with powerpkg and how it works, examining the contents of the `\example_package` directory is highly recommended.
 
@@ -176,19 +176,44 @@ A package file is a configuration file that consist of instructions that [specif
 
 ### Script Configuration (`<Configuration>`)
 
-Script configuration is not required for the utilization of `powerpkg.ps1`. However, if custom configuration is nonexistent, the default values for the following parameters below are used:
+#### `PackageName`
 
-Parameter              | Description                                                                               | Default Value | Example Value
----------              | -----------                                                                               | ------------- | -------------
-`BlockHost`            | Prevents specified hosts from processing a package.                                       | `Null`        | `examplehost1`, `examplehost1,examplehost2`
-`PackageName`          | Allows for specifying a different package name apart from the name of a package directory | `Null`        | `Example Package`
-`SuppressNotification` | Prevents a balloon notification from displaying upon a successful deployment.             | `True`        | `True`, `False`
+> - **Required**: No
+> - **Purpose**: Allows for specifying a custom name for a package.
+> - **Default Value**: The name of the package directory.
+> - **Example Value**:
+>
+> ```xml
+> <PackageName>Example Package</PackageName>
+> ```
+
+#### `BlockHost`
+
+> - **Required**: No
+> - **Purpose**: Prevents specified hosts from processing a package.
+> - **Default Value**: `Null`
+> - **Example Value**:
+>
+> ```xml
+> <BlockHost>examplehost1</BlockHost>
+>
+> <BlockHost>examplehost1,examplehost2</BlockHost>
+> ```
+
+#### `SuppressNotification`
+
+> - **Required**: No
+> - **Purpose**: Prevents a balloon notification from displaying upon a successful deployment.
+> - **Default Value**: `True`
+> - **Example Value**:
+>
+> ```xml
+> <SuppressNotification>true</SuppressNotification>
+>
+> <SuppressNotification>false</SuppressNotification>
+> ```
 
 ### Task Entries (`<TaskEntry>`)
-
-You must create individual process executable invocations accordingly.
-
-For more information regarding the variety of parameters available to leverage task entries, refer to the Package File segment of [Section](#section) for a list of the parameters in question, or review the following information below:
 
 #### `TaskName`
 
