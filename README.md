@@ -53,18 +53,14 @@ powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "example_package\p
 
 ## How It Works
 
-**(1)**: Create the following [package file](#package-file-packagexml):
+**(1)**: Save the following tags inside a [`package.xml`](#package-file-packagexml) file alongside `powerpkg.ps1`:
 
 ```xml
 <Package>
-	<TaskEntry>
-		<TaskName>Example Task Entry</TaskName>
-		<Executable>powershell.exe -NoProfile Write-Host "Hello World!"</Executable>
-	</TaskEntry>
 </Package>
 ```
 
-**(2)**: Create the script configuration with the following content:
+**(2)**: Copy the following [script configuration](#script-configuration) example and paste it within the `<Package>` tags:
 
 ```xml
 <Package>
@@ -76,7 +72,18 @@ powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "example_package\p
 </Package>
 ```
 
-**(3)**: Ensure your package file appears as this example:
+**(3)**: Copy the following **task entry** example and paste it below the `<Configuration>` tags:
+
+```xml
+<Package>
+	<TaskEntry>
+		<TaskName>Example Task Entry</TaskName>
+		<Executable>powershell.exe -NoProfile Write-Host "Hello World!"</Executable>
+	</TaskEntry>
+</Package>
+```
+
+**(4)**: Ensure your package file (`package.xml`) appears as this example:
 
 ```xml
 <Package>
@@ -92,12 +99,12 @@ powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "example_package\p
 </Package>
 ```
 
-**(4)**: Invoke `powerpkg.ps1`:
+**(5)**: Invoke `powerpkg.ps1`:
 ```shell
 powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "powerpkg.ps1"
 ```
 
-**(5)**: As `powerpkg.ps1` is running, you will notice output similar to the following example:
+**(6)**: As `powerpkg.ps1` is running, you will notice output similar to the following example:
 ```
 Initiating Package (Example Package):
 
@@ -132,7 +139,7 @@ Tasks Processed : 1
 
 OK: (0)
 ```
-**(6)**: *And that's it!*
+**(7)**: *And that's it!* It is that easy to begin utilizing powerpkg.
 
 The last line in the example output above (`OK: (0)`) solely reports the exit code of `powerpkg.ps1`. In this case, the zero exit code indicates a successful package deployment. Specified executables also report an exit code upon their invocation and have an influence on the exit code of `powerpkg.ps1`.
 
@@ -146,10 +153,27 @@ The last line in the example output above (`OK: (0)`) solely reports the exit co
 
 ## Package File (`package.xml`)
 
-Package files are configuration files that consist of instructions, or **task entries**, that specify what executables to invoke and how to invoke them. The following is an example of an individual task entry in XML format:
+A package file is a configuration file that consist of instructions that [specify how `powerpkg.ps1` should behave], what executables to invoke, and how to invoke them. The following is an example of a package file:
 
 ```xml
 <Package>
+	<Configuration>
+		<PackageName></PackageName>
+		<BlockHost></BlockHost>
+		<SuppressNotification></SuppressNotification>
+	</Configuration>
+	<TaskEntry>
+		<TaskName></TaskName>
+		<Executable></Executable>
+		<OperatingSystem></OperatingSystem>
+		<Architecture></Architecture>
+		<TerminateProcess></TerminateProcess>
+		<TerminateMessage></TerminateMessage>
+		<SuccessExitCode></SuccessExitCode>
+		<ContinueIfFail></ContinueIfFail>
+		<VerifyInstall></VerifyInstall>
+		<SkipProcessCount></SkipProcessCount>
+	</TaskEntry>
 	<TaskEntry>
 		<TaskName></TaskName>
 		<Executable></Executable>
@@ -164,6 +188,12 @@ Package files are configuration files that consist of instructions, or **task en
 	</TaskEntry>
 </Package>
 ```
+
+#### Script Configuration (`<Configuration>`)
+
+#### Task Entries (`<TaskEntry>`)
+
+You must create individual process executable invocations accordingly.
 
 For more information regarding the variety of parameters available to leverage task entries, refer to the Package File segment of [Section](#section) for a list of the parameters in question, or review the following information below:
 
