@@ -116,6 +116,7 @@ $Package = @{
 function Get-EnvironmentVariableValue {
 
 	Param (
+		[Parameter(Mandatory = $True)]
 		[String]
 		$Path
 	)
@@ -223,8 +224,8 @@ function Invoke-Executable {
 function pass {
 
 	<#
-		A simple placeholder, borrowed from Python, whose sole purpose is to do away with "{}" and
-		improve readability when reviewing conditionals.
+		A placeholder, borrowed from Python, with the purpose of doing away with "{}" and
+		improving readability when reviewing conditionals.
 	#>
 }
 
@@ -238,9 +239,11 @@ function Show-BalloonTip {
 		[Parameter(Mandatory = $False)]
 		$Text = " ",
 
+		[Parameter(Mandatory = $False)]
 		[ValidateSet("None", "Info", "Warning", "Error")]
 		$Icon = "Info",
 
+		[Parameter(Mandatory = $False)]
 		$Timeout = 10000
 	)
 
@@ -265,9 +268,11 @@ function Show-BalloonTip {
 function Show-DialogBox {
 
 	Param (
+		[Parameter(Mandatory = $True)]
 		[String]
 		$Title,
 		
+		[Parameter(Mandatory = $True)]
 		[String]
 		$Message
 	)
@@ -279,15 +284,19 @@ function Show-DialogBox {
 function Write-Result {
 
 	Param (
-		[String]
-		$Code = "",
-		
-		[String]
-		$Output,
-		
+		[Parameter(Mandatory = $True)]
 		[String]
 		$Status,
 		
+		[Parameter(Mandatory = $False)]
+		[String]
+		$Code = "",
+		
+		[Parameter(Mandatory = $False)]
+		[String]
+		$Output,
+		
+		[Parameter(Mandatory = $False)]
 		[Switch]
 		$AddNewLine
 	)
