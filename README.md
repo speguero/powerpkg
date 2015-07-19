@@ -236,7 +236,7 @@ The `<Configuration>` XML element allows for specifying how `powerpkg.ps1` shoul
 
 > - **Required**: No
 > - **Purpose**: Prevents specified hosts from processing a package.
-> - **Default Value**: `Null`
+> - **Default Value**: `null`
 > - **Example Value**:
 >
 > ```xml
@@ -249,7 +249,7 @@ The `<Configuration>` XML element allows for specifying how `powerpkg.ps1` shoul
 
 > - **Required**: No
 > - **Purpose**: Prevents a balloon notification from displaying upon a successful deployment.
-> - **Default Value**: `True`
+> - **Default Value**: `true`
 > - **Example Value**:
 >
 > ```xml
@@ -327,11 +327,11 @@ When utilizing this parameter, you will want to specify the NT kernel version nu
 
 Windows Operating System | NT Kernel Version
 ------------------------ | -----------------
-10                       | 10.0
-8.1                      | 6.3
-8                        | 6.2
-7                        | 6.1
-Vista                    | 6.0
+10                       | `10.0`
+8.1                      | `6.3`
+8                        | `6.2`
+7                        | `6.1`
+Vista                    | `6.0`
 
 And specify a NT kernel version number in this fashion:
 
@@ -404,10 +404,10 @@ For executable invocations that depend on a specific architectural environment, 
 
 When explicitly utilizing the `ContinueIfFail` parameter and specifying the following value:
 
-Value           | Result
------           | ------
-True            | `powerpkg.ps1` will continue processing remaining task entires. A task entry set to continue when resulting in a non-zero exit code will not alter the exit code of `powerpkg.ps1`.
-False (Default) | `powerpkg.ps1` will fail and result in a non-zero exit code.
+Value             | Result
+-----             | ------
+`true`            | `powerpkg.ps1` will continue processing remaining task entires. A task entry set to continue when resulting in a non-zero exit code will not alter the exit code of `powerpkg.ps1`.
+`false` (Default) | `powerpkg.ps1` will fail and result in a non-zero exit code.
 
 And specify your desired value in this fashion:
 
@@ -550,10 +550,10 @@ Here are other valid example use cases of the `VerifyInstall` parameter and its 
 
 When explicitly utilizing the `SkipProcessCount` parameter and specifying the following value:
 
-Value           | Result
------           | ------
-True            | `powerpkg.ps1` will not count a processed task entry as such.
-False (Default) | `powerpkg.ps1` will count a processed task entry as such.
+Value             | Result
+-----             | ------
+`true`            | `powerpkg.ps1` will not count a processed task entry as such.
+`false` (Default) | `powerpkg.ps1` will count a processed task entry as such.
 
 And specify your desired value in this fashion:
 
