@@ -154,7 +154,7 @@ The last line in the example output above (`OK: (0)`) solely reports the exit co
 A package file is a configuration file of `powerpkg.ps1` that consists of instructions that:
 
   1. [Specify how `powerpkg.ps1` should behave](#script-configuration-configuration), using one `<Configuration>` XML element.
-  2. [What executables to invoke, and how to invoke them](#task-entry-taskentry), using one or more `<TaskEntry>` XML elements.
+  2. [What executables to invoke and how to invoke them](#task-entry-taskentry), using one or more `<TaskEntry>` XML elements.
 
 And are typically presented in the following manner:
 
@@ -217,7 +217,7 @@ To further familiarize yourself with powerpkg (and especially the above examples
 
 ### Script Configuration (`<Configuration>`)
 
-The `<Configuration>` XML element of a package file allows for specifying how `powerpkg.ps1` should behave. If `<Configuration>` is nonexistent or no values are specified within `package.xml`, the default values for the parameters mentioned below are used.
+The `<Configuration>` XML element allows for specifying how `powerpkg.ps1` should behave. If `<Configuration>` is nonexistent or no values are specified within `package.xml`, the default values for the parameters mentioned below are used.
 
 `<Configuration>` should be specified only once within `package.xml`.
 
