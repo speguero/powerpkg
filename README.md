@@ -11,6 +11,7 @@ Specify what executables to invoke, and how to invoke them, inside a mere config
 _Proudly written in PowerShell._
 
 ## Section
+
 1. [Requirement](#requirement)
 2. [Getting Started](#getting-started)
 3. [How It Works](#how-it-works)
@@ -244,6 +245,24 @@ The `<Configuration>` XML element allows for specifying how `powerpkg.ps1` shoul
 >
 > <BlockHost>examplehost1,examplehost2</BlockHost>
 > ```
+>
+> **NOTE**:
+>
+> A range of hosts can also be blocked, as well. If you have a set machines whose **first** several characters are identical, such as the following example:
+>
+> ```
+> ABCDE1111
+> ABCDE2222
+> ABCDE3333
+> ABCDE4444
+> ABCDE5555
+> ```
+>
+> You can block the list of machines mentioned above by specifying the following:
+>
+> ```xml
+> <BlockHost>ABCDE</BlockHost>
+> ```
 
 #### `SuppressNotification`
 
@@ -291,7 +310,9 @@ Because of its purpose, `<TaskEntry>` can also be specified more than once withi
 
 When specifying an executable path or arguments containing whitespace, it is recommended to surround such text with double quotation marks.
 
-For individual file and/or directory names containing whitespace, such items should be surrounded by **single** quotation marks. Example: `"[Package]'an example.ps1'"`
+For individual file and/or directory names containing whitespace, such items should be surrounded by **single** quotation marks. However, note that this tip solely applies to arguments, and not executable paths themselves.
+
+Example: `powershell.exe "[Package]'an example.ps1'"` or `"C:\White Space\example.exe" /argument "D:\'More White Space'\Directory"`
 
 It is also recommended to always surround files and/or directories specified with the `[Package]` parameter with double quotation marks, to prevent I/O exceptions from being thrown with the usage of whitespace within the directory path of a package directory.
 
@@ -560,6 +581,7 @@ And specify your desired value in this fashion:
 ```xml
 <SkipProcessCount>true</SkipProcessCount>
 ```
+
 ## Debugging
 
 ### Exit Codes
