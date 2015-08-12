@@ -436,8 +436,8 @@ foreach ($Row in $Package.Content.TaskEntry) {
 			}
 			"VerifyInstall"    = @{
 				"Path"             = $Row.VerifyInstall
-				"SpecifiedBuild"   = 0
-				"DiscoveredBuild"  = 0
+				"SpecifiedBuild"   = $Null
+				"DiscoveredBuild"  = $Null
 				"Existence"        = $Null
 				"ProgramReference" = $Null
 			}
@@ -650,7 +650,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 
 				foreach ($Path in $Machine.ProgramList) {
 					if (Test-Path $Path) {
-						$TaskEntry.VerifyInstall.Existence = @(
+						$TaskEntry.VerifyInstall.Existence += @(
 							Get-ChildItem $Path | % {Get-ItemProperty $_.PSPath} | ? {$_.$($TaskEntry.VerifyInstall.ProgramReference) -eq $TaskEntry.VerifyInstall.Path} | % {$_.DisplayName}
 						)
 					}
@@ -659,7 +659,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 						pass
 					}
 				}
-				
+
 				if ($TaskEntry.VerifyInstall.Existence -ne $Null) {
 					$Script.Output = ("VerifyInstall: [Program] """ + $TaskEntry.VerifyInstall.Path + """ exists.")
 
@@ -687,7 +687,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 
 				foreach ($Path in $Machine.ProgramList) {
 					if (Test-Path $Path) {
-						$TaskEntry.VerifyInstall.DiscoveredBuild = @(
+						$TaskEntry.VerifyInstall.DiscoveredBuild += @(
 							Get-ChildItem $Path | % {Get-ItemProperty $_.PSPath} | ? {$_.$($TaskEntry.VerifyInstall.ProgramReference) -eq $TaskEntry.VerifyInstall.Path} | % {$_.DisplayVersion}
 						)
 					}
