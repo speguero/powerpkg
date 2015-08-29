@@ -40,7 +40,7 @@
 	SOFTWARE.
 #>
 
-# ---- VARIABLES ----
+# ---- VARIABLES >>>>
 
 $ErrorActionPreference = "Stop"
 
@@ -111,7 +111,9 @@ $Package = @{
 	}
 }
 
-# ---- FUNCTIONS ----
+# <<<< VARIABLES ----
+
+# ---- FUNCTIONS >>>>
 
 function Get-EnvironmentVariableValue {
 
@@ -255,7 +257,7 @@ function Show-BalloonTip {
 		$Script:Balloon = New-Object System.Windows.Forms.NotifyIcon
 	}
 
-	$Path                    = Get-Process -id $PID | Select-Object -ExpandProperty Path
+	$Path                    = Get-Process -Id $PID | Select-Object -ExpandProperty Path
 	$Balloon.Icon            = [System.Drawing.Icon]::ExtractAssociatedIcon($Path)
 	$Balloon.BalloonTipIcon  = $Icon
 	$Balloon.BalloonTipText  = $Text
@@ -277,7 +279,7 @@ function Show-DialogBox {
 		$Message
 	)
 	
-	$Wscript = New-Object -ComObject Wscript.Shell
+	$Wscript = New-Object -COMObject Wscript.Shell
 	$Wscript.Popup($Message, 0, $Title, 0x0)
 }
 
@@ -324,7 +326,9 @@ function Write-Result {
 	return $Result
 }
 
-# ---- IMPORTATION OF PACKAGE FILE ----
+# <<<< FUNCTIONS ----
+
+# ---- Package File Importation >>>>
 
 try {
 	if (Test-Path $Package.Path) {
@@ -344,7 +348,7 @@ catch [Exception] {
 	[Environment]::Exit(5)
 }
 
-# ---- SCRIPT CONFIGURATION ----
+# ---- Script Configuration Processing >>>>
 
 if ($Package.Content.Configuration.BlockHost -notmatch "^$") {
 	$Script.Config.BlockHost = $Package.Content.Configuration.BlockHost -split (",")
@@ -381,7 +385,7 @@ else {
 	$Script.Config.ImportState = $False
 }
 
-# ---- CREATION OF NOTIFICATION DETAILS ----
+# ---- Notification Message Composition >>>>
 
 $Package += @{
 	"Notification" = @{
@@ -391,7 +395,7 @@ $Package += @{
 
 }
 
-# ---- HOST BLOCK PROCESSING ----
+# ---- BlockHost Processing (Script Configuration) >>>>
 
 foreach ($ImportedHostname in $Script.Config.BlockHost) {
 	if ($Machine.Hostname -match $ImportedHostname -and $ImportedHostname -notmatch "^$") {
@@ -405,7 +409,7 @@ foreach ($ImportedHostname in $Script.Config.BlockHost) {
 	}
 }
 
-# ---- PACKAGE FILE PROCESSING ----
+# ---- Task Entry Processing >>>>
 
 Write-Host -ForegroundColor Cyan (
 	"`nInitiating Package (" + $Package.Name + "):`n"                              + `
@@ -467,7 +471,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 		break
 	}
 	
-	# ---- TASK NAME COLUMN ----
+	# ---- TaskName Parameter >>>>
 	
 	$Package.TaskStatus.Index = $Package.TaskStatus.Index + 1
 	
@@ -487,7 +491,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 		pass
 	}
 	
-	# ---- EXECUTABLE COLUMN ----
+	# ---- Executable Parameter >>>>
 	
 	if ($TaskEntry.Executable.Path -match "^$" -or $TaskEntry.Executable.Path -match "^(\s+)$") {
 		$Script.Output = ("`nExecutable: Specification is required for """ + $TaskEntry.TaskName + """ at Task Entry " + [String]$Package.TaskStatus.Index + ".")
@@ -514,7 +518,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 	Write-Host -NoNewLine ("`n(" + $Package.TaskStatus.Index + ") " + $TaskEntry.TaskName + ": ")
 	Write-Host -ForegroundColor Cyan ("`n[" + $TaskEntry.Executable.Path + "]`n")
 	
-	# ---- OPERATING SYSTEM COLUMN ----
+	# ---- OperatingSystem Parameter >>>>
 	
 	if ($TaskEntry.OperatingSystem -match "^$") {
 		pass
@@ -531,7 +535,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 		continue
 	}
 	
-	# ---- ARCHITECTURE COLUMN ----
+	# ---- Architecture Parameter >>>>
 	
 	if ($TaskEntry.Architecture -match "^$") {
 		pass
@@ -548,7 +552,9 @@ foreach ($Row in $Package.Content.TaskEntry) {
 		continue
 	}
 	
-	# ---- INSTALL VERIFICATION COLUMN ----
+	# ---- VerifyInstall Parameter >>>>
+	
+	# ---- [Hotfix] Subparameter (VerifyInstall) >>>>
 	
 	if ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Hotfix) {
 		$TaskEntry.VerifyInstall.Path      = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Hotfix, "")
@@ -563,6 +569,8 @@ foreach ($Row in $Package.Content.TaskEntry) {
 			pass
 		}
 	}
+
+	# ---- [Path] Subparameter (VerifyInstall) >>>>
 	
 	elseif ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Path) {
 		$TaskEntry.VerifyInstall.Path      = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Path, "")
@@ -578,6 +586,8 @@ foreach ($Row in $Package.Content.TaskEntry) {
 			pass
 		}
 	}
+
+	# ---- [Vers_File] Subparameter (VerifyInstall) >>>>
 
 	elseif ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Version_FileInfo) {
 		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Version_FileInfo, "")
@@ -607,6 +617,8 @@ foreach ($Row in $Package.Content.TaskEntry) {
 		}
 	}
 
+	# ---- [Vers_Product] Subparameter (VerifyInstall) >>>>
+
 	elseif ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Version_ProductInfo) {
 		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Version_ProductInfo, "")
 
@@ -634,6 +646,8 @@ foreach ($Row in $Package.Content.TaskEntry) {
 			pass
 		}
 	}
+
+	# ---- [Program] Subparameter (VerifyInstall) >>>>
 	
 	elseif ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Program) {
 		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Program, "")
@@ -719,7 +733,9 @@ foreach ($Row in $Package.Content.TaskEntry) {
 		pass
 	}
 
-	# ---- PROCESS TERMINATION COLUMNS ----
+	# <<<< VerifyInstall Parameter ----
+
+	# ---- TerminateProcess Parameter >>>>
 	
 	if ($TaskEntry.TerminateProcess -notmatch "^$") {
 		$TaskEntry.TerminateProcess = $TaskEntry.TerminateProcess -split (",")
@@ -756,7 +772,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 		pass
 	}
 
-	# ---- SUCCESS EXIT CODE COLUMN ----
+	# ---- SuccessExitCode Parameter >>>>
 	
 	if ($TaskEntry.SuccessExitCode -eq $Null) {
 		$TaskEntry.SuccessExitCode = 0
@@ -767,7 +783,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 		$TaskEntry.SuccessExitCode += 0
 	}
 	
-	# ---- INVOCATION PROCESS ----
+	# ---- Executable Invocation Processing >>>>
 	
 	try {
 		$TaskEntry.Executable.Result = (Invoke-Executable -Path $TaskEntry.Executable.Path)
@@ -831,7 +847,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 	}
 }
 
-# ---- TASK STATUS REPORTING ---
+# ---- Package Result Reporting >>>>
 
 if ($Package.TaskStatus.Successful -eq 0 -and $Package.TaskStatus.Unsuccessful -eq 0) {
 	Write-Host -ForegroundColor Red "`nWARN: No task entries were processed.`n"
