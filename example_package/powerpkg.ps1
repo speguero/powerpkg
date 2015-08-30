@@ -44,21 +44,17 @@
 
 $ErrorActionPreference = "Stop"
 
-$Script = @{
+$Script  = @{
+	"Config"           = @{
+		"BlockHost"            = $Null
+		"SuppressNotification" = $True
+		"TotalImported"        = 0     # Retrieves number of imported package-specified script preferences.
+		"ImportState"          = $Null # Reports whether or not package-specified script preferences were imported.
+	}
 	"CurrentDirectory" = (Split-Path -Parent -Path $MyInvocation.MyCommand.Definition) + "\"
 	"CurrentPSVersion" = $Host.Version.Major
 	"ExitCode"         = 0
-	"Output"           = $Null
-}
-
-$Script += @{
-	"Config" = @{
-		"Content"              = $Null
-		"BlockHost"            = $Null
-		"SuppressNotification" = $True
-		"TotalImported"        = 0
-		"ImportState"          = $Null # Reports as to whether or not any script configuration file arguments were imported.
-	}
+	"Output"           = $Null # Used for capturing and printing general output.
 }
 
 $Machine = @{
@@ -67,42 +63,44 @@ $Machine = @{
 	"Hostname"              = [System.Environment]::GetEnvironmentVariable("ComputerName")
 	"Username"              = [System.Environment]::GetEnvironmentVariable("Username")
 	"ProgramList"           = @(
-		"HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall",
-		"HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
+		# Registry paths that contain list of MSI program codes and version builds of installed applications:
+
+		"HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall",            # x86, AMD64
+		"HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall" # x86 (Under AMD64 Userspace)
 	)
 }
 
 $Package = @{
-	"Name"       = $MyInvocation.MyCommand.Definition.Split("\")[-2]
-	"Content"    = @{
+	"Name"                = $MyInvocation.MyCommand.Definition.Split("\")[-2] # Name of directory this script is located in.
+	"Content"             = @{                                                # Content of package file.
 		"All"           = $Null
 		"Configuration" = $Null
 		"TaskEntry"     = $Null
 	}
-	"Path"       = $Script.CurrentDirectory + "package.xml"
-	"Result"     = $Null
-	"Syntax"     = @{
+	"Path"                = $Script.CurrentDirectory + "package.xml"          # Absolute path of package file.
+	"ExecutableSanitizer" = (                                                 # Regular expressions to remove potential arbitrary commands from Executable parameter.
+		"\;(.*)$",
+		"\&(.*)$",
+		"\|(.*)$",
+		"(\s+)$"
+	)
+	"SubparameterSyntax"  = @{                                                # Regular expressions (subparameters) of package file parameters.
 		"Executable"    = @{
-			"Package"   = "(\[)Package(\])"
-			"Sanitizer" = (
-				"\;(.*)$",
-				"\&(.*)$",
-				"\|(.*)$",
-				"(\s+)$" # Removes extraneous whitespace adjacent to the end of a specified executable path.
-			)
+			"Package" = "(\[)Package(\])"
 		}
 		"VerifyInstall" = @{
-			# NOTE: Arg_Build cannot parse uncommonly used, non-alphanumeric characters, such as commas, on PowerShell 2.0. Update to 3.0+ to circumvent this issue.
+			# NOTE: Arg_Build cannot parse uncommonly used, non-alphanumeric characters, such as commas, on ...
+			# ... PowerShell 2.0. Update to 3.0+ to circumvent this issue.
 
-			"Arg_Build"                = "\[Build:(.*)\]$"       # [Build:<Version Build>] (Used in conjunction with "Type_Version_FileInfo" and "Type_Version_ProductInfo".)
-			"Type_Hotfix"              = "^(\[)Hotfix(\])"       # [Hotfix]<Hotfix ID>
-			"Type_Path"                = "^(\[)Path(\])"         # [Path]<File/Directory Path>
-			"Type_Version_FileInfo"    = "^(\[)Vers_File(\])"    # [Vers_File]<File Path>[Build:<Version Build>]
-			"Type_Version_ProductInfo" = "^(\[)Vers_Product(\])" # [Vers_Product]<File Path>[Build:<Version Build>]
-			"Type_Program"             = "^(\[)Program(\])"      # [Program]<Program Name/Product Code>[Build:<Version Build>] OR [Program]<Program Name/Product Code>]
+			"Arg_Build"                = "\[Build:(.*)\]$"
+			"Type_Hotfix"              = "^(\[)Hotfix(\])"
+			"Type_Path"                = "^(\[)Path(\])"
+			"Type_Version_FileInfo"    = "^(\[)Vers_File(\])"
+			"Type_Version_ProductInfo" = "^(\[)Vers_Product(\])"
+			"Type_Program"             = "^(\[)Program(\])"
 		}
 	}
-	"TaskStatus" = @{
+	"TaskEntryStatus"     = @{
 		"Index"                   = 0
 		"Successful"              = 0
 		"Unsuccessful"            = 0
@@ -473,10 +471,10 @@ foreach ($Row in $Package.Content.TaskEntry) {
 	
 	# ---- TaskName Parameter >>>>
 	
-	$Package.TaskStatus.Index = $Package.TaskStatus.Index + 1
+	$Package.TaskEntryStatus.Index = $Package.TaskEntryStatus.Index + 1
 	
 	if ($TaskEntry.TaskName -match "^$" -or $TaskEntry.TaskName -match "^(\s+)$") {
-		$Script.Output = ("`nTaskName: Specification is required for """ + $TaskEntry.Executable.Path + """ at Task Entry " + [String]$Package.TaskStatus.Index + ".")
+		$Script.Output = ("`nTaskName: Specification is required for """ + $TaskEntry.Executable.Path + """ at Task Entry " + [String]$Package.TaskEntryStatus.Index + ".")
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 7 -Output $Script.Output -AddNewLine)
 		
 		$Script.ExitCode = 7
@@ -494,28 +492,28 @@ foreach ($Row in $Package.Content.TaskEntry) {
 	# ---- Executable Parameter >>>>
 	
 	if ($TaskEntry.Executable.Path -match "^$" -or $TaskEntry.Executable.Path -match "^(\s+)$") {
-		$Script.Output = ("`nExecutable: Specification is required for """ + $TaskEntry.TaskName + """ at Task Entry " + [String]$Package.TaskStatus.Index + ".")
+		$Script.Output = ("`nExecutable: Specification is required for """ + $TaskEntry.TaskName + """ at Task Entry " + [String]$Package.TaskEntryStatus.Index + ".")
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 7 -Output $Script.Output -AddNewLine)
 		
 		$Script.ExitCode = 7
 		break
 	}
 
-	elseif ($TaskEntry.Executable.Path -match $Package.Syntax.Executable.Package) {
-		$TaskEntry.Executable.Path = $TaskEntry.Executable.Path -Replace ($Package.Syntax.Executable.Package, $Script.CurrentDirectory)
+	elseif ($TaskEntry.Executable.Path -match $Package.SubparameterSyntax.Executable.Package) {
+		$TaskEntry.Executable.Path = $TaskEntry.Executable.Path -Replace ($Package.SubparameterSyntax.Executable.Package, $Script.CurrentDirectory)
 	}
 	
 	else {
 		pass
 	}
 
-	# The following loop prevents the execution of arbitrary commands.
+	# The following loop prevents execution of arbitrary commands.
 	
-	foreach ($Item in $Package.Syntax.Executable.Sanitizer) {
+	foreach ($Item in $Package.ExecutableSanitizer) {
 		$TaskEntry.Executable.Path = $TaskEntry.Executable.Path -replace ($Item, "")
 	}
 
-	Write-Host -NoNewLine ("`n(" + $Package.TaskStatus.Index + ") " + $TaskEntry.TaskName + ": ")
+	Write-Host -NoNewLine ("`n(" + $Package.TaskEntryStatus.Index + ") " + $TaskEntry.TaskName + ": ")
 	Write-Host -ForegroundColor Cyan ("`n[" + $TaskEntry.Executable.Path + "]`n")
 	
 	# ---- OperatingSystem Parameter >>>>
@@ -554,8 +552,8 @@ foreach ($Row in $Package.Content.TaskEntry) {
 	
 	# ---- VerifyInstall Parameter (Type_Hotfix Subparameter) >>>>
 	
-	if ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Hotfix) {
-		$TaskEntry.VerifyInstall.Path      = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Hotfix, "")
+	if ($TaskEntry.VerifyInstall.Path -match $Package.SubparameterSyntax.VerifyInstall.Type_Hotfix) {
+		$TaskEntry.VerifyInstall.Path      = $TaskEntry.VerifyInstall.Path -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Hotfix, "")
 		$TaskEntry.VerifyInstall.Existence = Get-Hotfix | ? {$_.HotfixID -eq $TaskEntry.VerifyInstall.Path}
 
 		if ($TaskEntry.VerifyInstall.Existence -ne $Null) {
@@ -570,8 +568,8 @@ foreach ($Row in $Package.Content.TaskEntry) {
 
 	# ---- VerifyInstall Parameter (Type_Path Subparameter) >>>>
 	
-	elseif ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Path) {
-		$TaskEntry.VerifyInstall.Path      = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Path, "")
+	elseif ($TaskEntry.VerifyInstall.Path -match $Package.SubparameterSyntax.VerifyInstall.Type_Path) {
+		$TaskEntry.VerifyInstall.Path      = $TaskEntry.VerifyInstall.Path -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Path, "")
 		$TaskEntry.VerifyInstall.Path      = Get-EnvironmentVariableValue -Path $TaskEntry.VerifyInstall.Path
 		$TaskEntry.VerifyInstall.Existence = Test-Path $TaskEntry.VerifyInstall.Path
 
@@ -587,13 +585,13 @@ foreach ($Row in $Package.Content.TaskEntry) {
 
 	# ---- VerifyInstall Parameter (Version_FileInfo Subparameter) >>>>
 
-	elseif ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Version_FileInfo) {
-		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Version_FileInfo, "")
+	elseif ($TaskEntry.VerifyInstall.Path -match $Package.SubparameterSyntax.VerifyInstall.Type_Version_FileInfo) {
+		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Version_FileInfo, "")
 
 		try {
-			$TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Arg_Build | Out-Null
+			$TaskEntry.VerifyInstall.Path -match $Package.SubparameterSyntax.VerifyInstall.Arg_Build | Out-Null
 
-			$TaskEntry.VerifyInstall.Path            = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Arg_Build, "")
+			$TaskEntry.VerifyInstall.Path            = $TaskEntry.VerifyInstall.Path -replace ($Package.SubparameterSyntax.VerifyInstall.Arg_Build, "")
 			$TaskEntry.VerifyInstall.Path            = Get-EnvironmentVariableValue -Path $TaskEntry.VerifyInstall.Path
 			$TaskEntry.VerifyInstall.SpecifiedBuild  = $Matches[1]
 			$TaskEntry.VerifyInstall.DiscoveredBuild = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Path) | % {$_.FileVersion}
@@ -617,13 +615,13 @@ foreach ($Row in $Package.Content.TaskEntry) {
 
 	# ---- VerifyInstall Parameter (Version_ProductInfo Subparameter) >>>>
 
-	elseif ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Version_ProductInfo) {
-		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Version_ProductInfo, "")
+	elseif ($TaskEntry.VerifyInstall.Path -match $Package.SubparameterSyntax.VerifyInstall.Type_Version_ProductInfo) {
+		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Version_ProductInfo, "")
 
 		try {
-			$TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Arg_Build | Out-Null
+			$TaskEntry.VerifyInstall.Path -match $Package.SubparameterSyntax.VerifyInstall.Arg_Build | Out-Null
 
-			$TaskEntry.VerifyInstall.Path            = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Arg_Build, "")
+			$TaskEntry.VerifyInstall.Path            = $TaskEntry.VerifyInstall.Path -replace ($Package.SubparameterSyntax.VerifyInstall.Arg_Build, "")
 			$TaskEntry.VerifyInstall.Path            = Get-EnvironmentVariableValue -Path $TaskEntry.VerifyInstall.Path
 			$TaskEntry.VerifyInstall.SpecifiedBuild  = $Matches[1]
 			$TaskEntry.VerifyInstall.DiscoveredBuild = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Path) | % {$_.ProductVersion}
@@ -647,11 +645,11 @@ foreach ($Row in $Package.Content.TaskEntry) {
 
 	# ---- VerifyInstall Parameter (Type_Program Subparameter) >>>>
 	
-	elseif ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Program) {
-		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Program, "")
+	elseif ($TaskEntry.VerifyInstall.Path -match $Package.SubparameterSyntax.VerifyInstall.Type_Program) {
+		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Program, "")
 
 		try {
-			if ($TaskEntry.VerifyInstall.Path -notmatch $Package.Syntax.VerifyInstall.Arg_Build) {
+			if ($TaskEntry.VerifyInstall.Path -notmatch $Package.SubparameterSyntax.VerifyInstall.Arg_Build) {
 				if ($TaskEntry.VerifyInstall.Path -match "^\{(.*)\}$") {
 					$TaskEntry.VerifyInstall.ProgramReference = "PSChildName"
 				}
@@ -685,8 +683,8 @@ foreach ($Row in $Package.Content.TaskEntry) {
 			}
 			
 			else {
-				$TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Arg_Build | Out-Null
-				$TaskEntry.VerifyInstall.Path           = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Arg_Build, "")
+				$TaskEntry.VerifyInstall.Path -match $Package.SubparameterSyntax.VerifyInstall.Arg_Build | Out-Null
+				$TaskEntry.VerifyInstall.Path           = $TaskEntry.VerifyInstall.Path -replace ($Package.SubparameterSyntax.VerifyInstall.Arg_Build, "")
 				$TaskEntry.VerifyInstall.SpecifiedBuild = $Matches[1]
 
 				if ($TaskEntry.VerifyInstall.Path -match "^\{(.*)\}$") {
@@ -790,7 +788,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 			Write-Host -ForegroundColor Green (Write-Result -Status "OK" -Code $TaskEntry.Executable.Result.ExitCode -Output $TaskEntry.Executable.Result.Output)
 			
 			if ($TaskEntry.SkipProcessCount -ne "true") {
-				$Package.TaskStatus.Successful++
+				$Package.TaskEntryStatus.Successful++
 			}
 			
 			else {
@@ -802,7 +800,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 			Write-Host -ForegroundColor Red (Write-Result -Status "WARN" -Code $TaskEntry.Executable.Result.ExitCode -Output $TaskEntry.Executable.Result.Output)
 			
 			if ($TaskEntry.SkipProcessCount -ne "true") {
-				$Package.TaskStatus.Unsuccessful++
+				$Package.TaskEntryStatus.Unsuccessful++
 			}
 			
 			else {
@@ -815,7 +813,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 			}
 			
 			else {
-				$Package.TaskStatus.TotalFailedButContinued++
+				$Package.TaskEntryStatus.TotalFailedButContinued++
 				continue
 			}
 		}
@@ -826,7 +824,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 2 -Output $Script.Output -AddNewLine)
 		
 		if ($TaskEntry.SkipProcessCount -ne "true") {
-			$Package.TaskStatus.Unsuccessful++
+			$Package.TaskEntryStatus.Unsuccessful++
 		}
 		
 		else {
@@ -839,7 +837,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 		}
 		
 		else {
-			$Package.TaskStatus.TotalFailedButContinued++
+			$Package.TaskEntryStatus.TotalFailedButContinued++
 			continue
 		}
 	}
@@ -847,7 +845,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 
 # ---- Package Result Reporting >>>>
 
-if ($Package.TaskStatus.Successful -eq 0 -and $Package.TaskStatus.Unsuccessful -eq 0) {
+if ($Package.TaskEntryStatus.Successful -eq 0 -and $Package.TaskEntryStatus.Unsuccessful -eq 0) {
 	Write-Host -ForegroundColor Red "`nWARN: No task entries were processed.`n"
 	
 	if ($Script.ExitCode -eq 0) {
@@ -860,23 +858,23 @@ if ($Package.TaskStatus.Successful -eq 0 -and $Package.TaskStatus.Unsuccessful -
 }
 
 else {
-	$Package.TaskStatus.TotalProcessed = [Int]$Package.TaskStatus.Successful + [Int]$Package.TaskStatus.Unsuccessful
+	$Package.TaskEntryStatus.TotalProcessed = [Int]$Package.TaskEntryStatus.Successful + [Int]$Package.TaskEntryStatus.Unsuccessful
 
-	$Package.Result = (
-		"`nTasks Processed : " + $Package.TaskStatus.TotalProcessed + `
-		"`n  ^"                                                     + `
-		"`n  |"                                                     + `
-		"`n  |---- Success : " + $Package.TaskStatus.Successful     + `
-		"`n  +---- Failure : " + $Package.TaskStatus.Unsuccessful   + `
+	$Script.Output = (
+		"`nTasks Processed : " + $Package.TaskEntryStatus.TotalProcessed + `
+		"`n  ^"                                                          + `
+		"`n  |"                                                          + `
+		"`n  |---- Success : " + $Package.TaskEntryStatus.Successful     + `
+		"`n  +---- Failure : " + $Package.TaskEntryStatus.Unsuccessful   + `
 		"`n"
 	)
 
 	Write-Host ("`nPackage Results (" + $Package.Name + "):")
 
 	if ($Script.ExitCode -eq 0) {
-		$Package.Result += ("`nOK: (" + $Script.ExitCode + ")`n")
+		$Script.Output += ("`nOK: (" + $Script.ExitCode + ")`n")
 		
-		Write-Host -ForegroundColor Green $Package.Result
+		Write-Host -ForegroundColor Green $Script.Output
 		
 		if ($Script.Config.SuppressNotification -eq $False) {
 			Show-BalloonTip -Title $Package.Notification.Header -Text $Package.Notification.Footer | Out-Null
@@ -888,9 +886,9 @@ else {
 	}
 
 	else {
-		$Package.Result += ("`nERROR: (" + $Script.ExitCode + ")`n")
+		$Script.Output += ("`nERROR: (" + $Script.ExitCode + ")`n")
 
-		Write-Host -ForegroundColor Red $Package.Result
+		Write-Host -ForegroundColor Red $Script.Output
 	}
 }
 
