@@ -552,9 +552,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 		continue
 	}
 	
-	# ---- VerifyInstall Parameter >>>>
-	
-	# ---- [Hotfix] Subparameter (VerifyInstall) >>>>
+	# ---- (VerifyInstall Parameter) Type_Hotfix Subparameter >>>>
 	
 	if ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Hotfix) {
 		$TaskEntry.VerifyInstall.Path      = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Hotfix, "")
@@ -570,7 +568,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 		}
 	}
 
-	# ---- [Path] Subparameter (VerifyInstall) >>>>
+	# ---- (VerifyInstall Parameter) Type_Path Subparameter >>>>
 	
 	elseif ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Path) {
 		$TaskEntry.VerifyInstall.Path      = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Path, "")
@@ -587,7 +585,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 		}
 	}
 
-	# ---- [Vers_File] Subparameter (VerifyInstall) >>>>
+	# ---- (VerifyInstall Parameter) Version_FileInfo Subparameter >>>>
 
 	elseif ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Version_FileInfo) {
 		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Version_FileInfo, "")
@@ -617,7 +615,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 		}
 	}
 
-	# ---- [Vers_Product] Subparameter (VerifyInstall) >>>>
+	# ---- (VerifyInstall Parameter) Version_ProductInfo Subparameter >>>>
 
 	elseif ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Version_ProductInfo) {
 		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Version_ProductInfo, "")
@@ -647,7 +645,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 		}
 	}
 
-	# ---- [Program] Subparameter (VerifyInstall) >>>>
+	# ---- (VerifyInstall Parameter) Type_Program Subparameter >>>>
 	
 	elseif ($TaskEntry.VerifyInstall.Path -match $Package.Syntax.VerifyInstall.Type_Program) {
 		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($Package.Syntax.VerifyInstall.Type_Program, "")
