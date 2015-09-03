@@ -447,18 +447,6 @@ foreach ($Row in $Package.Content.TaskEntry) {
 			"ContinueIfFail"   = $Row.ContinueIfFail
 			"SkipProcessCount" = $Row.SkipProcessCount
 		}
-
-		if ($TaskEntry.TaskName -match "^#") {
-			continue
-		}
-
-		elseif ($TaskEntry.TaskName -match "^$") {
-			continue
-		}
-
-		else {
-			pass
-		}
 	}
 	
 	catch [Exception] {
@@ -549,6 +537,8 @@ foreach ($Row in $Package.Content.TaskEntry) {
 		Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output -AddNewLine)
 		continue
 	}
+
+	# ---- VerifyInstall Parameter >>>>
 	
 	# ---- VerifyInstall Parameter (Type_Hotfix Subparameter) >>>>
 	
