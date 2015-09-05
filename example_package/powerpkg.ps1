@@ -421,31 +421,28 @@ Write-Host -ForegroundColor Cyan (
 	"`n----"
 )
 
-foreach ($Row in $Package.Content.TaskEntry) {
+foreach ($Item in $Package.Content.TaskEntry) {
 	try {
 		$TaskEntry = @{
-			"TaskName"         = $Row.TaskName
-			"Executable"       = @{
-				"Result" = $Null
-				"Path"   = $Row.Executable
-			}
-			"OperatingSystem"  = $Row.OperatingSystem
-			"Architecture"     = $Row.Architecture
-			"TerminateProcess" = $Row.TerminateProcess
+			"TaskName"         = $Item.TaskName
+			"Executable"       = $Item.Executable
+			"OperatingSystem"  = $Item.OperatingSystem
+			"Architecture"     = $Item.Architecture
+			"TerminateProcess" = $Item.TerminateProcess
 			"TerminateMessage" = @{
-				"Prompt"          = $Row.TerminateMessage
+				"Prompt"          = $Item.TerminateMessage
 				"AlreadyPrompted" = $False # Ensures to only display TerminateMessage prompt once, if terminating more than one process.
 			}
 			"VerifyInstall"    = @{
-				"Path"             = $Row.VerifyInstall
+				"Path"             = $Item.VerifyInstall
 				"SpecifiedBuild"   = $Null
 				"DiscoveredBuild"  = $Null
 				"Existence"        = $Null
 				"ProgramReference" = $Null
 			}
-			"SuccessExitCode"  = $Row.SuccessExitCode
-			"ContinueIfFail"   = $Row.ContinueIfFail
-			"SkipProcessCount" = $Row.SkipProcessCount
+			"SuccessExitCode"  = $Item.SuccessExitCode
+			"ContinueIfFail"   = $Item.ContinueIfFail
+			"SkipProcessCount" = $Item.SkipProcessCount
 		}
 	}
 	
@@ -462,7 +459,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 	$Package.TaskEntryStatus.Index = $Package.TaskEntryStatus.Index + 1
 	
 	if ($TaskEntry.TaskName -match "^$" -or $TaskEntry.TaskName -match "^(\s+)$") {
-		$Script.Output = ("`nTaskName: Specification is required for """ + $TaskEntry.Executable.Path + """ at Task Entry " + [String]$Package.TaskEntryStatus.Index + ".")
+		$Script.Output = ("`nTaskName: Specification is required for """ + $TaskEntry.Executable + """ at Task Entry " + [String]$Package.TaskEntryStatus.Index + ".")
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 7 -Output $Script.Output -AddNewLine)
 		
 		$Script.ExitCode = 7
@@ -479,7 +476,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 	
 	# ---- Executable Parameter >>>>
 	
-	if ($TaskEntry.Executable.Path -match "^$" -or $TaskEntry.Executable.Path -match "^(\s+)$") {
+	if ($TaskEntry.Executable -match "^$" -or $TaskEntry.Executable -match "^(\s+)$") {
 		$Script.Output = ("`nExecutable: Specification is required for """ + $TaskEntry.TaskName + """ at Task Entry " + [String]$Package.TaskEntryStatus.Index + ".")
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 7 -Output $Script.Output -AddNewLine)
 		
@@ -487,8 +484,8 @@ foreach ($Row in $Package.Content.TaskEntry) {
 		break
 	}
 
-	elseif ($TaskEntry.Executable.Path -match $Package.SubparameterSyntax.Executable.Package) {
-		$TaskEntry.Executable.Path = $TaskEntry.Executable.Path -Replace ($Package.SubparameterSyntax.Executable.Package, $Script.CurrentDirectory)
+	elseif ($TaskEntry.Executable -match $Package.SubparameterSyntax.Executable.Package) {
+		$TaskEntry.Executable = $TaskEntry.Executable -Replace ($Package.SubparameterSyntax.Executable.Package, $Script.CurrentDirectory)
 	}
 	
 	else {
@@ -498,11 +495,11 @@ foreach ($Row in $Package.Content.TaskEntry) {
 	# The following loop prevents execution of arbitrary commands.
 	
 	foreach ($Item in $Package.ExecutableSanitizer) {
-		$TaskEntry.Executable.Path = $TaskEntry.Executable.Path -replace ($Item, "")
+		$TaskEntry.Executable = $TaskEntry.Executable -replace ($Item, "")
 	}
 
 	Write-Host -NoNewLine ("`n(" + $Package.TaskEntryStatus.Index + ") " + $TaskEntry.TaskName + ": ")
-	Write-Host -ForegroundColor Cyan ("`n[" + $TaskEntry.Executable.Path + "]`n")
+	Write-Host -ForegroundColor Cyan ("`n[" + $TaskEntry.Executable + "]`n")
 	
 	# ---- OperatingSystem Parameter >>>>
 	
@@ -772,10 +769,10 @@ foreach ($Row in $Package.Content.TaskEntry) {
 	# ---- Executable Invocation Processing >>>>
 	
 	try {
-		$TaskEntry.Executable.Result = (Invoke-Executable -Path $TaskEntry.Executable.Path)
+		$Script.Output = (Invoke-Executable -Path $TaskEntry.Executable)
 		
-		if ($TaskEntry.SuccessExitCode -contains $TaskEntry.Executable.Result.ExitCode) {
-			Write-Host -ForegroundColor Green (Write-Result -Status "OK" -Code $TaskEntry.Executable.Result.ExitCode -Output $TaskEntry.Executable.Result.Output)
+		if ($TaskEntry.SuccessExitCode -contains $Script.Output.ExitCode) {
+			Write-Host -ForegroundColor Green (Write-Result -Status "OK" -Code $Script.Output.ExitCode -Output $Script.Output.Output)
 			
 			if ($TaskEntry.SkipProcessCount -ne "true") {
 				$Package.TaskEntryStatus.Successful++
@@ -787,7 +784,7 @@ foreach ($Row in $Package.Content.TaskEntry) {
 		}
 	
 		else {
-			Write-Host -ForegroundColor Red (Write-Result -Status "WARN" -Code $TaskEntry.Executable.Result.ExitCode -Output $TaskEntry.Executable.Result.Output)
+			Write-Host -ForegroundColor Red (Write-Result -Status "WARN" -Code $Script.Output.ExitCode -Output $Script.Output.Output)
 			
 			if ($TaskEntry.SkipProcessCount -ne "true") {
 				$Package.TaskEntryStatus.Unsuccessful++
