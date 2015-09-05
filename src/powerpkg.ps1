@@ -539,12 +539,12 @@ foreach ($Item in $Package.Content.TaskEntry) {
 	
 	# ---- VerifyInstall Parameter (Type_Hotfix Subparameter) >>>>
 	
-	if ($TaskEntry.VerifyInstall.Path -match $Package.SubparameterSyntax.VerifyInstall.Type_Hotfix) {
-		$TaskEntry.VerifyInstall.Path      = $TaskEntry.VerifyInstall.Path -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Hotfix, "")
-		$TaskEntry.VerifyInstall.Existence = Get-Hotfix | ? {$_.HotfixID -eq $TaskEntry.VerifyInstall.Path}
+	if ($TaskEntry.VerifyInstall.Value -match $Package.SubparameterSyntax.VerifyInstall.Type_Hotfix) {
+		$TaskEntry.VerifyInstall.Value     = $TaskEntry.VerifyInstall.Value -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Hotfix, "")
+		$TaskEntry.VerifyInstall.Existence = Get-Hotfix | ? {$_.HotfixID -eq $TaskEntry.VerifyInstall.Value}
 
 		if ($TaskEntry.VerifyInstall.Existence -ne $Null) {
-			Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output ("VerifyInstall: [Hotfix] """ + $TaskEntry.VerifyInstall.Path + """ exists.") -AddNewLine)
+			Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output ("VerifyInstall: [Hotfix] """ + $TaskEntry.VerifyInstall.Value + """ exists.") -AddNewLine)
 			continue
 		}
 
@@ -555,13 +555,13 @@ foreach ($Item in $Package.Content.TaskEntry) {
 
 	# ---- VerifyInstall Parameter (Type_Path Subparameter) >>>>
 	
-	elseif ($TaskEntry.VerifyInstall.Path -match $Package.SubparameterSyntax.VerifyInstall.Type_Path) {
-		$TaskEntry.VerifyInstall.Path      = $TaskEntry.VerifyInstall.Path -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Path, "")
-		$TaskEntry.VerifyInstall.Path      = Get-EnvironmentVariableValue -Path $TaskEntry.VerifyInstall.Path
-		$TaskEntry.VerifyInstall.Existence = Test-Path $TaskEntry.VerifyInstall.Path
+	elseif ($TaskEntry.VerifyInstall.Value -match $Package.SubparameterSyntax.VerifyInstall.Type_Path) {
+		$TaskEntry.VerifyInstall.Value     = $TaskEntry.VerifyInstall.Value -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Path, "")
+		$TaskEntry.VerifyInstall.Value     = Get-EnvironmentVariableValue -Path $TaskEntry.VerifyInstall.Value
+		$TaskEntry.VerifyInstall.Existence = Test-Path $TaskEntry.VerifyInstall.Value
 
 		if ($TaskEntry.VerifyInstall.Existence -eq $True) {
-			Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output ("VerifyInstall: [Path] """ + $TaskEntry.VerifyInstall.Path + """ exists.") -AddNewLine)
+			Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output ("VerifyInstall: [Path] """ + $TaskEntry.VerifyInstall.Value + """ exists.") -AddNewLine)
 			continue
 		}
 
@@ -572,16 +572,16 @@ foreach ($Item in $Package.Content.TaskEntry) {
 
 	# ---- VerifyInstall Parameter (Version_FileInfo Subparameter) >>>>
 
-	elseif ($TaskEntry.VerifyInstall.Path -match $Package.SubparameterSyntax.VerifyInstall.Type_Version_FileInfo) {
-		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Version_FileInfo, "")
+	elseif ($TaskEntry.VerifyInstall.Value -match $Package.SubparameterSyntax.VerifyInstall.Type_Version_FileInfo) {
+		$TaskEntry.VerifyInstall.Value = $TaskEntry.VerifyInstall.Value -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Version_FileInfo, "")
 
 		try {
-			$TaskEntry.VerifyInstall.Path -match $Package.SubparameterSyntax.VerifyInstall.Arg_Build | Out-Null
+			$TaskEntry.VerifyInstall.Value -match $Package.SubparameterSyntax.VerifyInstall.Arg_Build | Out-Null
 
-			$TaskEntry.VerifyInstall.Path            = $TaskEntry.VerifyInstall.Path -replace ($Package.SubparameterSyntax.VerifyInstall.Arg_Build, "")
-			$TaskEntry.VerifyInstall.Path            = Get-EnvironmentVariableValue -Path $TaskEntry.VerifyInstall.Path
+			$TaskEntry.VerifyInstall.Value           = $TaskEntry.VerifyInstall.Value -replace ($Package.SubparameterSyntax.VerifyInstall.Arg_Build, "")
+			$TaskEntry.VerifyInstall.Value           = Get-EnvironmentVariableValue -Path $TaskEntry.VerifyInstall.Value
 			$TaskEntry.VerifyInstall.SpecifiedBuild  = $Matches[1]
-			$TaskEntry.VerifyInstall.DiscoveredBuild = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Path) | % {$_.FileVersion}
+			$TaskEntry.VerifyInstall.DiscoveredBuild = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Value) | % {$_.FileVersion}
 			
 			if ($TaskEntry.VerifyInstall.SpecifiedBuild -eq $TaskEntry.VerifyInstall.DiscoveredBuild) {
 				$Script.Output = ("VerifyInstall: [Vers_File] """ + $TaskEntry.VerifyInstall.SpecifiedBuild + """ exists.")
@@ -602,16 +602,16 @@ foreach ($Item in $Package.Content.TaskEntry) {
 
 	# ---- VerifyInstall Parameter (Version_ProductInfo Subparameter) >>>>
 
-	elseif ($TaskEntry.VerifyInstall.Path -match $Package.SubparameterSyntax.VerifyInstall.Type_Version_ProductInfo) {
-		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Version_ProductInfo, "")
+	elseif ($TaskEntry.VerifyInstall.Value -match $Package.SubparameterSyntax.VerifyInstall.Type_Version_ProductInfo) {
+		$TaskEntry.VerifyInstall.Value = $TaskEntry.VerifyInstall.Value -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Version_ProductInfo, "")
 
 		try {
-			$TaskEntry.VerifyInstall.Path -match $Package.SubparameterSyntax.VerifyInstall.Arg_Build | Out-Null
+			$TaskEntry.VerifyInstall.Value -match $Package.SubparameterSyntax.VerifyInstall.Arg_Build | Out-Null
 
-			$TaskEntry.VerifyInstall.Path            = $TaskEntry.VerifyInstall.Path -replace ($Package.SubparameterSyntax.VerifyInstall.Arg_Build, "")
-			$TaskEntry.VerifyInstall.Path            = Get-EnvironmentVariableValue -Path $TaskEntry.VerifyInstall.Path
+			$TaskEntry.VerifyInstall.Value           = $TaskEntry.VerifyInstall.Value -replace ($Package.SubparameterSyntax.VerifyInstall.Arg_Build, "")
+			$TaskEntry.VerifyInstall.Value           = Get-EnvironmentVariableValue -Path $TaskEntry.VerifyInstall.Value
 			$TaskEntry.VerifyInstall.SpecifiedBuild  = $Matches[1]
-			$TaskEntry.VerifyInstall.DiscoveredBuild = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Path) | % {$_.ProductVersion}
+			$TaskEntry.VerifyInstall.DiscoveredBuild = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall.Value) | % {$_.ProductVersion}
 
 			if ($TaskEntry.VerifyInstall.SpecifiedBuild -eq $TaskEntry.VerifyInstall.DiscoveredBuild) {
 				$Script.Output = ("VerifyInstall: [Vers_Product] """ + $TaskEntry.VerifyInstall.SpecifiedBuild + """ exists.")
@@ -632,12 +632,15 @@ foreach ($Item in $Package.Content.TaskEntry) {
 
 	# ---- VerifyInstall Parameter (Type_Program Subparameter) >>>>
 	
-	elseif ($TaskEntry.VerifyInstall.Path -match $Package.SubparameterSyntax.VerifyInstall.Type_Program) {
-		$TaskEntry.VerifyInstall.Path = $TaskEntry.VerifyInstall.Path -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Program, "")
+	elseif ($TaskEntry.VerifyInstall.Value -match $Package.SubparameterSyntax.VerifyInstall.Type_Program) {
+		$TaskEntry.VerifyInstall.Value = $TaskEntry.VerifyInstall.Value -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Program, "")
 
 		try {
-			if ($TaskEntry.VerifyInstall.Path -notmatch $Package.SubparameterSyntax.VerifyInstall.Arg_Build) {
-				if ($TaskEntry.VerifyInstall.Path -match "^\{(.*)\}$") {
+			if ($TaskEntry.VerifyInstall.Value -notmatch $Package.SubparameterSyntax.VerifyInstall.Arg_Build) {
+
+				# Determines whether or not VerifyInstall value is a MSI GUID, in order to reference the correct property.
+				
+				if ($TaskEntry.VerifyInstall.Value -match "^\{(.*)\}$") {
 					$TaskEntry.VerifyInstall.ProgramReference = "PSChildName"
 				}
 
@@ -645,10 +648,12 @@ foreach ($Item in $Package.Content.TaskEntry) {
 					$TaskEntry.VerifyInstall.ProgramReference = "DisplayName"
 				}
 
+				# Searches the registry for possible program name or MSI GUID that matches VerifyInstall value.
+
 				foreach ($Path in $Machine.ProgramList) {
 					if (Test-Path $Path) {
 						$TaskEntry.VerifyInstall.Existence += @(
-							Get-ChildItem $Path | % {Get-ItemProperty $_.PSPath} | ? {$_.$($TaskEntry.VerifyInstall.ProgramReference) -eq $TaskEntry.VerifyInstall.Path} | % {$_.DisplayName}
+							Get-ChildItem $Path | % {Get-ItemProperty $_.PSPath} | ? {$_.$($TaskEntry.VerifyInstall.ProgramReference) -eq $TaskEntry.VerifyInstall.Value} | % {$_.DisplayName}
 						)
 					}
 
@@ -657,8 +662,10 @@ foreach ($Item in $Package.Content.TaskEntry) {
 					}
 				}
 
+				# Determines as to whether or not a matching program code or MSI GUID was found.
+
 				if ($TaskEntry.VerifyInstall.Existence -ne $Null) {
-					$Script.Output = ("VerifyInstall: [Program] """ + $TaskEntry.VerifyInstall.Path + """ exists.")
+					$Script.Output = ("VerifyInstall: [Program] """ + $TaskEntry.VerifyInstall.Value + """ exists.")
 
 					Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output -AddNewLine)
 					continue
@@ -670,11 +677,15 @@ foreach ($Item in $Package.Content.TaskEntry) {
 			}
 			
 			else {
-				$TaskEntry.VerifyInstall.Path -match $Package.SubparameterSyntax.VerifyInstall.Arg_Build | Out-Null
-				$TaskEntry.VerifyInstall.Path           = $TaskEntry.VerifyInstall.Path -replace ($Package.SubparameterSyntax.VerifyInstall.Arg_Build, "")
+				# Separates Arg_Build (version/build number) and VerifyInstall value (program name/MSI GUID).
+
+				$TaskEntry.VerifyInstall.Value -match $Package.SubparameterSyntax.VerifyInstall.Arg_Build | Out-Null
+				$TaskEntry.VerifyInstall.Value          = $TaskEntry.VerifyInstall.Value -replace ($Package.SubparameterSyntax.VerifyInstall.Arg_Build, "")
 				$TaskEntry.VerifyInstall.SpecifiedBuild = $Matches[1]
 
-				if ($TaskEntry.VerifyInstall.Path -match "^\{(.*)\}$") {
+				# Determines whether or not VerifyInstall value is a MSI GUID, in order to reference the correct property.
+
+				if ($TaskEntry.VerifyInstall.Value -match "^\{(.*)\}$") {
 					$TaskEntry.VerifyInstall.ProgramReference = "PSChildName"
 				}
 
@@ -682,10 +693,12 @@ foreach ($Item in $Package.Content.TaskEntry) {
 					$TaskEntry.VerifyInstall.ProgramReference = "DisplayName"
 				}
 
+				# Searches the registry for possible program name/MSI GUID that matches VerifyInstall value.
+
 				foreach ($Path in $Machine.ProgramList) {
 					if (Test-Path $Path) {
 						$TaskEntry.VerifyInstall.DiscoveredBuild += @(
-							Get-ChildItem $Path | % {Get-ItemProperty $_.PSPath} | ? {$_.$($TaskEntry.VerifyInstall.ProgramReference) -eq $TaskEntry.VerifyInstall.Path} | % {$_.DisplayVersion}
+							Get-ChildItem $Path | % {Get-ItemProperty $_.PSPath} | ? {$_.$($TaskEntry.VerifyInstall.ProgramReference) -eq $TaskEntry.VerifyInstall.Value} | % {$_.DisplayVersion}
 						)
 					}
 
@@ -693,6 +706,8 @@ foreach ($Item in $Package.Content.TaskEntry) {
 						pass
 					}
 				}
+
+				# Determines whether or not there is a match between a discovered program name/MSI GUID's respective version/build number and Arg_Build.
 
 				if ($TaskEntry.VerifyInstall.DiscoveredBuild -contains $TaskEntry.VerifyInstall.SpecifiedBuild) {
 					$Script.Output = ("VerifyInstall: [Program] """ + $TaskEntry.VerifyInstall.SpecifiedBuild + """ exists.")
