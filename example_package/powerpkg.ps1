@@ -56,7 +56,7 @@ $Script    = @{
 		"TotalImported"        = 0     # Retrieves number of imported package-specified script preferences.
 		"ImportState"          = $Null # Reports whether or not package-specified script preferences were imported.
 	}
-	"CurrentDirectory" = (Split-Path -Parent -Path $MyInvocation.MyCommand.Definition) + "\"
+	"CurrentDirectory" = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
 	"CurrentPSVersion" = $Host.Version.Major
 	"ExitCode"         = 0
 	"Output"           = $Null # Used for capturing and printing general output.
@@ -82,7 +82,7 @@ $Package   = @{
 		"Configuration" = $Null
 		"TaskEntry"     = $Null
 	}
-	"Path"                = $Script.CurrentDirectory + "package.xml"          # Absolute path of package file.
+	"Path"                = ("{0}\package.xml" -f $Script.CurrentDirectory)   # Absolute path of package file.
 	"ExecutableSanitizer" = (                                                 # Regular expressions to remove potential arbitrary commands from Executable parameter.
 		"\;(.*)$",
 		"\&(.*)$",
@@ -334,21 +334,21 @@ function Write-Result {
 
 	if ($Output -notmatch "^$") {
 		if ($AddNewLine) {
-			$Result += ($Output + "`n`n")
+			$Result += ("{0}`n`n" -f $Output)
 		}
 		
 		else {
-			$Result += ($Output + "`n")
+			$Result += ("{0}`n" -f $Output)
 		}
 	}
 	
 	else {}
 	
 	if ($Code -notmatch "^$") {
-		$Code = ": (" + $Code + ")"
+		$Code = (": ({0})" -f $Code)
 	}
 	
-	$Result += ($Status + $Code + "`n`n----")
+	$Result += ("{0}{1}`n`n----" -f $Status, $Code)
 	
 	return $Result
 }
@@ -372,7 +372,7 @@ try {
 }
 
 catch [Exception] {
-	Write-Host -ForegroundColor Red ("`nERROR: A package file could not be imported. Details: " + $Error[0])
+	Write-Host -ForegroundColor Red ("`nERROR: A package file could not be imported. Details: {0}" -f $Error[0])
 	
 	[Environment]::Exit(5)
 }
@@ -418,7 +418,7 @@ else {
 
 $Package += @{
 	"Notification" = @{
-		"Header" = "Installed '" + $Package.Name + "' package!"
+		"Header" = ("Installed ""{0}"" package!" -f $Package.Name)
 		"Footer" = "Questions or concerns? Contact your system administrator for more information."
 	}
 
@@ -428,7 +428,7 @@ $Package += @{
 
 foreach ($ImportedHostname in $Script.Config.BlockHost) {
 	if ($Machine.Hostname -match $ImportedHostname -and $ImportedHostname -notmatch "^$") {
-		Write-Host -ForegroundColor Red ("`nERROR: Package '" + $Package.Name + "' will not be processed, as this host is blocked.`n")
+		Write-Host -ForegroundColor Red ("`nERROR: Package ""{0}"" will not be processed, as this host is blocked.`n" -f $Package.Name)
 		
 		[Environment]::Exit(4)
 	}
@@ -467,7 +467,7 @@ foreach ($Item in $Package.Content.TaskEntry) {
 	}
 	
 	catch [Exception] {
-		$Script.Output = ("`nTask Entry (" + $TaskEntry.TaskName + "): " + $Error[0])
+		$Script.Output = ("`nTask Entry ({0}): {1}" -f $TaskEntry.TaskName, $Error[0])
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 3 -Output $Script.Output -AddNewLine)
 		
 		$Script.ExitCode = 3
@@ -479,7 +479,7 @@ foreach ($Item in $Package.Content.TaskEntry) {
 	$Package.TaskEntryStatus.Index = $Package.TaskEntryStatus.Index + 1
 	
 	if ($TaskEntry.TaskName -match "^$" -or $TaskEntry.TaskName -match "^(\s+)$") {
-		$Script.Output = ("`nTaskName: Specification is required for """ + $TaskEntry.Executable + """ at Task Entry " + [String]$Package.TaskEntryStatus.Index + ".")
+		$Script.Output = ("`nTaskName: Specification is required for ""{0}"" at Task Entry {1}." -f $TaskEntry.Executable, [String]$Package.TaskEntryStatus.Index)
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 7 -Output $Script.Output -AddNewLine)
 		
 		$Script.ExitCode = 7
@@ -497,7 +497,7 @@ foreach ($Item in $Package.Content.TaskEntry) {
 	# ---- Executable Parameter >>>>
 	
 	if ($TaskEntry.Executable -match "^$" -or $TaskEntry.Executable -match "^(\s+)$") {
-		$Script.Output = ("`nExecutable: Specification is required for """ + $TaskEntry.TaskName + """ at Task Entry " + [String]$Package.TaskEntryStatus.Index + ".")
+		$Script.Output = ("`nExecutable: Specification is required for ""{0}"" at Task Entry {1}." -f $TaskEntry.TaskName, [String]$Package.TaskEntryStatus.Index)
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 7 -Output $Script.Output -AddNewLine)
 		
 		$Script.ExitCode = 7
@@ -505,7 +505,7 @@ foreach ($Item in $Package.Content.TaskEntry) {
 	}
 
 	elseif ($TaskEntry.Executable -match $Package.SubparameterSyntax.Executable.Package) {
-		$TaskEntry.Executable = $TaskEntry.Executable -Replace ($Package.SubparameterSyntax.Executable.Package, $Script.CurrentDirectory)
+		$TaskEntry.Executable = $TaskEntry.Executable -Replace ($Package.SubparameterSyntax.Executable.Package, ("{0}\" -f $Script.CurrentDirectory))
 	}
 	
 	else {
@@ -518,8 +518,10 @@ foreach ($Item in $Package.Content.TaskEntry) {
 		$TaskEntry.Executable = $TaskEntry.Executable -replace ($Item, "")
 	}
 
-	Write-Host -NoNewLine ("`n(" + $Package.TaskEntryStatus.Index + ") " + $TaskEntry.TaskName + ": ")
-	Write-Host -ForegroundColor Cyan ("`n[" + $TaskEntry.Executable + "]`n")
+	# Outputs task entry's respective TaskName and Executable values to host.
+
+	Write-Host -NoNewLine ("`n({0}) {1}: " -f $Package.TaskEntryStatus.Index, $TaskEntry.TaskName)
+	Write-Host -ForegroundColor Cyan ("`n[{0}]`n" -f $TaskEntry.Executable)
 	
 	# ---- OperatingSystem Parameter >>>>
 	
@@ -532,7 +534,7 @@ foreach ($Item in $Package.Content.TaskEntry) {
 	}
 	
 	else {
-		$Script.Output = ("OperatingSystem: """ + $TaskEntry.OperatingSystem + """ is a requirement.")
+		$Script.Output = ("OperatingSystem: ""{0}"" is a requirement." -f $TaskEntry.OperatingSystem)
 
 		Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output -AddNewLine)
 		continue
@@ -549,7 +551,7 @@ foreach ($Item in $Package.Content.TaskEntry) {
 	}
 	
 	else {
-		$Script.Output = ("Architecture: """ + $TaskEntry.Architecture + """ is a requirement.")
+		$Script.Output = ("Architecture: ""{0}"" is a requirement." -f $TaskEntry.Architecture)
 
 		Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output -AddNewLine)
 		continue
@@ -564,7 +566,9 @@ foreach ($Item in $Package.Content.TaskEntry) {
 		$Package.Variable.VerifyInstall.Existence = Get-Hotfix | ? {$_.HotfixID -eq $TaskEntry.VerifyInstall}
 
 		if ($Package.Variable.VerifyInstall.Existence -ne $Null) {
-			Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output ("VerifyInstall: [Hotfix] """ + $TaskEntry.VerifyInstall + """ exists.") -AddNewLine)
+			$Script.Output = ("VerifyInstall: [Hotfix] ""{0}"" exists." -f $TaskEntry.VerifyInstall)
+
+			Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output -AddNewLine)
 			continue
 		}
 
@@ -581,7 +585,9 @@ foreach ($Item in $Package.Content.TaskEntry) {
 		$Package.Variable.VerifyInstall.Existence = Test-Path $TaskEntry.VerifyInstall
 
 		if ($Package.Variable.VerifyInstall.Existence -eq $True) {
-			Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output ("VerifyInstall: [Path] """ + $TaskEntry.VerifyInstall + """ exists.") -AddNewLine)
+			$Script.Output = ("VerifyInstall: [Path] ""{0}"" exists." -f $TaskEntry.VerifyInstall)
+
+			Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output -AddNewLine)
 			continue
 		}
 
@@ -608,7 +614,7 @@ foreach ($Item in $Package.Content.TaskEntry) {
 			# Determines as to whether or not both Arg_Build and version/build number of VerifyInstall value (file path) match.
 			
 			if ($Package.Variable.VerifyInstall.SpecifiedBuild -eq $Package.Variable.VerifyInstall.DiscoveredBuild) {
-				$Script.Output = ("VerifyInstall: [Vers_File] """ + $Package.Variable.VerifyInstall.SpecifiedBuild + """ exists.")
+				$Script.Output = ("VerifyInstall: [Vers_File] ""{0}"" exists." -f $Package.Variable.VerifyInstall.SpecifiedBuild)
 
 				Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output -AddNewLine)
 				continue
@@ -642,7 +648,7 @@ foreach ($Item in $Package.Content.TaskEntry) {
 			# Determines as to whether or not both Arg_Build and version/build number of VerifyInstall value (file path) match.
 
 			if ($Package.Variable.VerifyInstall.SpecifiedBuild -eq $Package.Variable.VerifyInstall.DiscoveredBuild) {
-				$Script.Output = ("VerifyInstall: [Vers_Product] """ + $Package.Variable.VerifyInstall.SpecifiedBuild + """ exists.")
+				$Script.Output = ("VerifyInstall: [Vers_Product] ""{0}"" exists." -f $Package.Variable.VerifyInstall.SpecifiedBuild)
 
 				Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output -AddNewLine)
 				continue
@@ -693,7 +699,7 @@ foreach ($Item in $Package.Content.TaskEntry) {
 				# Determines as to whether or not a matching program code or MSI GUID was found.
 
 				if ($Package.Variable.VerifyInstall.Existence -ne $Null) {
-					$Script.Output = ("VerifyInstall: [Program] """ + $TaskEntry.VerifyInstall + """ exists.")
+					$Script.Output = ("VerifyInstall: [Program] ""{0}"" exists." -f $TaskEntry.VerifyInstall)
 
 					Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output -AddNewLine)
 					continue
@@ -738,7 +744,7 @@ foreach ($Item in $Package.Content.TaskEntry) {
 				# Determines whether or not there is a match between a discovered program name/MSI GUID's respective version/build number and Arg_Build.
 
 				if ($Package.Variable.VerifyInstall.DiscoveredBuild -contains $Package.Variable.VerifyInstall.SpecifiedBuild) {
-					$Script.Output = ("VerifyInstall: [Program] """ + $Package.Variable.VerifyInstall.SpecifiedBuild + """ exists.")
+					$Script.Output = ("VerifyInstall: [Program] ""{0}"" exists." -f $Package.Variable.VerifyInstall.SpecifiedBuild)
 
 					Write-Host -ForegroundColor Yellow (Write-Result -Status "SKIP" -Output $Script.Output -AddNewLine)
 					continue
@@ -850,7 +856,7 @@ foreach ($Item in $Package.Content.TaskEntry) {
 	}
 	
 	catch [Exception] {
-		$Script.Output = ("Executable Invocation: " + $Error[0])
+		$Script.Output = ("Executable Invocation: {0}" -f $Error[0])
 		Write-Host -ForegroundColor Red (Write-Result -Status "ERROR" -Code 2 -Output $Script.Output -AddNewLine)
 		
 		if ($TaskEntry.SkipProcessCount -ne "true") {
@@ -899,10 +905,10 @@ else {
 		"`n"
 	)
 
-	Write-Host ("`nPackage Results (" + $Package.Name + "):")
+	Write-Host ("`nPackage Results ({0}):" -f $Package.Name)
 
 	if ($Script.ExitCode -eq 0) {
-		$Script.Output += ("`nOK: (" + $Script.ExitCode + ")`n")
+		$Script.Output += ("`nOK: ({0})`n" -f $Script.ExitCode)
 		
 		Write-Host -ForegroundColor Green $Script.Output
 		
@@ -916,7 +922,7 @@ else {
 	}
 
 	else {
-		$Script.Output += ("`nERROR: (" + $Script.ExitCode + ")`n")
+		$Script.Output += ("`nERROR: ({0})`n" -f $Script.ExitCode)
 
 		Write-Host -ForegroundColor Red $Script.Output
 	}
