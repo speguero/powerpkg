@@ -292,6 +292,14 @@ Because of its purpose, `<TaskEntry>` can also be specified more than once withi
 <TaskName>Install Program</TaskName>
 ```
 
+> **NOTE**:
+>
+> You can temporarily skip task entries for the sole purpose of debugging and testing packages, by specifying `#` as the first character in this fashion:
+> 
+> ```xml
+> <TaskName>#Install Program</TaskName>
+> ```
+
 #### `Executable`
 
 > - **Required**: Yes
