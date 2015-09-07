@@ -83,15 +83,23 @@ $Package   = @{
 		"TaskEntry"     = $Null
 	}
 	"Path"                = ("{0}\package.xml" -f $Script.CurrentDirectory)   # Absolute path of package file.
-	"ExecutableSanitizer" = (                                                 # Regular expressions to remove potential arbitrary commands from Executable parameter.
-		"\;(.*)$",
-		"\&(.*)$",
-		"\|(.*)$",
-		"(\s+)$"
-	)
-	"SubparameterSyntax"  = @{                                                # Regular expressions (subparameters) of package file parameters.
+	"Delimiter"           = ","                                               # Character used for separating individual values.
+	"TaskEntryStatus"     = @{
+		"Index"                   = 0
+		"Successful"              = 0
+		"Unsuccessful"            = 0
+		"TotalProcessed"          = 0
+		"TotalFailedButContinued" = 0
+	}
+	"TaskEntrySyntax"     = @{                                                # Regular expressions associated with package file parameters.
 		"Executable"    = @{
-			"Package" = "(\[)Package(\])"
+			"Package"   = "(\[)Package(\])"
+			"Sanitizer" = (                                           # Regular expressions to remove potential arbitrary commands from Executable parameter.
+				"\;(.*)$",
+				"\&(.*)$",
+				"\|(.*)$",
+				"(\s+)$"
+			)
 		}
 		"VerifyInstall" = @{
 			# ... Arg_Build cannot parse uncommonly used, non-alphanumeric characters, such as commas, on ...
@@ -103,14 +111,8 @@ $Package   = @{
 			"Type_Version_FileInfo"    = "^(\[)Vers_File(\])"
 			"Type_Version_ProductInfo" = "^(\[)Vers_Product(\])"
 			"Type_Program"             = "^(\[)Program(\])"
-		}
-	}
-	"TaskEntryStatus"     = @{
-		"Index"                   = 0
-		"Successful"              = 0
-		"Unsuccessful"            = 0
-		"TotalProcessed"          = 0
-		"TotalFailedButContinued" = 0
+			"Value_MSIGUID"            = "^\{(.*)\}$"
+		} 
 	}
 	"Variable"            = @{
 		"TerminateProcess" = @{
@@ -161,7 +163,7 @@ function Get-EnvironmentVariableValue {
 
 	foreach ($Item in $Function.Path -split "\\") {
 		if ($Item -match $Function.EnvironmentVariableSyntax.Before) {
-			$Item = $Item -replace $Function.EnvironmentVariableSyntax.Before, $Function.EnvironmentVariableSyntax.After
+			$Item = $Item -replace ($Function.EnvironmentVariableSyntax.Before, $Function.EnvironmentVariableSyntax.After)
 			
 			try {
 				$Item = (Get-Content $Item -ErrorAction Stop)
@@ -380,7 +382,7 @@ catch [Exception] {
 # ---- Script Configuration Processing >>>>
 
 if ($Package.Content.Configuration.BlockHost -notmatch "^$") {
-	$Script.Config.BlockHost = $Package.Content.Configuration.BlockHost -split (",")
+	$Script.Config.BlockHost = $Package.Content.Configuration.BlockHost -split ($Package.Delimiter)
 	$Script.Config.TotalImported++
 }
 
@@ -504,8 +506,8 @@ foreach ($Item in $Package.Content.TaskEntry) {
 		break
 	}
 
-	elseif ($TaskEntry.Executable -match $Package.SubparameterSyntax.Executable.Package) {
-		$TaskEntry.Executable = $TaskEntry.Executable -Replace ($Package.SubparameterSyntax.Executable.Package, ("{0}\" -f $Script.CurrentDirectory))
+	elseif ($TaskEntry.Executable -match $Package.TaskEntrySyntax.Executable.Package) {
+		$TaskEntry.Executable = $TaskEntry.Executable -Replace ($Package.TaskEntrySyntax.Executable.Package, ("{0}\" -f $Script.CurrentDirectory))
 	}
 	
 	else {
@@ -514,7 +516,7 @@ foreach ($Item in $Package.Content.TaskEntry) {
 
 	# The following loop prevents execution of arbitrary commands.
 	
-	foreach ($Item in $Package.ExecutableSanitizer) {
+	foreach ($Item in $Package.TaskEntrySyntax.Executable.Sanitizer) {
 		$TaskEntry.Executable = $TaskEntry.Executable -replace ($Item, "")
 	}
 
@@ -561,8 +563,8 @@ foreach ($Item in $Package.Content.TaskEntry) {
 	
 	# ---- VerifyInstall Parameter (Type_Hotfix Subparameter) >>>>
 	
-	if ($TaskEntry.VerifyInstall -match $Package.SubparameterSyntax.VerifyInstall.Type_Hotfix) {
-		$TaskEntry.VerifyInstall                  = $TaskEntry.VerifyInstall -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Hotfix, "")
+	if ($TaskEntry.VerifyInstall -match $Package.TaskEntrySyntax.VerifyInstall.Type_Hotfix) {
+		$TaskEntry.VerifyInstall                  = $TaskEntry.VerifyInstall -replace ($Package.TaskEntrySyntax.VerifyInstall.Type_Hotfix, "")
 		$Package.Variable.VerifyInstall.Existence = Get-Hotfix | ? {$_.HotfixID -eq $TaskEntry.VerifyInstall}
 
 		if ($Package.Variable.VerifyInstall.Existence -ne $Null) {
@@ -579,8 +581,8 @@ foreach ($Item in $Package.Content.TaskEntry) {
 
 	# ---- VerifyInstall Parameter (Type_Path Subparameter) >>>>
 	
-	elseif ($TaskEntry.VerifyInstall -match $Package.SubparameterSyntax.VerifyInstall.Type_Path) {
-		$TaskEntry.VerifyInstall                  = $TaskEntry.VerifyInstall -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Path, "")
+	elseif ($TaskEntry.VerifyInstall -match $Package.TaskEntrySyntax.VerifyInstall.Type_Path) {
+		$TaskEntry.VerifyInstall                  = $TaskEntry.VerifyInstall -replace ($Package.TaskEntrySyntax.VerifyInstall.Type_Path, "")
 		$TaskEntry.VerifyInstall                  = Get-EnvironmentVariableValue -Path $TaskEntry.VerifyInstall
 		$Package.Variable.VerifyInstall.Existence = Test-Path $TaskEntry.VerifyInstall
 
@@ -598,15 +600,15 @@ foreach ($Item in $Package.Content.TaskEntry) {
 
 	# ---- VerifyInstall Parameter (Version_FileInfo Subparameter) >>>>
 
-	elseif ($TaskEntry.VerifyInstall -match $Package.SubparameterSyntax.VerifyInstall.Type_Version_FileInfo) {
-		$TaskEntry.VerifyInstall = $TaskEntry.VerifyInstall -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Version_FileInfo, "")
+	elseif ($TaskEntry.VerifyInstall -match $Package.TaskEntrySyntax.VerifyInstall.Type_Version_FileInfo) {
+		$TaskEntry.VerifyInstall = $TaskEntry.VerifyInstall -replace ($Package.TaskEntrySyntax.VerifyInstall.Type_Version_FileInfo, "")
 
 		try {
 			# Separates Arg_Build (version/build number) and VerifyInstall value (file path).
 			
-			$TaskEntry.VerifyInstall -match $Package.SubparameterSyntax.VerifyInstall.Arg_Build | Out-Null
+			$TaskEntry.VerifyInstall -match $Package.TaskEntrySyntax.VerifyInstall.Arg_Build | Out-Null
 
-			$TaskEntry.VerifyInstall                        = $TaskEntry.VerifyInstall -replace ($Package.SubparameterSyntax.VerifyInstall.Arg_Build, "")
+			$TaskEntry.VerifyInstall                        = $TaskEntry.VerifyInstall -replace ($Package.TaskEntrySyntax.VerifyInstall.Arg_Build, "")
 			$TaskEntry.VerifyInstall                        = Get-EnvironmentVariableValue -Path $TaskEntry.VerifyInstall
 			$Package.Variable.VerifyInstall.SpecifiedBuild  = $Matches[1]
 			$Package.Variable.VerifyInstall.DiscoveredBuild = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall) | % {$_.FileVersion}
@@ -632,15 +634,15 @@ foreach ($Item in $Package.Content.TaskEntry) {
 
 	# ---- VerifyInstall Parameter (Version_ProductInfo Subparameter) >>>>
 
-	elseif ($TaskEntry.VerifyInstall -match $Package.SubparameterSyntax.VerifyInstall.Type_Version_ProductInfo) {
-		$TaskEntry.VerifyInstall = $TaskEntry.VerifyInstall -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Version_ProductInfo, "")
+	elseif ($TaskEntry.VerifyInstall -match $Package.TaskEntrySyntax.VerifyInstall.Type_Version_ProductInfo) {
+		$TaskEntry.VerifyInstall = $TaskEntry.VerifyInstall -replace ($Package.TaskEntrySyntax.VerifyInstall.Type_Version_ProductInfo, "")
 
 		try {
 			# Separates Arg_Build (version/build number) and VerifyInstall value (file path).
 			
-			$TaskEntry.VerifyInstall -match $Package.SubparameterSyntax.VerifyInstall.Arg_Build | Out-Null
+			$TaskEntry.VerifyInstall -match $Package.TaskEntrySyntax.VerifyInstall.Arg_Build | Out-Null
 
-			$TaskEntry.VerifyInstall                        = $TaskEntry.VerifyInstall -replace ($Package.SubparameterSyntax.VerifyInstall.Arg_Build, "")
+			$TaskEntry.VerifyInstall                        = $TaskEntry.VerifyInstall -replace ($Package.TaskEntrySyntax.VerifyInstall.Arg_Build, "")
 			$TaskEntry.VerifyInstall                        = Get-EnvironmentVariableValue -Path $TaskEntry.VerifyInstall
 			$Package.Variable.VerifyInstall.SpecifiedBuild  = $Matches[1]
 			$Package.Variable.VerifyInstall.DiscoveredBuild = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($TaskEntry.VerifyInstall) | % {$_.ProductVersion}
@@ -666,15 +668,15 @@ foreach ($Item in $Package.Content.TaskEntry) {
 
 	# ---- VerifyInstall Parameter (Type_Program Subparameter) >>>>
 	
-	elseif ($TaskEntry.VerifyInstall -match $Package.SubparameterSyntax.VerifyInstall.Type_Program) {
-		$TaskEntry.VerifyInstall = $TaskEntry.VerifyInstall -replace ($Package.SubparameterSyntax.VerifyInstall.Type_Program, "")
+	elseif ($TaskEntry.VerifyInstall -match $Package.TaskEntrySyntax.VerifyInstall.Type_Program) {
+		$TaskEntry.VerifyInstall = $TaskEntry.VerifyInstall -replace ($Package.TaskEntrySyntax.VerifyInstall.Type_Program, "")
 
 		try {
-			if ($TaskEntry.VerifyInstall -notmatch $Package.SubparameterSyntax.VerifyInstall.Arg_Build) { # If the VerifyInstall value does not contain the Arg_Build argument.
+			if ($TaskEntry.VerifyInstall -notmatch $Package.TaskEntrySyntax.VerifyInstall.Arg_Build) { # If the VerifyInstall value does not contain the Arg_Build argument.
 
 				# Determines whether or not VerifyInstall value is a MSI GUID, in order to reference the correct property.
 				
-				if ($TaskEntry.VerifyInstall -match "^\{(.*)\}$") {
+				if ($TaskEntry.VerifyInstall -match $Package.TaskEntrySyntax.VerifyInstall.Value_MSIGUID) {
 					$Package.Variable.VerifyInstall.ProgramReference = "PSChildName"
 				}
 
@@ -713,13 +715,13 @@ foreach ($Item in $Package.Content.TaskEntry) {
 			else {
 				# Separates Arg_Build (version/build number) and VerifyInstall value (program name/MSI GUID).
 
-				$TaskEntry.VerifyInstall -match $Package.SubparameterSyntax.VerifyInstall.Arg_Build | Out-Null
-				$TaskEntry.VerifyInstall                       = $TaskEntry.VerifyInstall -replace ($Package.SubparameterSyntax.VerifyInstall.Arg_Build, "")
+				$TaskEntry.VerifyInstall -match $Package.TaskEntrySyntax.VerifyInstall.Arg_Build | Out-Null
+				$TaskEntry.VerifyInstall                       = $TaskEntry.VerifyInstall -replace ($Package.TaskEntrySyntax.VerifyInstall.Arg_Build, "")
 				$Package.Variable.VerifyInstall.SpecifiedBuild = $Matches[1]
 
 				# Determines whether or not VerifyInstall value is a MSI GUID, in order to reference the correct property.
 
-				if ($TaskEntry.VerifyInstall -match "^\{(.*)\}$") {
+				if ($TaskEntry.VerifyInstall -match $Package.TaskEntrySyntax.VerifyInstall.Value_MSIGUID) {
 					$Package.Variable.VerifyInstall.ProgramReference = "PSChildName"
 				}
 
@@ -770,7 +772,7 @@ foreach ($Item in $Package.Content.TaskEntry) {
 	# ---- TerminateProcess Parameter >>>>
 	
 	if ($TaskEntry.TerminateProcess -notmatch "^$") {
-		$TaskEntry.TerminateProcess = $TaskEntry.TerminateProcess -split (",")
+		$TaskEntry.TerminateProcess = $TaskEntry.TerminateProcess -split ($Package.Delimiter)
 		
 		foreach ($Process in $TaskEntry.TerminateProcess) {
 			try {
@@ -811,7 +813,7 @@ foreach ($Item in $Package.Content.TaskEntry) {
 	}
 	
 	else {
-		$TaskEntry.SuccessExitCode  = $TaskEntry.SuccessExitCode -split (",")
+		$TaskEntry.SuccessExitCode  = $TaskEntry.SuccessExitCode -split ($Package.Delimiter)
 		$TaskEntry.SuccessExitCode += 0
 	}
 	
