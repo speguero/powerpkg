@@ -479,27 +479,25 @@ However, unlike the `OperatingSystem` parameter, whatever `[Build:]` version num
 To utilize the **`[Vers_*]`** subparameters, you will need to retrieve the file or product version numbers from an executable file. To do so:
 
   - Within PowerShell, invoke the following command:
-
-  ```powershell
-  [System.Diagnostics.FileVersionInfo]::GetVersionInfo("C:\example_file.exe") | Select FileVersion, ProductVersion
-  ```
+    ```powershell
+    [System.Diagnostics.FileVersionInfo]::GetVersionInfo("C:\example_file.exe") | Select FileVersion, ProductVersion
+    ```
 
   - And you will notice the following output:
-
-  ```
-  FileVersion       ProductVersion
-  -----------       --------------
-  1.0               1.0
-  ```
+    ```
+    FileVersion       ProductVersion
+    -----------       --------------
+    1.0               1.0
+    ```
 
   - Then, specify either outputted value inside the `[Build:]` argument in the following manner:
-  ```xml
-  <VerifyInstall>[Vers_File]C:\example_file.exe[Build:1.0]</VerifyInstall>
+    ```xml
+    <VerifyInstall>[Vers_File]C:\example_file.exe[Build:1.0]</VerifyInstall>
 
-  <VerifyInstall>[Vers_File]$env:SYSTEMDRIVE\example_file.exe[Build:1.0]</VerifyInstall>
+    <VerifyInstall>[Vers_File]$env:SYSTEMDRIVE\example_file.exe[Build:1.0]</VerifyInstall>
 
-  <VerifyInstall>[Vers_Product]C:\example_file.exe[Build:1.0]</VerifyInstall>
-  ```
+    <VerifyInstall>[Vers_Product]C:\example_file.exe[Build:1.0]</VerifyInstall>
+    ```
 
 ##### [Program] Subparameter
 
@@ -507,48 +505,48 @@ To utilize the **`[Program]`** subparameter, you can verify the existence of a:
 
 - **Product Code**:
   - Open the `Programs and Features` applet of the Windows Control Panel, and retrieve the name of the installed program you wish to verify the existence of:
-  ![Programs and Features](/readme/example_verifyinstall_program.gif)
+    ![Programs and Features](/readme/example_verifyinstall_program.gif)
 
   - Within PowerShell, enter the following command:
-  ```powershell
-  Get-ChildItem HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall | % {Get-ItemProperty $_.PSPath} | ? {$_.DisplayName -eq "Example Program"} | Select PSChildName
-  ```
+    ```powershell
+    Get-ChildItem HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall | % {Get-ItemProperty $_.PSPath} | ? {$_.DisplayName -eq "Example Program"} | Select PSChildName
+    ```
 
   - Within PowerShell, enter the following command, if you're utilizing a x86 program on an AMD64 system:
-  ```powershell
-  Get-ChildItem HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall | % {Get-ItemProperty $_.PSPath} | ? {$_.DisplayName -eq "Example Program"} | Select PSChildName
-  ```
+    ```powershell
+    Get-ChildItem HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall | % {Get-ItemProperty $_.PSPath} | ? {$_.DisplayName -eq "Example Program"} | Select PSChildName
+    ```
 
   - And you will notice the following output:
-  ```
-  PSChildName
-  -----------
-  {00000000-0000-0000-0000-000000000000}
-  ```
+    ```
+    PSChildName
+    -----------
+    {00000000-0000-0000-0000-000000000000}
+    ```
 
   - Then, specify the outputted value in this fashion:
-  ```xml
-  <VerifyInstall>[Program]{00000000-0000-0000-0000-000000000000}</VerifyInstall>
-  ```
+    ```xml
+    <VerifyInstall>[Program]{00000000-0000-0000-0000-000000000000}</VerifyInstall>
+    ```
 
   - Or if you wish to verify the existence an installed program's respective version number along with its product code:
-  ```xml
-  <VerifyInstall>[Program]{00000000-0000-0000-0000-000000000000}[Build:1.0]</VerifyInstall>
-  ```
+    ```xml
+    <VerifyInstall>[Program]{00000000-0000-0000-0000-000000000000}[Build:1.0]</VerifyInstall>
+    ```
 
 - **Program Name**:
   - Open the `Programs and Features` applet of the Windows Control Panel, and retrieve the name of the installed program you wish to verify the existence of:
-  ![Programs and Features](/readme/example_verifyinstall_program.gif)
+    ![Programs and Features](/readme/example_verifyinstall_program.gif)
 
   - Then, specify a program name in this fashion:
-  ```xml
-  <VerifyInstall>[Program]Example Program</VerifyInstall>
-  ```
+    ```xml
+    <VerifyInstall>[Program]Example Program</VerifyInstall>
+    ```
 
   - Or if you wish to verify the existence an installed program's respective version number along with its name:
-  ```xml
-  <VerifyInstall>[Program]Example Program[Build:1.0]</VerifyInstall>
-  ```
+    ```xml
+    <VerifyInstall>[Program]Example Program[Build:1.0]</VerifyInstall>
+    ```
 
 ##### Examples
 
