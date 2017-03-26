@@ -2,9 +2,11 @@
 
 ![Header](/readme/header.gif)
 
-`powerpkg` is a Windows-focused script that provides IT departments a standard framework for unattended software deployment packaging within a corporate network.
+`powerpkg` is a Windows-focused script that provides IT departments a standard framework for unattended software deployment packaging from within a corporate network.
 
 Similar to Ansible and its playbook file functionality, `powerpkg` is accompanied and leveraged by a [configuration file](#package-file-packagexml) that can contain the necessary commands and verification processes to build a package and guarantee a seamless deployment to an end-user's workstation via a company's distribution tool of choice, whether it's Microsoft SCCM or Ivanti/LANDesk.
+
+*This project was proudly written in PowerShell.*
 
 ## Section
 
@@ -291,7 +293,7 @@ Because of its purpose, `<TaskEntry>` can also be specified more than once withi
 > **NOTE**:
 >
 > You can temporarily skip task entries for the sole purpose of debugging and testing packages, by specifying `#` as the first character in this fashion:
-> 
+>
 > ```xml
 > <TaskName>#Install Program</TaskName>
 > ```
@@ -301,7 +303,7 @@ Because of its purpose, `<TaskEntry>` can also be specified more than once withi
 > - **Required**: Yes
 > - **Purpose**: An executable file/path to invoke.
 > - **Subparamaters**:
-> 
+>
 > Subparameter | Description
 > ------------ | -----------
 > `[Package]`  | Allows for specifying a file or directory located within a package directory.
@@ -493,9 +495,9 @@ To utilize the **`[Vers_*]`** subparameters, you will need to retrieve the file 
   - Then, specify either outputted value inside the `[Build:]` argument in the following manner:
   ```xml
   <VerifyInstall>[Vers_File]C:\example_file.exe[Build:1.0]</VerifyInstall>
-  
+
   <VerifyInstall>[Vers_File]$env:SYSTEMDRIVE\example_file.exe[Build:1.0]</VerifyInstall>
-  
+
   <VerifyInstall>[Vers_Product]C:\example_file.exe[Build:1.0]</VerifyInstall>
   ```
 
@@ -511,12 +513,12 @@ To utilize the **`[Program]`** subparameter, you can verify the existence of a:
   ```powershell
   Get-ChildItem HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall | % {Get-ItemProperty $_.PSPath} | ? {$_.DisplayName -eq "Example Program"} | Select PSChildName
   ```
-  
+
   - Within PowerShell, enter the following command, if you're utilizing a x86 program on an AMD64 system:
   ```powershell
   Get-ChildItem HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall | % {Get-ItemProperty $_.PSPath} | ? {$_.DisplayName -eq "Example Program"} | Select PSChildName
   ```
-  
+
   - And you will notice the following output:
   ```
   PSChildName
@@ -617,4 +619,3 @@ powerpkg is licensed under the MIT license. For more information regarding this 
 ```
 
 Fellow PowerShell enthusiasts, this is my contribution to the community. I hope you take advantage of this project I have worked very hard on. You guys rock!
-
