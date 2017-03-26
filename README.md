@@ -507,6 +507,7 @@ To utilize the **`[Vers_*]`** subparameters, you will need to retrieve the file 
 To utilize the **`[Program]`** subparameter, you can verify the existence of a:
 
 - **Product Code**:
+
   - Open the `Programs and Features` applet of the Windows Control Panel, and retrieve the name of the installed program you wish to verify the existence of:
 
     ![Programs and Features](/readme/example_verifyinstall_program.gif)
@@ -544,6 +545,7 @@ To utilize the **`[Program]`** subparameter, you can verify the existence of a:
     ```
 
 - **Program Name**:
+
   - Open the `Programs and Features` applet of the Windows Control Panel, and retrieve the name of the installed program you wish to verify the existence of:
 
     ![Programs and Features](/readme/example_verifyinstall_program.gif)
