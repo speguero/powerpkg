@@ -99,11 +99,13 @@ powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "example_package\p
 ```
 
 **(5)**: Invoke `powerpkg.ps1`:
+
 ```shell
 powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "powerpkg.ps1"
 ```
 
 **(6)**: As `powerpkg.ps1` is running, you will notice output similar to the following example:
+
 ```
 Initiating Package (Example Package):
 
