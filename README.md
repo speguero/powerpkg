@@ -2,13 +2,9 @@
 
 ![Header](/readme/header.gif)
 
-**One** to perform **all**.
+`powerpkg` is a Windows-focused script that provides IT departments a standard framework for unattended software deployment packaging within a corporate network.
 
-powerpkg is a monolithic Windows package deployment script with an emphasis on simplicity, maintainability, and standardization.
-
-Specify what executables to invoke, and how to invoke them, inside a mere configuration file. powerpkg will interpret it accordingly and take care of the rest.
-
-_Proudly written in PowerShell._
+Similar to Ansible and its playbook file functionality, `powerpkg` is accompanied and leveraged by a [configuration file](#package-file-packagexml) that can contain the necessary commands and verification processes to build a package and guarantee a seamless deployment to an end-user's workstation via a company's distribution tool of choice, whether it's Microsoft SCCM or Ivanti/LANDesk.
 
 ## Section
 
