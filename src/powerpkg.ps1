@@ -3,15 +3,15 @@
      ________  ________  ___       __   _______   ________  ________  ___  __    ________
     |\   __  \|\   __  \|\  \     |\  \|\  ___ \ |\   __  \|\   __  \|\  \|\  \ |\   ____\
     \ \  \|\  \ \  \|\  \ \  \    \ \  \ \   __/|\ \  \|\  \ \  \|\  \ \  \/  /|\ \  \___|
-     \ \   ____\ \  \\\  \ \  \  __\ \  \ \  \_|/_\ \   _  _\ \   ____\ \   ___  \ \  \  ___  
+     \ \   ____\ \  \\\  \ \  \  __\ \  \ \  \_|/_\ \   _  _\ \   ____\ \   ___  \ \  \  ___
       \ \  \___|\ \  \\\  \ \  \|\__\_\  \ \  \_|\ \ \  \\  \\ \  \___|\ \  \\ \  \ \  \|\  \
        \ \__\    \ \_______\ \____________\ \_______\ \__\\ _\\ \__\    \ \__\\ \__\ \_______\
         \|__|     \|_______|\|____________|\|_______|\|__|\|__|\|__|     \|__| \|__|\|_______|
 
 
     .SYNOPSIS
-    powerpkg: A monolithic Windows package deployment script with an emphasis on simplicity,
-    maintainability, and standardization.
+    powerpkg: A Windows-focused script that provides a standard framework for
+    unattended software deployment packaging from within a corporate network.
 
     .DESCRIPTION
     For information in regards to usage, consult the powerpkg README.md file.
