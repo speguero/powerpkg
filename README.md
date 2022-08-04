@@ -1,6 +1,6 @@
 # powerpkg
 
-![](/readme/header.gif)
+![](/img/header.gif)
 
 `powerpkg` is a Windows-exclusive software deployment facilitator for enterprise environments, serving as an installation (or uninstallation) script for individual software packages; with optional actions, conditions and exceptions as core features. It is deliberately designed to use a [configuration file](#package-file-packagexml) model, ensuring a low learning curve, code standardization among every instance, and easy software updates (when available).
 
@@ -41,7 +41,7 @@ To begin testing powerpkg:
 
 **(2)**: Invoke `powerpkg.ps1`:
 ```shell
-powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "example_package\powerpkg.ps1"
+powershell.exe -NoProfile -ExecutionPolicy Unrestricted -File "contrib\examplepackage\powerpkg.ps1"
 ```
 
 **(3)**: *And that's it!*
@@ -210,7 +210,7 @@ Which, with a bit of customization, can become the following example:
 </Package>
 ```
 
-To further familiarize yourself with powerpkg (and especially the above examples), continue reading the [Script Configuration](#script-configuration-configuration) and [Task Entry](#task-entry-taskentry) segments of this README. Examining the contents of the `\example_package` directory is also encouraged.
+To further familiarize yourself with powerpkg (and especially the above examples), continue reading the [Script Configuration](#script-configuration-configuration) and [Task Entry](#task-entry-taskentry) segments of this README. Examining the contents of the `\contrib\examplepackage` directory is also encouraged.
 
 ### Script Configuration (`<Configuration>`)
 
@@ -508,7 +508,7 @@ To utilize the **`[Program]`** subparameter, you can verify the existence of a:
 
   - Open the `Programs and Features` applet of the Windows Control Panel, and retrieve the name of the installed program you wish to verify the existence of:
 
-    ![Programs and Features](/readme/example_verifyinstall_program.gif)
+    ![Programs and Features](/img/example_verifyinstall_program.gif)
 
   - Within PowerShell, enter the following command:
 
@@ -546,7 +546,7 @@ To utilize the **`[Program]`** subparameter, you can verify the existence of a:
 
   - Open the `Programs and Features` applet of the Windows Control Panel, and retrieve the name of the installed program you wish to verify the existence of:
 
-    ![Programs and Features](/readme/example_verifyinstall_program.gif)
+    ![Programs and Features](/img/example_verifyinstall_program.gif)
 
   - Then, specify a program name in this fashion:
 
