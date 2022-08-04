@@ -1,14 +1,8 @@
 # powerpkg
 
-![[Project Status: Retired]](/badge/project_status.svg)
-
 ![](/readme/header.gif)
 
-`powerpkg` is a portable package deployment orchestrator that allows Windows administrators to orchestrate software package installations with specific rules and exceptions directly from a target machine.
-
-Similar to Ansible and its playbook functionality, `powerpkg` is controlled by a [configuration file](#package-file-packagexml) that can contain the necessary rules and exceptions to build a package and guarantee a seamless package deployment to an end-user machine via a company's distribution tool of choice, whether that choice is Microsoft SCCM or Ivanti/LANDesk.
-
-*This project was proudly written in PowerShell.*
+`powerpkg` is a Windows-exclusive software deployment facilitator for enterprise environments, serving as an installation (or uninstallation) script for individual software packages; with optional actions, conditions and exceptions as core features. It is deliberately designed to use a [configuration file](#package-file-packagexml) model, ensuring a low learning curve, code standardization among every instance, and easy software updates (when available).
 
 ## Section
 
@@ -41,7 +35,7 @@ Before reading through this documentation, please note that a minimum of **Power
 
 ## Getting Started
 
-To begin test driving powerpkg:
+To begin testing powerpkg:
 
 **(1)**: Clone this repository or download it as a ZIP file.
 
