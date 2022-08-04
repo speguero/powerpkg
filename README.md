@@ -1,8 +1,8 @@
 # powerpkg
 
-![](/img/header.gif)
+A Windows-exclusive software package facilitator; an installation script on steroids for enterprise MDM-hosted packages, with optional actions, conditions and exceptions as core features. It is deliberately designed to behave in accordance to an adjacent [configuration file](#package-file-packagexml), ensuring a low learning curve, code standardization among every instance, and easy software updates (when available).
 
-`powerpkg` is a Windows-exclusive software deployment facilitator for enterprise environments, serving as an installation (or uninstallation) script for individual software packages; with optional actions, conditions and exceptions as core features. It is deliberately designed to use a [configuration file](#package-file-packagexml) model, ensuring a low learning curve, code standardization among every instance, and easy software updates (when available).
+![](/img/header.gif)
 
 ## Section
 
